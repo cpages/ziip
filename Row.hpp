@@ -4,14 +4,6 @@
 class Row
 {
     public:
-        enum pieces
-        {
-            red,
-            green,
-            blue,
-            purple
-        };
-
         Row(int size);
 
     private:

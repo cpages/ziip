@@ -4,6 +4,20 @@
 #include "SDL.h"
 #include "SDL_thread.h"
 
+enum colors
+{
+    Red = 0,
+    Green,
+    Blue,
+    Purple
+};
+
+struct coord
+{
+    int x;
+    int y;
+};
+
 struct NewPieces
 {
     NewPieces();

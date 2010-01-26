@@ -10,6 +10,8 @@ class Timer
         Timer(int timeout, NewPieces &newPieces);
         ~Timer();
 
+        void setTimeout(int timeout);
+
     private:
         int _timeout;
         NewPieces &_newPieces;

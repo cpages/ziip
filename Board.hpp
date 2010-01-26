@@ -14,10 +14,15 @@ class Board
         static const int rowsInScreen;
         static const int colsInScreen;
 
-        Board(SDL_Rect size);
+        Board(SDL_Surface *screen);
+        ~Board();
+
+        void draw();
 
     private:
         std::vector<Row> _rows;
+        SDL_Surface *_board;
+        SDL_Surface *_screen;
 };
 
 #endif //BOARD_HPP

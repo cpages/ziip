@@ -15,14 +15,14 @@ Main::Main()
             SDL_HWSURFACE | SDL_DOUBLEBUF );
     SDL_WM_SetCaption( WINDOW_TITLE, 0 );
 
+    _board.reset(new Board(_screen));
+    _player.reset(new Player(_screen));
     _newPieces.reset(new NewPieces());
     _timer.reset(new Timer(1000, *_newPieces));
 }
 
 Main::~Main()
 {
-    SDL_FreeSurface(_bitmap);
-
     SDL_Quit();
 }
 
@@ -42,38 +42,51 @@ Main::getNumNewPieces()
 int
 Main::run()
 {
-    _bitmap = SDL_LoadBMP("bat.bmp");
-
-    // Part of the bitmap that we want to draw
-    SDL_Rect source;
-    source.x = 24;
-    source.y = 63;
-    source.w = 65;
-    source.h = 44;
-
-    // Part of the screen we want to draw the sprite to
-    SDL_Rect destination;
-    destination.x = 100;
-    destination.y = 100;
-    destination.w = 65;
-    destination.h = 44;
-
     SDL_Event event;
     bool gameRunning = true;
 
+    _player->setOrigin(316, 216);
+    Player::playerDirection lastMov;
+
     while (gameRunning)
     {
-        if (SDL_PollEvent(&event))
+        // parse input
+        if (SDL_WaitEvent(&event))
         {
-            if (event.type == SDL_QUIT)
+            lastMov = Player::NoDir;
+            if( event.type == SDL_KEYDOWN )
+            {
+                switch (event.key.keysym.sym)
+                {
+                    case SDLK_UP:
+                        lastMov = Player::Up;
+                        break;
+                    case SDLK_DOWN:
+                        lastMov = Player::Down;
+                        break;
+                    case SDLK_LEFT:
+                        lastMov = Player::Left;
+                        break;
+                    case SDLK_RIGHT:
+                        lastMov = Player::Right;
+                        break;
+                    default:
+                        //do nothing
+                        break;
+                }
+            }
+            else if (event.type == SDL_QUIT)
             {
                 gameRunning = false;
             }
         }
 
-        destination.x += getNumNewPieces() * 10;
+        // update state
+        _player->move(lastMov);
 
-        SDL_BlitSurface(_bitmap, &source, _screen, &destination);
+        // draw scene
+        _board->draw();
+        _player->draw();
 
         SDL_Flip(_screen);
 
@@ -89,61 +102,3 @@ int main(int argc, char **argv)
 
     return mainApp.run();
 }
-
-/*int main(int argc, char **argv)
-{
-    SDL_Init( SDL_INIT_VIDEO );
-
-    SDL_Surface* screen = SDL_SetVideoMode( WINDOW_WIDTH, WINDOW_HEIGHT, 0,
-            SDL_HWSURFACE | SDL_DOUBLEBUF );
-    SDL_WM_SetCaption( WINDOW_TITLE, 0 );
-
-    SDL_Rect boardRect;
-    boardRect.x = 0;
-    boardRect.y = 0;
-    boardRect.w = 756;
-    boardRect.h = 588;
-    Board::Board(SDL_Rect size)
-
-    SDL_Surface* bitmap = SDL_LoadBMP("bat.bmp");
-
-    // Part of the bitmap that we want to draw
-    SDL_Rect source;
-    source.x = 24;
-    source.y = 63;
-    source.w = 65;
-    source.h = 44;
-
-    // Part of the screen we want to draw the sprite to
-    SDL_Rect destination;
-    destination.x = 100;
-    destination.y = 100;
-    destination.w = 65;
-    destination.h = 44;
-
-    SDL_Event event;
-    bool gameRunning = true;
-
-    while (gameRunning)
-    {
-        if (SDL_PollEvent(&event))
-        {
-            if (event.type == SDL_QUIT)
-            {
-                gameRunning = false;
-            }
-        }
-
-        SDL_BlitSurface(bitmap, &source, screen, &destination);
-
-        SDL_Flip(screen);
-
-        SDL_Delay(1);
-    }
-
-    SDL_FreeSurface(bitmap);
-
-    SDL_Quit();
-
-    return 0;
-}*/
