@@ -5,10 +5,10 @@ namespace
 {
     unsigned int timerCB(unsigned int interval, void *param)
     {
-        NewPieces *np = reinterpret_cast<NewPieces *>(param);
-        while (SDL_mutexP(np->_mutex) != 0);
-        np->_num++;
-        SDL_mutexV(np->_mutex);
+        SDL_Event event;
+        //TODO: use a specific user event
+        event.type = SDL_USEREVENT;
+        SDL_PushEvent(&event);
 
         return interval;
     }

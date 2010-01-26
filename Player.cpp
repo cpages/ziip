@@ -41,16 +41,20 @@ Player::move(playerDirection mov)
         switch (mov)
         {
             case Up:
-                _pos.y--;
+                if (_pos.y > 0)
+                    _pos.y--;
                 break;
             case Down:
-                _pos.y++;
+                if (_pos.y < 3)
+                    _pos.y++;
                 break;
             case Left:
-                _pos.x--;
+                if (_pos.x > 0)
+                    _pos.x--;
                 break;
             case Right:
-                _pos.x++;
+                if (_pos.x < 3)
+                    _pos.x++;
                 break;
             default:
                 break;

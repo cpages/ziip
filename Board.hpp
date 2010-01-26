@@ -17,6 +17,7 @@ class Board
         Board(SDL_Surface *screen);
         ~Board();
 
+        void resize(int width, int height);
         void draw();
 
     private:

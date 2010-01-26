@@ -27,26 +27,15 @@ Main::~Main()
 }
 
 int
-Main::getNumNewPieces()
-{
-    int ret;
-
-    while (SDL_mutexP(_newPieces->_mutex) != 0);
-    ret = _newPieces->_num;
-    _newPieces->_num = 0;
-    SDL_mutexV(_newPieces->_mutex);
-
-    return ret;
-}
-
-int
 Main::run()
 {
     SDL_Event event;
     bool gameRunning = true;
-
-    _player->setOrigin(316, 216);
     Player::playerDirection lastMov;
+
+    //TODO: remove this from here
+    _board->resize(WINDOW_WIDTH, WINDOW_HEIGHT);
+    _player->setOrigin(316, 216);
 
     while (gameRunning)
     {
@@ -70,10 +59,17 @@ Main::run()
                     case SDLK_RIGHT:
                         lastMov = Player::Right;
                         break;
+                    case SDLK_q:
+                        gameRunning = false;
+                        break;
                     default:
                         //do nothing
                         break;
                 }
+            }
+            else if (event.type == SDL_USEREVENT)
+            {
+                lastMov = Player::Right;
             }
             else if (event.type == SDL_QUIT)
             {
