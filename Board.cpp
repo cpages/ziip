@@ -54,9 +54,20 @@ namespace
             rows[i+12].setOriginAndSize(rect);
         }
     }
+
+    int
+    getRandomRow(int rowLastPiece)
+    {
+        static int row = 0;
+        row++;
+        if (row == 16)
+            row = 0;
+        return row;
+    }
 }
 
 Board::Board(SDL_Surface *screen, Player *player):
+    _rowLastPiece(16),
     _screen(screen),
     _player(player)
 {
@@ -91,6 +102,13 @@ Board::calculateOriginAndTileSize(int width, int height)
     ret.h = 42;
 
     return ret;
+}
+
+bool
+Board::addPiece()
+{
+    _rowLastPiece = getRandomRow(_rowLastPiece);
+    return _rows[_rowLastPiece].addPiece();
 }
 
 void

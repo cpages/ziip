@@ -1,6 +1,6 @@
 #include "SharedData.hpp"
 
-NewPieces::NewPieces():
+/*NewPieces::NewPieces():
     _num(0)
 {
     _mutex = SDL_CreateMutex();
@@ -9,4 +9,4 @@ NewPieces::NewPieces():
 NewPieces::~NewPieces()
 {
     SDL_DestroyMutex(_mutex);
-}
+}*/

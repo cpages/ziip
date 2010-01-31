@@ -19,6 +19,7 @@ class Board
         Board(SDL_Surface *screen, Player *player);
         ~Board();
 
+        bool addPiece();
         void resize(int width, int height);
         void draw();
 
@@ -26,6 +27,7 @@ class Board
         SDL_Rect calculateOriginAndTileSize(int width, int height);
 
         std::vector<Row> _rows;
+        int _rowLastPiece;
         SDL_Surface *_board;
         SDL_Surface *_piecesImg;
         SDL_Surface *_screen;

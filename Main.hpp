@@ -17,7 +17,6 @@ class Main
         int run();
 
     private:
-        std::auto_ptr<NewPieces> _newPieces;
         std::auto_ptr<Timer> _timer;
         std::auto_ptr<Board> _board;
         std::auto_ptr<Player> _player;

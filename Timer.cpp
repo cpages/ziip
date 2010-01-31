@@ -14,12 +14,10 @@ namespace
     }
 }
 
-Timer::Timer(int timeout, NewPieces &newPieces):
-    _timeout(timeout),
-    _newPieces(newPieces)
+Timer::Timer(int timeout):
+    _timeout(timeout)
 {
-    _timerID = SDL_AddTimer(_timeout, timerCB,
-            reinterpret_cast<void *>(&_newPieces));
+    _timerID = SDL_AddTimer(_timeout, timerCB, NULL);
 }
 
 Timer::~Timer()
@@ -33,8 +31,7 @@ Timer::setTimeout(int timeout)
     if (_timeout != timeout)
     {
         SDL_RemoveTimer(_timerID);
-        _timerID = SDL_AddTimer(_timeout, timerCB,
-                reinterpret_cast<void *>(&_newPieces));
+        _timerID = SDL_AddTimer(_timeout, timerCB, NULL);
         _timeout = timeout;
     }
 }

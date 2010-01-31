@@ -17,8 +17,7 @@ Main::Main()
 
     _player.reset(new Player(_screen));
     _board.reset(new Board(_screen, _player.get()));
-    _newPieces.reset(new NewPieces());
-    _timer.reset(new Timer(1000, *_newPieces));
+    _timer.reset(new Timer(1000));
 }
 
 Main::~Main()
@@ -68,7 +67,9 @@ Main::run()
             }
             else if (event.type == SDL_USEREVENT)
             {
-                lastMov = Player::Right;
+                bool gameOver = _board->addPiece();
+                if (gameOver)
+                    gameRunning = false;
             }
             else if (event.type == SDL_QUIT)
             {

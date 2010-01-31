@@ -7,14 +7,13 @@
 class Timer
 {
     public:
-        Timer(int timeout, NewPieces &newPieces);
+        Timer(int timeout);
         ~Timer();
 
         void setTimeout(int timeout);
 
     private:
         int _timeout;
-        NewPieces &_newPieces;
         SDL_TimerID _timerID;
 };
 

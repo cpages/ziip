@@ -19,13 +19,13 @@ struct coord
     int y;
 };
 
-struct NewPieces
+/*struct NewPieces
 {
     NewPieces();
     ~NewPieces();
 
     SDL_mutex *_mutex;
     int _num;
-};
+};*/
 
 #endif //SHARED_DATA_HPP

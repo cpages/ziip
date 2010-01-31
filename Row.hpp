@@ -10,6 +10,7 @@ class Row
         Row(int size, int growX, int growY, SDL_Surface *screen,
                 SDL_Surface *pieces);
 
+        bool addPiece();
         void setOriginAndSize(SDL_Rect rect);
         void draw();
 
