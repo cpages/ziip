@@ -1,27 +1,20 @@
+#include <cstdlib>
 #include "Row.hpp"
 
 namespace
 {
     const int bmpSize = 42;
+    //probability to have a piece of the same color as the last in the row (the
+    //others being 1)
+    const int timesSPProbability = 2;
 
     colors
-    getRandomPiece(colors color)
+    getRandomPiece(colors colorLastPiece)
     {
-        static int col = 0;
-        col++;
-        if (col > 3)
-            col = 0;
-        switch (col)
-        {
-            case 0:
-                return Red;
-            case 1:
-                return Green;
-            case 2:
-                return Blue;
-            case 3:
-                return Purple;
-        }
+        int ret = rand() % (3 + timesSPProbability);
+        if (ret < 4)
+            return static_cast<colors>(ret);
+        return colorLastPiece;
     }
 }
 
@@ -51,6 +44,26 @@ Row::addPiece()
     _pieces[0] = getRandomPiece(_pieces[0]);
 
     return false;
+}
+
+colors
+Row::shoot(colors playerColor)
+{
+    if (_pieces[0] == NoColor)
+        return NoColor;
+    int i = _size-1;
+    while (_pieces[i] == NoColor)
+        i--;
+    while (_pieces[i] == playerColor && i >= 0)
+    {
+        _pieces[i] = NoColor;
+        i--;
+    }
+    if (i == -1)
+        return playerColor;
+    colors ret = _pieces[i];
+    _pieces[i] = playerColor;
+    return ret;
 }
 
 void

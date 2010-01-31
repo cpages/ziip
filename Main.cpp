@@ -1,3 +1,5 @@
+#include <cstdlib>
+#include <ctime>
 #include "Main.hpp"
 
 namespace
@@ -18,6 +20,9 @@ Main::Main()
     _player.reset(new Player(_screen));
     _board.reset(new Board(_screen, _player.get()));
     _timer.reset(new Timer(1000));
+
+    //initialize random seed
+    srand(time(NULL));
 }
 
 Main::~Main()
@@ -56,6 +61,9 @@ Main::run()
                         break;
                     case SDLK_RIGHT:
                         lastMov = Player::Right;
+                        break;
+                    case SDLK_SPACE:
+                        _board->playerShooted();
                         break;
                     case SDLK_q:
                         gameRunning = false;

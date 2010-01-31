@@ -20,6 +20,7 @@ class Board
         ~Board();
 
         bool addPiece();
+        void playerShooted();
         void resize(int width, int height);
         void draw();
 

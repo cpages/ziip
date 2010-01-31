@@ -15,23 +15,28 @@ class Player
             NoDir
         };
 
-        Player(SDL_Surface *screen);
-        ~Player();
-
-        void setOriginAndSize(SDL_Rect rect);
-        void move(playerDirection mov);
-        void draw();
-
-    private:
         struct playerPos
         {
             int x;
             int y;
         };
 
+        Player(SDL_Surface *screen);
+        ~Player();
+
+        void setOriginAndSize(SDL_Rect rect);
+        playerPos getPos() const;
+        playerDirection getDirection() const;
+        void reverse();
+        colors getColor() const;
+        void setColor(colors newColor);
+        void move(playerDirection mov);
+        void draw();
+
+    private:
         SDL_Rect _rect;
         playerPos _pos;
-        int _color;
+        colors _color;
         playerDirection _dir;
         SDL_Surface *_player;
         SDL_Surface *_screen;

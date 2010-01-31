@@ -28,6 +28,52 @@ Player::setOriginAndSize(SDL_Rect rect)
     _rect = rect;
 }
 
+Player::playerPos
+Player::getPos() const
+{
+    return _pos;
+}
+
+Player::playerDirection
+Player::getDirection() const
+{
+    return _dir;
+}
+
+void
+Player::reverse()
+{
+    switch (_dir)
+    {
+        case Up:
+            _dir = Down;
+            break;
+        case Down:
+            _dir = Up;
+            break;
+        case Left:
+            _dir = Right;
+            break;
+        case Right:
+            _dir = Left;
+            break;
+        default:
+            break;
+    }
+}
+
+colors
+Player::getColor() const
+{
+    return _color;
+}
+
+void
+Player::setColor(colors newColor)
+{
+    _color = newColor;
+}
+
 void
 Player::move(playerDirection mov)
 {

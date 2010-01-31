@@ -11,6 +11,7 @@ class Row
                 SDL_Surface *pieces);
 
         bool addPiece();
+        colors shoot(colors playerColor);
         void setOriginAndSize(SDL_Rect rect);
         void draw();
 

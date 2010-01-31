@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include "SharedData.hpp"
 #include "Player.hpp"
 #include "Board.hpp"
@@ -58,10 +59,91 @@ namespace
     int
     getRandomRow(int rowLastPiece)
     {
-        static int row = 0;
-        row++;
-        if (row == 16)
-            row = 0;
+        //avoid having two consecutive pieces from the same row
+        int ret = rand() % 16;
+        while (ret == rowLastPiece)
+            ret = rand() % 16;
+        return ret;
+    }
+
+    int
+    getAimedRow(Player::playerPos pos, Player::playerDirection dir)
+    {
+        int row;
+        switch (dir)
+        {
+            case Player::Up:
+                switch (pos.x)
+                {
+                    case 0:
+                        row = 15;
+                        break;
+                    case 1:
+                        row = 14;
+                        break;
+                    case 2:
+                        row = 13;
+                        break;
+                    case 3:
+                        row = 12;
+                        break;
+                }
+                break;
+            case Player::Down:
+                switch (pos.x)
+                {
+                    case 0:
+                        row = 4;
+                        break;
+                    case 1:
+                        row = 5;
+                        break;
+                    case 2:
+                        row = 6;
+                        break;
+                    case 3:
+                        row = 7;
+                        break;
+                }
+                break;
+            case Player::Left:
+                switch (pos.y)
+                {
+                    case 0:
+                        row = 0;
+                        break;
+                    case 1:
+                        row = 1;
+                        break;
+                    case 2:
+                        row = 2;
+                        break;
+                    case 3:
+                        row = 3;
+                        break;
+                }
+                break;
+            case Player::Right:
+                switch (pos.y)
+                {
+                    case 0:
+                        row = 11;
+                        break;
+                    case 1:
+                        row = 10;
+                        break;
+                    case 2:
+                        row = 9;
+                        break;
+                    case 3:
+                        row = 8;
+                        break;
+                }
+                break;
+            default:
+                break;
+        }
+
         return row;
     }
 }
@@ -109,6 +191,18 @@ Board::addPiece()
 {
     _rowLastPiece = getRandomRow(_rowLastPiece);
     return _rows[_rowLastPiece].addPiece();
+}
+
+void
+Board::playerShooted()
+{
+    int aimedRow = getAimedRow(_player->getPos(), _player->getDirection());
+    colors newColor = _rows[aimedRow].shoot(_player->getColor());
+    if (newColor != NoColor)
+    {
+        _player->reverse();
+        _player->setColor(newColor);
+    }
 }
 
 void
