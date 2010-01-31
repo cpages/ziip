@@ -18,7 +18,7 @@ class Player
         Player(SDL_Surface *screen);
         ~Player();
 
-        void setOrigin(int x, int y);
+        void setOriginAndSize(SDL_Rect rect);
         void move(playerDirection mov);
         void draw();
 
@@ -29,11 +29,10 @@ class Player
             int y;
         };
 
-        coord _origin;
+        SDL_Rect _rect;
         playerPos _pos;
         int _color;
         playerDirection _dir;
-        SDL_Rect _rect;
         SDL_Surface *_player;
         SDL_Surface *_screen;
 };

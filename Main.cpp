@@ -15,8 +15,8 @@ Main::Main()
             SDL_HWSURFACE | SDL_DOUBLEBUF );
     SDL_WM_SetCaption( WINDOW_TITLE, 0 );
 
-    _board.reset(new Board(_screen));
     _player.reset(new Player(_screen));
+    _board.reset(new Board(_screen, _player.get()));
     _newPieces.reset(new NewPieces());
     _timer.reset(new Timer(1000, *_newPieces));
 }
@@ -35,7 +35,6 @@ Main::run()
 
     //TODO: remove this from here
     _board->resize(WINDOW_WIDTH, WINDOW_HEIGHT);
-    _player->setOrigin(316, 216);
 
     while (gameRunning)
     {

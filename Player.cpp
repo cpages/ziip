@@ -23,10 +23,9 @@ Player::~Player()
 }
         
 void
-Player::setOrigin(int x, int y)
+Player::setOriginAndSize(SDL_Rect rect)
 {
-    _origin.x = x;
-    _origin.y = y;
+    _rect = rect;
 }
 
 void
@@ -71,7 +70,9 @@ Player::draw()
     src.w = bmpSize;
     src.h = bmpSize;
     SDL_Rect dst;
-    dst.x = _origin.x + _pos.x * bmpSize;
-    dst.y = _origin.y + _pos.y * bmpSize;
+    dst.x = _rect.x + _pos.x * bmpSize;
+    dst.y = _rect.y + _pos.y * bmpSize;
+    dst.w = _rect.w;
+    dst.h = _rect.h;
     SDL_BlitSurface(_player, &src, _screen, &dst);
 }

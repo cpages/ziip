@@ -7,16 +7,19 @@
 class Row
 {
     public:
-        Row(int size, int growX, int growY);
+        Row(int size, int growX, int growY, SDL_Surface *screen,
+                SDL_Surface *pieces);
 
-        void setOrigin(int x, int y);
+        void setOriginAndSize(SDL_Rect rect);
         void draw();
 
     private:
         int _size;
-        std::vector<colors> _pieces;
         coord _growDir;
-        coord _origin;
+        SDL_Rect _rect;
+        std::vector<colors> _pieces;
+        SDL_Surface *_screen;
+        SDL_Surface *_piecesImg;
 };
 
 #endif //ROW_HPP

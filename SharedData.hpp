@@ -9,7 +9,8 @@ enum colors
     Red = 0,
     Green,
     Blue,
-    Purple
+    Purple,
+    NoColor
 };
 
 struct coord
