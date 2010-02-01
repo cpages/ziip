@@ -1,5 +1,7 @@
+#include <cassert>
 #include <cstdlib>
 #include <ctime>
+#include "SDL_ttf.h"
 #include "Main.hpp"
 
 namespace
@@ -12,6 +14,7 @@ namespace
 Main::Main()
 {
     SDL_Init( SDL_INIT_EVERYTHING );
+    assert (TTF_Init() != -1); //TODO: check ret
 
     _screen = SDL_SetVideoMode( WINDOW_WIDTH, WINDOW_HEIGHT, 0,
             SDL_HWSURFACE | SDL_DOUBLEBUF );
@@ -27,6 +30,7 @@ Main::Main()
 
 Main::~Main()
 {
+    TTF_Quit();
     SDL_Quit();
 }
 

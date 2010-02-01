@@ -1,4 +1,8 @@
+#include <cassert>
+#include <string>
+#include <sstream>
 #include <cstdlib>
+#include <utility>
 #include "SharedData.hpp"
 #include "Player.hpp"
 #include "Board.hpp"
@@ -11,6 +15,8 @@ const int Board::colsInScreen = 18;
 
 namespace
 {
+    const SDL_Color scoreColor = {255, 0, 0};
+
     SDL_Rect
     getPlayerRect(SDL_Rect rect)
     {
@@ -151,7 +157,8 @@ namespace
 Board::Board(SDL_Surface *screen, Player *player):
     _rowLastPiece(16),
     _screen(screen),
-    _player(player)
+    _player(player),
+    _score(_screen)
 {
     _piecesImg = SDL_LoadBMP("pieces.bmp");
     Row tmpRow(horiRowsLen, 1, 0, _screen, _piecesImg);
@@ -197,7 +204,9 @@ void
 Board::playerShooted()
 {
     int aimedRow = getAimedRow(_player->getPos(), _player->getDirection());
-    colors newColor = _rows[aimedRow].shoot(_player->getColor());
+    std::pair<colors, int> result = _rows[aimedRow].shoot(_player->getColor());
+    colors newColor = result.first;
+    _score.addPoints(result.second);
     if (newColor != NoColor)
     {
         _player->reverse();
@@ -218,8 +227,41 @@ void
 Board::draw()
 {
     SDL_BlitSurface(_board, NULL, _screen, NULL);
+    _score.draw();
     for (int i = 0; i < numRows; i++)
     {
         _rows[i].draw();
     }
+}
+
+Board::Score::Score(SDL_Surface *screen):
+    _currScore(0),
+    _screen(screen)
+{
+    _font = TTF_OpenFont("fonts/comicbd.ttf", 24);
+    assert (_font != NULL);
+    std::string str("SCORE: 0");
+    _renderedScore = TTF_RenderText_Solid(_font, str.c_str(), scoreColor);
+}
+
+Board::Score::~Score()
+{
+    SDL_FreeSurface(_renderedScore);
+    TTF_CloseFont(_font); 
+}
+
+void
+Board::Score::addPoints(int points)
+{
+    _currScore += points;
+    SDL_FreeSurface(_renderedScore);
+    std::ostringstream str;
+    str << "SCORE: " << _currScore;
+    _renderedScore = TTF_RenderText_Solid(_font, str.str().c_str(), scoreColor);
+}
+
+void
+Board::Score::draw()
+{
+    SDL_BlitSurface(_renderedScore, NULL, _screen, NULL);
 }

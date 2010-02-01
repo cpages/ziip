@@ -21,7 +21,6 @@ class Main
         std::auto_ptr<Board> _board;
         std::auto_ptr<Player> _player;
         SDL_Surface *_screen;
-        SDL_Surface *_bitmap;
 };
 
 #endif //MAIN_HPP

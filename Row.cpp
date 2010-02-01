@@ -7,6 +7,7 @@ namespace
     //probability to have a piece of the same color as the last in the row (the
     //others being 1)
     const int timesSPProbability = 2;
+    const int basePoints = 100;
 
     colors
     getRandomPiece(colors colorLastPiece)
@@ -46,24 +47,26 @@ Row::addPiece()
     return false;
 }
 
-colors
+std::pair<colors, int>
 Row::shoot(colors playerColor)
 {
+    int scoredPoints = 0;
     if (_pieces[0] == NoColor)
-        return NoColor;
+        return std::make_pair(NoColor, scoredPoints);
     int i = _size-1;
     while (_pieces[i] == NoColor)
         i--;
+    int p = 1; //to give incremental points if more than 1 piece is ziiped
     while (_pieces[i] == playerColor && i >= 0)
     {
-        _pieces[i] = NoColor;
-        i--;
+        _pieces[i--] = NoColor;
+        scoredPoints += basePoints * p++;
     }
     if (i == -1)
-        return playerColor;
+        return std::make_pair(playerColor, scoredPoints);
     colors ret = _pieces[i];
     _pieces[i] = playerColor;
-    return ret;
+    return std::make_pair(ret, scoredPoints);
 }
 
 void

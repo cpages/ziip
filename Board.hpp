@@ -2,7 +2,8 @@
 #define BOARD_HPP
 
 #include <vector>
-#include <SDL/SDL.h>
+#include "SDL.h"
+#include "SDL_ttf.h"
 #include "Row.hpp"
 
 class Player;
@@ -25,6 +26,22 @@ class Board
         void draw();
 
     private:
+        class Score
+        {
+            public:
+                Score(SDL_Surface *screen);
+                ~Score();
+
+                void addPoints(int points);
+                void draw();
+
+            private:
+                int _currScore;
+                SDL_Surface *_screen;
+                TTF_Font *_font;
+                SDL_Surface *_renderedScore;
+        };
+
         SDL_Rect calculateOriginAndTileSize(int width, int height);
 
         std::vector<Row> _rows;
@@ -33,6 +50,7 @@ class Board
         SDL_Surface *_piecesImg;
         SDL_Surface *_screen;
         Player *_player;
+        Score _score;
 };
 
 #endif //BOARD_HPP

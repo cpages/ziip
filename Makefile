@@ -1,7 +1,7 @@
 CC=g++
 FLAGS=`sdl-config --cflags` -Wall -g -ggdb
 LINKFLAGS=-O0
-LIBS=`sdl-config --libs`
+LIBS=`sdl-config --libs` -lSDL_ttf
 CPPFILES=Main.cpp SharedData.cpp Timer.cpp Board.cpp Row.cpp Player.cpp
 
 SOURCES=$(CPPFILES)

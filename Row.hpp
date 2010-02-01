@@ -2,6 +2,7 @@
 #define ROW_HPP
 
 #include <vector>
+#include <utility>
 #include "SharedData.hpp"
 
 class Row
@@ -11,7 +12,7 @@ class Row
                 SDL_Surface *pieces);
 
         bool addPiece();
-        colors shoot(colors playerColor);
+        std::pair<colors, int> shoot(colors playerColor);
         void setOriginAndSize(SDL_Rect rect);
         void draw();
 
