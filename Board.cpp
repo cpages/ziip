@@ -16,6 +16,8 @@ const int Board::colsInScreen = 18;
 namespace
 {
     const SDL_Color scoreColor = {255, 0, 0};
+    const int PointsPerLevel = 1000;
+    const int SpeedPercentInc = 10;
 
     SDL_Rect
     getPlayerRect(SDL_Rect rect)
@@ -155,6 +157,7 @@ namespace
 }
 
 Board::Board(SDL_Surface *screen, Player *player):
+    _timer(1000),
     _rowLastPiece(16),
     _screen(screen),
     _player(player),
@@ -206,7 +209,9 @@ Board::playerShooted()
     int aimedRow = getAimedRow(_player->getPos(), _player->getDirection());
     std::pair<colors, int> result = _rows[aimedRow].shoot(_player->getColor());
     colors newColor = result.first;
-    _score.addPoints(result.second);
+    bool newLevel = _score.addPoints(result.second);
+    if (newLevel)
+        _timer.increaseSpeed(SpeedPercentInc);
     if (newColor != NoColor)
     {
         _player->reverse();
@@ -238,7 +243,7 @@ Board::Score::Score(SDL_Surface *screen):
     _currScore(0),
     _screen(screen)
 {
-    _font = TTF_OpenFont("fonts/comicbd.ttf", 24);
+    _font = TTF_OpenFont("fonts/LiberationMono-Bold.ttf", 24);
     assert (_font != NULL);
     std::string str("SCORE: 0");
     _renderedScore = TTF_RenderText_Solid(_font, str.c_str(), scoreColor);
@@ -250,14 +255,19 @@ Board::Score::~Score()
     TTF_CloseFont(_font); 
 }
 
-void
+bool
 Board::Score::addPoints(int points)
 {
+    bool nextLevel = false;
+    int levelVal = _currScore / PointsPerLevel;
     _currScore += points;
+    if ((_currScore/PointsPerLevel) != levelVal)
+        nextLevel = true;
     SDL_FreeSurface(_renderedScore);
     std::ostringstream str;
     str << "SCORE: " << _currScore;
     _renderedScore = TTF_RenderText_Solid(_font, str.str().c_str(), scoreColor);
+    return nextLevel;
 }
 
 void

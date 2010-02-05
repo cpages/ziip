@@ -4,7 +4,6 @@
 #include <memory>
 #include "SDL.h"
 #include "SharedData.hpp"
-#include "Timer.hpp"
 #include "Board.hpp"
 #include "Player.hpp"
 
@@ -17,7 +16,6 @@ class Main
         int run();
 
     private:
-        std::auto_ptr<Timer> _timer;
         std::auto_ptr<Board> _board;
         std::auto_ptr<Player> _player;
         SDL_Surface *_screen;

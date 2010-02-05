@@ -4,6 +4,7 @@
 #include <vector>
 #include "SDL.h"
 #include "SDL_ttf.h"
+#include "Timer.hpp"
 #include "Row.hpp"
 
 class Player;
@@ -32,7 +33,7 @@ class Board
                 Score(SDL_Surface *screen);
                 ~Score();
 
-                void addPoints(int points);
+                bool addPoints(int points);
                 void draw();
 
             private:
@@ -44,6 +45,7 @@ class Board
 
         SDL_Rect calculateOriginAndTileSize(int width, int height);
 
+        Timer _timer;
         std::vector<Row> _rows;
         int _rowLastPiece;
         SDL_Surface *_board;

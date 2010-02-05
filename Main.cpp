@@ -22,7 +22,6 @@ Main::Main()
 
     _player.reset(new Player(_screen));
     _board.reset(new Board(_screen, _player.get()));
-    _timer.reset(new Timer(1000));
 
     //initialize random seed
     srand(time(NULL));

@@ -1,8 +1,11 @@
+#include <iostream>
 #include "SharedData.hpp"
 #include "Timer.hpp"
 
 namespace
 {
+    const bool debug = false;
+
     unsigned int timerCB(unsigned int interval, void *param)
     {
         SDL_Event event;
@@ -26,12 +29,22 @@ Timer::~Timer()
 }
 
 void
+Timer::increaseSpeed(int percentage)
+{
+    const int decrease = _timeout * percentage / 100;
+    setTimeout(_timeout - decrease);
+}
+
+void
 Timer::setTimeout(int timeout)
 {
     if (_timeout != timeout)
     {
+        //TODO: perhaps it would be cleaner to set the new timeout in the CB
         SDL_RemoveTimer(_timerID);
         _timerID = SDL_AddTimer(_timeout, timerCB, NULL);
         _timeout = timeout;
+        if (debug)
+            std::cout << "Timer set to: " << _timeout << std::endl;
     }
 }

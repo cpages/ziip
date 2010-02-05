@@ -10,6 +10,7 @@ class Timer
         Timer(int timeout);
         ~Timer();
 
+        void increaseSpeed(int percentage);
         void setTimeout(int timeout);
 
     private:
