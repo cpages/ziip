@@ -19,3 +19,10 @@
 14 rows
 18 columns
 blocks 42x42
+
+TODO:
+font manager: load/unload images/ttf fonts. SDL_Surface
+    *getRenderedFont(const std::string &str)
+
+input manager: transfrom SDL keys into defs (up, down, ...)
+

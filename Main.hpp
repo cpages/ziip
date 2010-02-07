@@ -16,6 +16,27 @@ class Main
         int run();
 
     private:
+        enum State
+        {
+            MainMenu,
+            Play
+        };
+        enum MainMenuOption
+        {
+            InvalidOption,
+            NewGame,
+            Quit
+        };
+        enum PlayExitCause
+        {
+            InvalidCause,
+            GameOver,
+            Quitted
+        };
+
+        MainMenuOption mainMenu();
+        PlayExitCause play();
+
         std::auto_ptr<Board> _board;
         std::auto_ptr<Player> _player;
         SDL_Surface *_screen;
