@@ -21,7 +21,16 @@ Player::~Player()
 {
     SDL_FreeSurface(_player);
 }
-        
+
+void
+Player::reset()
+{
+    _color = Red;
+    _dir = Up;
+    _pos.x = 0;
+    _pos.y = 0;
+}
+
 void
 Player::setOriginAndSize(SDL_Rect rect)
 {

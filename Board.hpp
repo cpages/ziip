@@ -5,6 +5,7 @@
 #include "SDL.h"
 #include "SDL_ttf.h"
 #include "Timer.hpp"
+#include "Player.hpp"
 #include "Row.hpp"
 
 class Player;
@@ -18,10 +19,12 @@ class Board
         static const int rowsInScreen;
         static const int colsInScreen;
 
-        Board(SDL_Surface *screen, Player *player);
+        Board(SDL_Surface *screen);
         ~Board();
 
+        void clear();
         bool addPiece();
+        void movePlayer(Player::playerDirection mov);
         void playerShooted();
         void resize(int width, int height);
         void draw();
@@ -33,6 +36,7 @@ class Board
                 Score(SDL_Surface *screen);
                 ~Score();
 
+                void reset();
                 bool addPoints(int points);
                 void draw();
 
@@ -46,12 +50,12 @@ class Board
         SDL_Rect calculateOriginAndTileSize(int width, int height);
 
         Timer _timer;
+        Player _player;
         std::vector<Row> _rows;
         int _rowLastPiece;
         SDL_Surface *_board;
         SDL_Surface *_piecesImg;
         SDL_Surface *_screen;
-        Player *_player;
         Score _score;
 };
 

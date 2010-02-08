@@ -5,7 +5,6 @@
 #include "SDL.h"
 #include "SharedData.hpp"
 #include "Board.hpp"
-#include "Player.hpp"
 
 class Main
 {
@@ -38,7 +37,6 @@ class Main
         PlayExitCause play();
 
         std::auto_ptr<Board> _board;
-        std::auto_ptr<Player> _player;
         SDL_Surface *_screen;
 };
 

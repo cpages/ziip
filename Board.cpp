@@ -18,6 +18,7 @@ namespace
     const SDL_Color scoreColor = {255, 0, 0};
     const int PointsPerLevel = 1000;
     const int SpeedPercentInc = 10;
+    const int InitialTimeout = 1000;
 
     SDL_Rect
     getPlayerRect(SDL_Rect rect)
@@ -156,11 +157,11 @@ namespace
     }
 }
 
-Board::Board(SDL_Surface *screen, Player *player):
-    _timer(1000),
+Board::Board(SDL_Surface *screen):
+    _timer(InitialTimeout),
+    _player(screen),
     _rowLastPiece(16),
     _screen(screen),
-    _player(player),
     _score(_screen)
 {
     _piecesImg = SDL_LoadBMP("pieces.bmp");
@@ -196,6 +197,19 @@ Board::calculateOriginAndTileSize(int width, int height)
     return ret;
 }
 
+void
+Board::clear()
+{
+    _timer.setTimeout(InitialTimeout);
+    _player.reset();
+    for (int i = 0; i < numRows; i++)
+    {
+        _rows[i].clear();
+    }
+    _rowLastPiece = 16;
+    _score.reset();
+}
+
 bool
 Board::addPiece()
 {
@@ -204,18 +218,24 @@ Board::addPiece()
 }
 
 void
+Board::movePlayer(Player::playerDirection mov)
+{
+    _player.move(mov);
+}
+
+void
 Board::playerShooted()
 {
-    int aimedRow = getAimedRow(_player->getPos(), _player->getDirection());
-    std::pair<colors, int> result = _rows[aimedRow].shoot(_player->getColor());
+    int aimedRow = getAimedRow(_player.getPos(), _player.getDirection());
+    std::pair<colors, int> result = _rows[aimedRow].shoot(_player.getColor());
     colors newColor = result.first;
     bool newLevel = _score.addPoints(result.second);
     if (newLevel)
         _timer.increaseSpeed(SpeedPercentInc);
     if (newColor != NoColor)
     {
-        _player->reverse();
-        _player->setColor(newColor);
+        _player.reverse();
+        _player.setColor(newColor);
     }
 }
 
@@ -225,13 +245,14 @@ Board::resize(int width, int height)
     SDL_Rect newOrigSize = calculateOriginAndTileSize(width, height);
     SDL_Rect playerRect = getPlayerRect(newOrigSize);
     fillRowsRects(newOrigSize, _rows);
-    _player->setOriginAndSize(playerRect);
+    _player.setOriginAndSize(playerRect);
 }
 
 void
 Board::draw()
 {
     SDL_BlitSurface(_board, NULL, _screen, NULL);
+    _player.draw();
     _score.draw();
     for (int i = 0; i < numRows; i++)
     {
@@ -253,6 +274,16 @@ Board::Score::~Score()
 {
     SDL_FreeSurface(_renderedScore);
     TTF_CloseFont(_font); 
+}
+
+void
+Board::Score::reset()
+{
+    _currScore = 0;
+    SDL_FreeSurface(_renderedScore);
+    std::ostringstream str;
+    str << "SCORE: " << _currScore;
+    _renderedScore = TTF_RenderText_Solid(_font, str.str().c_str(), scoreColor);
 }
 
 bool

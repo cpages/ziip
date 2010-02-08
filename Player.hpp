@@ -24,6 +24,7 @@ class Player
         Player(SDL_Surface *screen);
         ~Player();
 
+        void reset();
         void setOriginAndSize(SDL_Rect rect);
         playerPos getPos() const;
         playerDirection getDirection() const;

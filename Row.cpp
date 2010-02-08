@@ -30,6 +30,12 @@ Row::Row(int size, int growX, int growY, SDL_Surface *screen,
     _growDir.y = growY;
 }
 
+void
+Row::clear()
+{
+    _pieces.assign(_size, NoColor);
+}
+
 bool
 Row::addPiece()
 {

@@ -11,6 +11,7 @@ class Row
         Row(int size, int growX, int growY, SDL_Surface *screen,
                 SDL_Surface *pieces);
 
+        void clear();
         bool addPiece();
         std::pair<colors, int> shoot(colors playerColor);
         void setOriginAndSize(SDL_Rect rect);

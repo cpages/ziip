@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <ctime>
 #include "SDL_ttf.h"
+#include "Player.hpp"
 #include "Main.hpp"
 
 namespace
@@ -20,8 +21,7 @@ Main::Main()
             SDL_HWSURFACE | SDL_DOUBLEBUF );
     SDL_WM_SetCaption( WINDOW_TITLE, 0 );
 
-    _player.reset(new Player(_screen));
-    _board.reset(new Board(_screen, _player.get()));
+    _board.reset(new Board(_screen));
 
     //initialize random seed
     srand(time(NULL));
@@ -123,11 +123,10 @@ Main::play()
         }
 
         // update state
-        _player->move(lastMov);
+        _board->movePlayer(lastMov);
 
         // draw scene
         _board->draw();
-        _player->draw();
 
         if (cause == GameOver)
         {
@@ -176,6 +175,8 @@ Main::run()
                 pECause = play();
                 if (pECause == Quitted)
                     quit = true;
+                else if (pECause == GameOver)
+                    _board->clear();
                 state = MainMenu;
                 break;
         }
