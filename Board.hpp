@@ -19,7 +19,7 @@ class Board
         static const int rowsInScreen;
         static const int colsInScreen;
 
-        Board(SDL_Surface *screen);
+        Board(Resources *rsc);
         ~Board();
 
         void clear();
@@ -33,7 +33,7 @@ class Board
         class Score
         {
             public:
-                Score(SDL_Surface *screen);
+                Score(Resources *rsc);
                 ~Score();
 
                 void reset();
@@ -41,22 +41,23 @@ class Board
                 void draw();
 
             private:
+                Resources *_rsc;
                 int _currScore;
-                SDL_Surface *_screen;
                 TTF_Font *_font;
                 SDL_Surface *_renderedScore;
         };
 
         SDL_Rect calculateOriginAndTileSize(int width, int height);
 
+        Resources *_rsc;
         Timer _timer;
         Player _player;
         std::vector<Row> _rows;
         int _rowLastPiece;
         SDL_Surface *_board;
         SDL_Surface *_piecesImg;
-        SDL_Surface *_screen;
         Score _score;
+        SDL_Rect _origSize;
 };
 
 #endif //BOARD_HPP

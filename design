@@ -26,3 +26,5 @@ font manager: load/unload images/ttf fonts. SDL_Surface
 
 input manager: transfrom SDL keys into defs (up, down, ...)
 
+put graphics in native mode (sdl_displayformat)
+

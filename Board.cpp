@@ -1,9 +1,11 @@
+#include <iostream>
 #include <cassert>
 #include <string>
 #include <sstream>
 #include <cstdlib>
 #include <utility>
 #include "SharedData.hpp"
+#include "Resources.hpp"
 #include "Player.hpp"
 #include "Board.hpp"
 
@@ -15,6 +17,9 @@ const int Board::colsInScreen = 18;
 
 namespace
 {
+    const bool debug = false;
+
+    const int origPieceSize = 42;
     const SDL_Color scoreColor = {255, 0, 0};
     const int PointsPerLevel = 1000;
     const int SpeedPercentInc = 10;
@@ -157,42 +162,47 @@ namespace
     }
 }
 
-Board::Board(SDL_Surface *screen):
+Board::Board(Resources *rsc):
+    _rsc(rsc),
     _timer(InitialTimeout),
-    _player(screen),
+    _player(rsc),
     _rowLastPiece(16),
-    _screen(screen),
-    _score(_screen)
+    _score(rsc)
 {
-    _piecesImg = SDL_LoadBMP("pieces.bmp");
-    Row tmpRow(horiRowsLen, 1, 0, _screen, _piecesImg);
+    _piecesImg = rsc->pieces();
+    Row tmpRow(horiRowsLen, 1, 0, rsc);
     _rows.resize(4, tmpRow);
-    tmpRow = Row(vertRowsLen, 0, -1, _screen, _piecesImg);
+    tmpRow = Row(vertRowsLen, 0, -1, rsc);
     _rows.resize(8, tmpRow);
-    tmpRow = Row(horiRowsLen, -1, 0, _screen, _piecesImg);
+    tmpRow = Row(horiRowsLen, -1, 0, rsc);
     _rows.resize(12, tmpRow);
-    tmpRow = Row(vertRowsLen, 0, 1, _screen, _piecesImg);
+    tmpRow = Row(vertRowsLen, 0, 1, rsc);
     _rows.resize(16, tmpRow);
-
-    _board = SDL_LoadBMP("board.bmp");
 }
 
 Board::~Board()
 {
-    SDL_FreeSurface(_piecesImg);
-    SDL_FreeSurface(_board);
 }
 
 SDL_Rect
 Board::calculateOriginAndTileSize(int width, int height)
 {
-    //TODO: implement this
-    //const float proportion = static_cast<float>(rowsInScreen) / colsInScreen;
+    const float proportion = static_cast<float>(rowsInScreen) / colsInScreen;
     SDL_Rect ret;
-    ret.x = 22;
+    if (static_cast<float>(height) / width > proportion)
+    {
+        ret.w = ret.h = width / colsInScreen;
+    }
+    else
+    {
+        ret.w = ret.h = height / rowsInScreen;
+    }
+    ret.x = (width - ret.w * colsInScreen) / 2;
+    ret.y = (height - ret.h * rowsInScreen) / 2;
+    /*ret.x = 22;
     ret.y = 6;
     ret.w = 42;
-    ret.h = 42;
+    ret.h = 42;*/
 
     return ret;
 }
@@ -214,6 +224,8 @@ bool
 Board::addPiece()
 {
     _rowLastPiece = getRandomRow(_rowLastPiece);
+    if (debug)
+        std::cout << "Piece at row " << _rowLastPiece << std::endl;
     return _rows[_rowLastPiece].addPiece();
 }
 
@@ -242,16 +254,20 @@ Board::playerShooted()
 void
 Board::resize(int width, int height)
 {
-    SDL_Rect newOrigSize = calculateOriginAndTileSize(width, height);
-    SDL_Rect playerRect = getPlayerRect(newOrigSize);
-    fillRowsRects(newOrigSize, _rows);
+    _origSize = calculateOriginAndTileSize(width, height);
+    const float prop = static_cast<float>(_origSize.w) / origPieceSize;
+    _rsc->prepareBoardGraphics(prop);
+    SDL_Rect playerRect = getPlayerRect(_origSize);
+    fillRowsRects(_origSize, _rows);
     _player.setOriginAndSize(playerRect);
 }
 
 void
 Board::draw()
 {
-    SDL_BlitSurface(_board, NULL, _screen, NULL);
+    SDL_Rect scrSize = _origSize;
+    scrSize.x = scrSize.y = 0;
+    SDL_BlitSurface(_rsc->board(), NULL, _rsc->screen(), &scrSize);
     _player.draw();
     _score.draw();
     for (int i = 0; i < numRows; i++)
@@ -260,9 +276,9 @@ Board::draw()
     }
 }
 
-Board::Score::Score(SDL_Surface *screen):
-    _currScore(0),
-    _screen(screen)
+Board::Score::Score(Resources *rsc):
+    _rsc(rsc),
+    _currScore(0)
 {
     _font = TTF_OpenFont("fonts/LiberationMono-Bold.ttf", 24);
     assert (_font != NULL);
@@ -304,5 +320,5 @@ Board::Score::addPoints(int points)
 void
 Board::Score::draw()
 {
-    SDL_BlitSurface(_renderedScore, NULL, _screen, NULL);
+    SDL_BlitSurface(_renderedScore, NULL, _rsc->screen(), NULL);
 }

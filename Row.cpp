@@ -1,9 +1,11 @@
+#include <iostream>
 #include <cstdlib>
+#include "Resources.hpp"
 #include "Row.hpp"
 
 namespace
 {
-    const int bmpSize = 42;
+    const bool debug = false;
     //probability to have a piece of the same color as the last in the row (the
     //others being 1)
     const int timesSPProbability = 2;
@@ -12,19 +14,23 @@ namespace
     colors
     getRandomPiece(colors colorLastPiece)
     {
-        int ret = rand() % (3 + timesSPProbability);
+        int ret;
+        if (colorLastPiece == NoColor)
+        {
+            ret = rand() % 4;
+            return static_cast<colors>(ret);
+        }
+        ret = rand() % (3 + timesSPProbability);
         if (ret < 4)
             return static_cast<colors>(ret);
         return colorLastPiece;
     }
 }
 
-Row::Row(int size, int growX, int growY, SDL_Surface *screen,
-        SDL_Surface *pieces):
+Row::Row(int size, int growX, int growY, Resources *rsc):
+    _rsc(rsc),
     _size(size),
-    _pieces(size, NoColor),
-    _screen(screen),
-    _piecesImg(pieces)
+    _pieces(size, NoColor)
 {
     _growDir.x = growX;
     _growDir.y = growY;
@@ -44,11 +50,15 @@ Row::addPiece()
     int i = _size-1;
     while (_pieces[i] == NoColor)
         i--;
+    if (debug)
+        std::cout << i+1 << " pieces in row" << std::endl;
     for (++i; i > 0; i--)
     {
         _pieces[i] = _pieces[i-1];
     }
     _pieces[0] = getRandomPiece(_pieces[0]);
+    if (debug)
+        std::cout << "Added " << _pieces[0] << std::endl;
 
     return false;
 }
@@ -85,19 +95,18 @@ void
 Row::draw()
 {
     int i = 0;
+    const int pieceSize = _rsc->getPieceSize();
     while (_pieces[i] != NoColor && i < _size)
     {
         SDL_Rect src;
-        src.x = _pieces[i] * bmpSize;
+        src.x = _pieces[i] * pieceSize;
         src.y = 0;
-        src.w = bmpSize;
-        src.h = bmpSize;
+        src.w = pieceSize;
+        src.h = pieceSize;
         SDL_Rect dst;
         dst.x = _rect.x + i * _growDir.x * _rect.w;
         dst.y = _rect.y + i * _growDir.y * _rect.h;
-        dst.w = _rect.w;
-        dst.h = _rect.h;
-        SDL_BlitSurface(_piecesImg, &src, _screen, &dst);
+        SDL_BlitSurface(_rsc->pieces(), &src, _rsc->screen(), &dst);
         i++;
     }
 }

@@ -1,25 +1,19 @@
 #include "SDL.h"
 #include "SharedData.hpp"
+#include "Resources.hpp"
 #include "Player.hpp"
 
-namespace
-{
-    const int bmpSize = 42;
-}
-
-Player::Player(SDL_Surface *screen):
+Player::Player(Resources *rsc):
+    _rsc(rsc),
     _color(Red),
-    _dir(Up),
-    _screen(screen)
+    _dir(Up)
 {
     _pos.x = 0;
     _pos.y = 0;
-    _player = SDL_LoadBMP("player.bmp");
 }
         
 Player::~Player()
 {
-    SDL_FreeSurface(_player);
 }
 
 void
@@ -120,14 +114,13 @@ void
 Player::draw()
 {
     SDL_Rect src;
-    src.x = _color * bmpSize;
-    src.y = _dir * bmpSize;
-    src.w = bmpSize;
-    src.h = bmpSize;
+    const int blockSize = _rsc->getPieceSize();
+    src.x = _color * blockSize;
+    src.y = _dir * blockSize;
+    src.w = blockSize;
+    src.h = blockSize;
     SDL_Rect dst;
-    dst.x = _rect.x + _pos.x * bmpSize;
-    dst.y = _rect.y + _pos.y * bmpSize;
-    dst.w = _rect.w;
-    dst.h = _rect.h;
-    SDL_BlitSurface(_player, &src, _screen, &dst);
+    dst.x = _rect.x + _pos.x * blockSize;
+    dst.y = _rect.y + _pos.y * blockSize;
+    SDL_BlitSurface(_rsc->player(), &src, _rsc->screen(), &dst);
 }

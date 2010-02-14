@@ -21,7 +21,7 @@ class Player
             int y;
         };
 
-        Player(SDL_Surface *screen);
+        Player(Resources *rsc);
         ~Player();
 
         void reset();
@@ -35,12 +35,11 @@ class Player
         void draw();
 
     private:
+        Resources *_rsc;
         SDL_Rect _rect;
         playerPos _pos;
         colors _color;
         playerDirection _dir;
-        SDL_Surface *_player;
-        SDL_Surface *_screen;
 };
 
 #endif //PLAYER_HPP

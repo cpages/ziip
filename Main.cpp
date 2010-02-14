@@ -2,13 +2,12 @@
 #include <cstdlib>
 #include <ctime>
 #include "SDL_ttf.h"
+#include "Resources.hpp"
 #include "Player.hpp"
 #include "Main.hpp"
 
 namespace
 {
-    const int WINDOW_WIDTH = 800;
-    const int WINDOW_HEIGHT = 600;
     const char* WINDOW_TITLE = "Ziip";
 }
 
@@ -17,11 +16,10 @@ Main::Main()
     SDL_Init( SDL_INIT_EVERYTHING );
     assert (TTF_Init() != -1); //TODO: check ret
 
-    _screen = SDL_SetVideoMode( WINDOW_WIDTH, WINDOW_HEIGHT, 0,
-            SDL_HWSURFACE | SDL_DOUBLEBUF );
     SDL_WM_SetCaption( WINDOW_TITLE, 0 );
 
-    _board.reset(new Board(_screen));
+    _rsc.reset(new Resources);
+    _board.reset(new Board(_rsc.get()));
 
     //initialize random seed
     srand(time(NULL));
@@ -36,9 +34,8 @@ Main::~Main()
 Main::MainMenuOption
 Main::mainMenu()
 {
-    SDL_Surface *bgdMenu = SDL_LoadBMP("main_menu.bmp");
-    SDL_BlitSurface(bgdMenu, NULL, _screen, NULL);
-    SDL_Flip(_screen);
+    SDL_BlitSurface(_rsc->mainMenu(), NULL, _rsc->screen(), NULL);
+    SDL_Flip(_rsc->screen());
 
     Main::MainMenuOption option = InvalidOption;
     SDL_Event event;
@@ -130,15 +127,16 @@ Main::play()
 
         if (cause == GameOver)
         {
-            SDL_Surface *go = SDL_LoadBMP("game_over.bmp");
+            int scrW, scrH;
+            _rsc->getScreenSize(scrW, scrH);
             SDL_Rect goRect;
-            goRect.x = 350;
-            goRect.y = 275;
-            SDL_BlitSurface(go, NULL, _screen, &goRect);
-            //SDL_FreeSurface(go);
+            // game_over is 100x40
+            goRect.x = scrW / 2 - 50;
+            goRect.y = scrH / 2 - 20;
+            SDL_BlitSurface(_rsc->gameOver(), NULL, _rsc->screen(), &goRect);
         }
 
-        SDL_Flip(_screen);
+        SDL_Flip(_rsc->screen());
 
         SDL_Delay(1);
 
@@ -155,8 +153,10 @@ Main::run()
     State state = MainMenu;
     bool quit = false;
 
-    //TODO: remove this from here
-    _board->resize(WINDOW_WIDTH, WINDOW_HEIGHT);
+    //TODO: change this depending on game mode
+    int w, h;
+    _rsc->getScreenSize(w, h);
+    _board->resize(w, h);
 
     while (!quit)
     {

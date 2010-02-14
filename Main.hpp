@@ -36,8 +36,8 @@ class Main
         MainMenuOption mainMenu();
         PlayExitCause play();
 
+        std::auto_ptr<Resources> _rsc;
         std::auto_ptr<Board> _board;
-        SDL_Surface *_screen;
 };
 
 #endif //MAIN_HPP

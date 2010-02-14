@@ -8,8 +8,7 @@
 class Row
 {
     public:
-        Row(int size, int growX, int growY, SDL_Surface *screen,
-                SDL_Surface *pieces);
+        Row(int size, int growX, int growY, Resources *rsc);
 
         void clear();
         bool addPiece();
@@ -18,12 +17,11 @@ class Row
         void draw();
 
     private:
+        Resources *_rsc;
         int _size;
         coord _growDir;
         SDL_Rect _rect;
         std::vector<colors> _pieces;
-        SDL_Surface *_screen;
-        SDL_Surface *_piecesImg;
 };
 
 #endif //ROW_HPP
