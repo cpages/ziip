@@ -95,7 +95,7 @@ void
 Row::draw()
 {
     int i = 0;
-    const int pieceSize = _rsc->getPieceSize();
+    const int pieceSize = _rsc->getBlockSize();
     while (_pieces[i] != NoColor && i < _size)
     {
         SDL_Rect src;

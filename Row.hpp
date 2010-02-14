@@ -19,7 +19,7 @@ class Row
     private:
         Resources *_rsc;
         int _size;
-        coord _growDir;
+        SDL_Rect _growDir;
         SDL_Rect _rect;
         std::vector<colors> _pieces;
 };

@@ -9,7 +9,7 @@ class Resources
         Resources();
         ~Resources();
 
-        void prepareBoardGraphics(float proportion);
+        void prepareBoardGraphics(int newBlockSize);
         SDL_Surface *screen();
         SDL_Surface *mainMenu();
         SDL_Surface *pieces();
@@ -17,7 +17,7 @@ class Resources
         SDL_Surface *player();
         SDL_Surface *gameOver();
         void getScreenSize(int &width, int &height);
-        int getPieceSize();
+        int getBlockSize();
 
     private:
         void prepareBGGraphics();
@@ -33,7 +33,7 @@ class Resources
         SDL_Surface *_player;
         SDL_Surface *_origGOver;
         SDL_Surface *_gOver;
-        int _currPieceSize;
+        int _currBlockSize;
 };
 
 #endif //RESOURCES_HPP

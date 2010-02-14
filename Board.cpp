@@ -255,8 +255,7 @@ void
 Board::resize(int width, int height)
 {
     _origSize = calculateOriginAndTileSize(width, height);
-    const float prop = static_cast<float>(_origSize.w) / origPieceSize;
-    _rsc->prepareBoardGraphics(prop);
+    _rsc->prepareBoardGraphics(_origSize.w);
     SDL_Rect playerRect = getPlayerRect(_origSize);
     fillRowsRects(_origSize, _rows);
     _player.setOriginAndSize(playerRect);

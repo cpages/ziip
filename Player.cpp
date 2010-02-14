@@ -114,7 +114,7 @@ void
 Player::draw()
 {
     SDL_Rect src;
-    const int blockSize = _rsc->getPieceSize();
+    const int blockSize = _rsc->getBlockSize();
     src.x = _color * blockSize;
     src.y = _dir * blockSize;
     src.w = blockSize;

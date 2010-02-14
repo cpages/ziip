@@ -1,3 +1,6 @@
+#include <iostream>
+#include <sstream>
+#include <stdexcept>
 #include <cassert>
 #include <cstdlib>
 #include <ctime>
@@ -13,8 +16,19 @@ namespace
 
 Main::Main()
 {
-    SDL_Init( SDL_INIT_EVERYTHING );
-    assert (TTF_Init() != -1); //TODO: check ret
+    if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_EVENTTHREAD) == -1)
+    {
+        std::ostringstream msg;
+        msg << "Could not initialize SDL: " << SDL_GetError();
+        throw std::runtime_error(msg.str());
+    }
+
+    if (TTF_Init() == -1)
+    {
+        std::ostringstream msg;
+        msg << "Could not initialize SDL_ttf: " << SDL_GetError();
+        throw std::runtime_error(msg.str());
+    }
 
     SDL_WM_SetCaption( WINDOW_TITLE, 0 );
 
@@ -185,9 +199,21 @@ Main::run()
     return 0;
 }
 
-int main(int argc, char **argv)
+int main(int argc, char *argv[])
 {
-    Main mainApp;
+    int ret;
 
-    return mainApp.run();
+    try
+    {
+        Main mainApp;
+
+        ret = mainApp.run();
+    }
+    catch (std::runtime_error &rte)
+    {
+        std::cerr << rte.what() << std::endl;
+        ret = -1;
+    }
+
+    return ret;
 }
