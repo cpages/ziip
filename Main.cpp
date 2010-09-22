@@ -49,6 +49,18 @@ Main::MainMenuOption
 Main::mainMenu()
 {
     SDL_BlitSurface(_rsc->mainMenu(), NULL, _rsc->screen(), NULL);
+    int scrW, scrH;
+    _rsc->getScreenSize(scrW, scrH);
+    SDL_Rect goRect;
+    // menu options are 400x140
+    goRect.x = scrW / 2 - 100;
+    goRect.y = scrH / 2 - 70;
+    SDL_BlitSurface(_rsc->mmNG(), NULL, _rsc->screen(), &goRect);
+    goRect.x -= 100;
+    SDL_BlitSurface(_rsc->mmSel(), NULL, _rsc->screen(), &goRect);
+    goRect.x += 100;
+    goRect.y += 100;
+    SDL_BlitSurface(_rsc->mmQ(), NULL, _rsc->screen(), &goRect);
     SDL_Flip(_rsc->screen());
 
     Main::MainMenuOption option = InvalidOption;

@@ -18,7 +18,11 @@ namespace
     const int origPieceSize = 42;
 
     const std::string dataFolder("data/");
-    const std::string mainMenuImage("main_menu.png");
+    //const std::string mainMenuImage("main_menu.png");
+    const std::string mainMenuImage("mm.png");
+    const std::string mmNewGameImage("mm_ng.png");
+    const std::string mmQuitImage("mm_q.png");
+    const std::string mmSelImage("mm_sel.png");
     const std::string piecesImage("pieces.png");
     const std::string boardImage("board.png");
     const std::string playerImage("player.png");
@@ -43,6 +47,9 @@ namespace
 
 Resources::Resources():
     _mMenu(0),
+    _mmNG(0),
+    _mmQ(0),
+    _mmSel(0),
     _pieces(0),
     _board(0),
     _player(0),
@@ -59,6 +66,9 @@ Resources::Resources():
     }
 
     _origMMenu = IMG_Load(getFileWithPath(mainMenuImage).c_str());
+    _origMMNG = IMG_Load(getFileWithPath(mmNewGameImage).c_str());
+    _origMMQ = IMG_Load(getFileWithPath(mmQuitImage).c_str());
+    _origMMSel = IMG_Load(getFileWithPath(mmSelImage).c_str());
     _origPieces = IMG_Load(getFileWithPath(piecesImage).c_str());
     _origBoard = IMG_Load(getFileWithPath(boardImage).c_str());
     _origPlayer = IMG_Load(getFileWithPath(playerImage).c_str());
@@ -69,15 +79,10 @@ Resources::Resources():
 
 Resources::~Resources()
 {
-    SDL_FreeSurface(_origMMenu);
     SDL_FreeSurface(_mMenu);
-    SDL_FreeSurface(_origPieces);
     SDL_FreeSurface(_pieces);
-    SDL_FreeSurface(_origBoard);
     SDL_FreeSurface(_board);
-    SDL_FreeSurface(_origPlayer);
     SDL_FreeSurface(_player);
-    SDL_FreeSurface(_origGOver);
     SDL_FreeSurface(_gOver);
 }
 
@@ -91,9 +96,20 @@ Resources::prepareBGGraphics()
     if (_mMenu != 0)
         SDL_FreeSurface(_mMenu);
     _mMenu = rescaleAndOptimize(_origMMenu, xProp);
+    SDL_FreeSurface(_origMMenu);
+    assert (_mmNG == 0);
+    _mmNG = rescaleAndOptimize(_origMMNG, xProp);
+    SDL_FreeSurface(_origMMNG);
+    assert (_mmQ == 0);
+    _mmQ = rescaleAndOptimize(_origMMQ, xProp);
+    SDL_FreeSurface(_origMMQ);
+    assert (_mmSel == 0);
+    _mmSel = rescaleAndOptimize(_origMMSel, xProp);
+    SDL_FreeSurface(_origMMSel);
     if (_board != 0)
         SDL_FreeSurface(_board);
     _board = rescaleAndOptimize(_origBoard, xProp);
+    SDL_FreeSurface(_origBoard);
 }
 
 SDL_Surface *
@@ -106,6 +122,24 @@ SDL_Surface *
 Resources::mainMenu()
 {
     return _mMenu;
+}
+
+SDL_Surface *
+Resources::mmNG()
+{
+    return _mmNG;
+}
+
+SDL_Surface *
+Resources::mmQ()
+{
+    return _mmQ;
+}
+
+SDL_Surface *
+Resources::mmSel()
+{
+    return _mmSel;
 }
 
 SDL_Surface *
@@ -140,12 +174,15 @@ Resources::prepareBoardGraphics(int newBlockSize)
     if (_pieces != 0)
         SDL_FreeSurface(_pieces);
     _pieces = rescaleAndOptimize(_origPieces, proportion);
+    SDL_FreeSurface(_origPieces);
     if (_player != 0)
         SDL_FreeSurface(_player);
     _player = rescaleAndOptimize(_origPlayer, proportion);
+    SDL_FreeSurface(_origPlayer);
     if (_gOver != 0)
         SDL_FreeSurface(_gOver);
     _gOver = rescaleAndOptimize(_origGOver, proportion);
+    SDL_FreeSurface(_origGOver);
 }
 
 void
