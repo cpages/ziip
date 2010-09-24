@@ -15,17 +15,32 @@ class Main
         int run();
 
     private:
+        class MainMenu
+        {
+            public:
+                enum Option
+                {
+                    NewGame = 0,
+                    Quit,
+                    InvalidOption
+                };
+
+                MainMenu(Resources *rsc);
+
+                Option operator()();
+
+            private:
+                Resources *_rsc;
+                size_t _selOpt;
+                std::vector<SDL_Rect> _selOptRect;
+        };
+
         enum State
         {
-            MainMenu,
-            Play
+            StatMainMenu,
+            StatPlay
         };
-        enum MainMenuOption
-        {
-            InvalidOption,
-            NewGame,
-            Quit
-        };
+
         enum PlayExitCause
         {
             InvalidCause,
@@ -33,7 +48,6 @@ class Main
             Quitted
         };
 
-        MainMenuOption mainMenu();
         PlayExitCause play();
 
         std::auto_ptr<Resources> _rsc;

@@ -18,8 +18,8 @@ namespace
     const int origPieceSize = 42;
 
     const std::string dataFolder("data/");
-    //const std::string mainMenuImage("main_menu.png");
-    const std::string mainMenuImage("mm.png");
+    const std::string mainMenuImage("main_menu.png");
+    //const std::string mainMenuImage("mm.png");
     const std::string mmNewGameImage("mm_ng.png");
     const std::string mmQuitImage("mm_q.png");
     const std::string mmSelImage("mm_sel.png");

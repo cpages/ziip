@@ -7,6 +7,7 @@
 #include "SDL_ttf.h"
 #include "Resources.hpp"
 #include "Player.hpp"
+#include "InputMgr.hpp"
 #include "Main.hpp"
 
 namespace
@@ -45,58 +46,11 @@ Main::~Main()
     SDL_Quit();
 }
 
-Main::MainMenuOption
-Main::mainMenu()
-{
-    SDL_BlitSurface(_rsc->mainMenu(), NULL, _rsc->screen(), NULL);
-    int scrW, scrH;
-    _rsc->getScreenSize(scrW, scrH);
-    SDL_Rect goRect;
-    // menu options are 400x140
-    goRect.x = scrW / 2 - 100;
-    goRect.y = scrH / 2 - 70;
-    SDL_BlitSurface(_rsc->mmNG(), NULL, _rsc->screen(), &goRect);
-    goRect.x -= 100;
-    SDL_BlitSurface(_rsc->mmSel(), NULL, _rsc->screen(), &goRect);
-    goRect.x += 100;
-    goRect.y += 100;
-    SDL_BlitSurface(_rsc->mmQ(), NULL, _rsc->screen(), &goRect);
-    SDL_Flip(_rsc->screen());
-
-    Main::MainMenuOption option = InvalidOption;
-    SDL_Event event;
-    while (option == InvalidOption)
-    {
-        if (SDL_WaitEvent(&event))
-        {
-            if( event.type == SDL_KEYDOWN )
-            {
-                switch (event.key.keysym.sym)
-                {
-                    case SDLK_q:
-                        option = Quit;
-                        break;
-                    case SDLK_s:
-                        option = NewGame;
-                        break;
-                    default:
-                        break;
-                }
-            }
-            else if (event.type == SDL_QUIT)
-            {
-                option = Quit;
-            }
-        }
-    }
-
-    return option;
-}
-
 Main::PlayExitCause 
 Main::play()
 {
     SDL_Event event;
+    InputMgr getKey;
     Player::playerDirection lastMov;
 
     Main::PlayExitCause cause = InvalidCause;
@@ -106,26 +60,27 @@ Main::play()
         if (SDL_WaitEvent(&event))
         {
             lastMov = Player::NoDir;
-            if( event.type == SDL_KEYDOWN )
+            InputMgr::Keys key;
+            if ((key = getKey(event)) != InputMgr::INV_EVT)
             {
-                switch (event.key.keysym.sym)
+                switch (key)
                 {
-                    case SDLK_UP:
+                    case InputMgr::UP:
                         lastMov = Player::Up;
                         break;
-                    case SDLK_DOWN:
+                    case InputMgr::DOWN:
                         lastMov = Player::Down;
                         break;
-                    case SDLK_LEFT:
+                    case InputMgr::LEFT:
                         lastMov = Player::Left;
                         break;
-                    case SDLK_RIGHT:
+                    case InputMgr::RIGHT:
                         lastMov = Player::Right;
                         break;
-                    case SDLK_SPACE:
+                    case InputMgr::BUT_A:
                         _board->playerShooted();
                         break;
-                    case SDLK_q:
+                    case InputMgr::QUIT:
                         cause = Quitted;
                         break;
                     default:
@@ -176,7 +131,8 @@ Main::play()
 int
 Main::run()
 {
-    State state = MainMenu;
+    State state = StatMainMenu;
+    MainMenu mMenu(_rsc.get());
     bool quit = false;
 
     //TODO: change this depending on game mode
@@ -188,27 +144,86 @@ Main::run()
     {
         switch (state)
         {
-            Main::MainMenuOption mmOption;
-            Main::PlayExitCause pECause;
-            case MainMenu:
-                mmOption = mainMenu();
-                if (mmOption == Quit)
-                    quit = true;
-                else if (mmOption == NewGame)
-                    state = Play;
+            case StatMainMenu:
+                {
+                    const MainMenu::Option mmOption = mMenu();
+                    if (mmOption == MainMenu::Quit)
+                        quit = true;
+                    else if (mmOption == MainMenu::NewGame)
+                        state = StatPlay;
+                }
                 break;
-            case Play:
-                pECause = play();
-                if (pECause == Quitted)
-                    quit = true;
-                else if (pECause == GameOver)
-                    _board->clear();
-                state = MainMenu;
+            case StatPlay:
+                {
+                    const PlayExitCause pECause = play();
+                    if (pECause == Quitted)
+                        quit = true;
+                    else if (pECause == GameOver)
+                        _board->clear();
+                    state = StatMainMenu;
+                }
                 break;
         }
     }
 
     return 0;
+}
+
+Main::MainMenu::MainMenu(Resources *rsc):
+    _rsc(rsc),
+    _selOpt(0)
+{
+    int scrW, scrH;
+    _rsc->getScreenSize(scrW, scrH);
+    SDL_Rect rect;
+    rect.x = scrW / 2 - 200;
+    rect.y = scrH / 2 - 70;
+    _selOptRect.push_back(rect);
+    rect.y += 100;
+    _selOptRect.push_back(rect);
+}
+
+Main::MainMenu::Option
+Main::MainMenu::operator()()
+{
+    SDL_Event event;
+    InputMgr getKey;
+
+    Option option = InvalidOption;
+    while (option == InvalidOption)
+    {
+        SDL_BlitSurface(_rsc->mainMenu(), NULL, _rsc->screen(), NULL);
+        SDL_BlitSurface(_rsc->mmSel(), NULL, _rsc->screen(),
+                &_selOptRect[_selOpt]);
+        SDL_Flip(_rsc->screen());
+
+        if (SDL_WaitEvent(&event))
+        {
+            InputMgr::Keys key;
+            if ((key = getKey(event)) != InputMgr::INV_EVT)
+            {
+                switch (key)
+                {
+                    case InputMgr::UP:
+                        _selOpt = 0;
+                        break;
+                    case InputMgr::DOWN:
+                        _selOpt = 1;
+                        break;
+                    case InputMgr::BUT_A:
+                        option = static_cast<Option>(_selOpt);
+                    default:
+                        break;
+                }
+            }
+            else if (event.type == SDL_QUIT)
+            {
+                option = Quit;
+            }
+        }
+    }
+
+    return option;
 }
 
 int main(int argc, char *argv[])
