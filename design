@@ -23,6 +23,5 @@ blocks 42x42
 TODO:
 - fix board -> size, set bg color, blit with color key
 - refactor resources code -> too much duplication
-- fix main menu
 - change fonts for bitmaps?
 

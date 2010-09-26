@@ -264,9 +264,7 @@ Board::resize(int width, int height)
 void
 Board::draw()
 {
-    SDL_Rect scrSize = _origSize;
-    scrSize.x = scrSize.y = 0;
-    SDL_BlitSurface(_rsc->board(), NULL, _rsc->screen(), &scrSize);
+    SDL_BlitSurface(_rsc->board(), NULL, _rsc->screen(), NULL);
     _player.draw();
     _score.draw();
     for (int i = 0; i < numRows; i++)

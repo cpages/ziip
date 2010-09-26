@@ -42,6 +42,8 @@ Main::Main()
 
 Main::~Main()
 {
+    //force board destruction to release ttf related stuff before TTF_Quit call
+    _board.reset();
     TTF_Quit();
     SDL_Quit();
 }
