@@ -1,7 +1,7 @@
 #ifndef TIMER_HPP
 #define TIMER_HPP
 
-#include "SDL.h"
+#include "SDL/SDL.h"
 #include "SharedData.hpp"
 
 class Timer

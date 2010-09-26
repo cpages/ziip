@@ -2,8 +2,8 @@
 #define BOARD_HPP
 
 #include <vector>
-#include "SDL.h"
-#include "SDL_ttf.h"
+#include "SDL/SDL.h"
+#include "SDL/SDL_ttf.h"
 #include "Timer.hpp"
 #include "Player.hpp"
 #include "Row.hpp"

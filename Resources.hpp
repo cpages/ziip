@@ -1,7 +1,7 @@
 #ifndef RESOURCES_HPP
 #define RESOURCES_HPP
 
-#include "SDL.h"
+#include "SDL/SDL.h"
 
 class Resources
 {

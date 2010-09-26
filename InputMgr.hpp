@@ -1,7 +1,7 @@
 #ifndef INPUT_MGR_HPP
 #define INPUT_MGR_HPP
 
-#include "SDL.h"
+#include "SDL/SDL.h"
 
 class InputMgr
 {

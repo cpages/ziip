@@ -83,7 +83,7 @@ namespace
     int
     getAimedRow(Player::playerPos pos, Player::playerDirection dir)
     {
-        int row;
+        int row = -1;
         switch (dir)
         {
             case Player::Up:
@@ -157,6 +157,8 @@ namespace
             default:
                 break;
         }
+
+        assert (row != -1);
 
         return row;
     }
