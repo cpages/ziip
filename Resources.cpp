@@ -54,6 +54,7 @@ Resources::Resources():
     _board(0),
     _player(0),
     _gOver(0),
+    _proportion(1.f),
     _currBlockSize(origPieceSize)
 {
     _screen = SDL_SetVideoMode( WINDOW_WIDTH, WINDOW_HEIGHT, BITDEPTH,
@@ -170,18 +171,18 @@ void
 Resources::prepareBoardGraphics(int newBlockSize)
 {
     _currBlockSize = newBlockSize;
-    const float proportion = static_cast<float>(newBlockSize) / origPieceSize;
+    const float _proportion = static_cast<float>(newBlockSize) / origPieceSize;
     if (_pieces != 0)
         SDL_FreeSurface(_pieces);
-    _pieces = rescaleAndOptimize(_origPieces, proportion);
+    _pieces = rescaleAndOptimize(_origPieces, _proportion);
     SDL_FreeSurface(_origPieces);
     if (_player != 0)
         SDL_FreeSurface(_player);
-    _player = rescaleAndOptimize(_origPlayer, proportion);
+    _player = rescaleAndOptimize(_origPlayer, _proportion);
     SDL_FreeSurface(_origPlayer);
     if (_gOver != 0)
         SDL_FreeSurface(_gOver);
-    _gOver = rescaleAndOptimize(_origGOver, proportion);
+    _gOver = rescaleAndOptimize(_origGOver, _proportion);
     SDL_FreeSurface(_origGOver);
 }
 
@@ -190,6 +191,12 @@ Resources::getScreenSize(int &width, int &height)
 {
     width = WINDOW_WIDTH;
     height = WINDOW_HEIGHT;
+}
+
+float
+Resources::getProportion()
+{
+    return _proportion;
 }
 
 int

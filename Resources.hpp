@@ -20,6 +20,7 @@ class Resources
         SDL_Surface *player();
         SDL_Surface *gameOver();
         void getScreenSize(int &width, int &height);
+        float getProportion();
         int getBlockSize();
 
     private:
@@ -42,6 +43,7 @@ class Resources
         SDL_Surface *_player;
         SDL_Surface *_origGOver;
         SDL_Surface *_gOver;
+        float _proportion;
         int _currBlockSize;
 };
 

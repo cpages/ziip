@@ -30,6 +30,7 @@ class Main
                 Option operator()();
 
             private:
+                static const int SelStepPx;
                 Resources *_rsc;
                 size_t _selOpt;
                 std::vector<SDL_Rect> _selOptRect;

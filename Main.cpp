@@ -169,17 +169,20 @@ Main::run()
     return 0;
 }
 
+const int Main::MainMenu::SelStepPx = 100;
+
 Main::MainMenu::MainMenu(Resources *rsc):
     _rsc(rsc),
     _selOpt(0)
 {
     int scrW, scrH;
     _rsc->getScreenSize(scrW, scrH);
+    const int scaledSelSize = SelStepPx * _rsc->getProportion();
     SDL_Rect rect;
-    rect.x = scrW / 2 - 200;
-    rect.y = scrH / 2 - 70;
+    rect.x = scrW / 2 - scaledSelSize/10 - scaledSelSize;
+    rect.y = scrH / 2 - scaledSelSize/2;
     _selOptRect.push_back(rect);
-    rect.y += 100;
+    rect.y += scaledSelSize;
     _selOptRect.push_back(rect);
 }
 
