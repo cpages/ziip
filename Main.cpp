@@ -4,7 +4,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <ctime>
-#include "SDL_ttf.h"
+#include "SDL/SDL_ttf.h"
 #include "Resources.hpp"
 #include "Player.hpp"
 #include "InputMgr.hpp"
