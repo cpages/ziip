@@ -53,6 +53,7 @@ class Main
 
         std::auto_ptr<Resources> _rsc;
         std::auto_ptr<Board> _board;
+        std::vector<SDL_Joystick *> _joysticks;
 };
 
 #endif //MAIN_HPP

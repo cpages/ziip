@@ -12,24 +12,70 @@
 
 namespace
 {
+    const bool debug = true;
+
     const char* WINDOW_TITLE = "Ziip";
 }
 
 Main::Main()
 {
-    if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_EVENTTHREAD) == -1)
+    if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_EVENTTHREAD |
+                SDL_INIT_JOYSTICK) == -1)
     {
         std::ostringstream msg;
         msg << "Could not initialize SDL: " << SDL_GetError();
         throw std::runtime_error(msg.str());
     }
 
+    //init TTF stuff
     if (TTF_Init() == -1)
     {
         std::ostringstream msg;
         msg << "Could not initialize SDL_ttf: " << SDL_GetError();
         throw std::runtime_error(msg.str());
     }
+
+    //init joystick stuff
+    SDL_JoystickEventState(SDL_ENABLE);
+    for (int i = 0; i < SDL_NumJoysticks(); ++i)
+    {
+        SDL_Joystick *joy = SDL_JoystickOpen(i);
+        _joysticks.push_back(joy);
+        if (debug)
+        {
+            std::cout << "Joy " << i << ":" << std::endl;
+            std::cout << " Axes: " << SDL_JoystickNumAxes(_joysticks[i]) <<
+                std::endl;
+            std::cout << " Buttons: " << SDL_JoystickNumButtons(_joysticks[i]) <<
+                std::endl;
+            std::cout << " Balls: " << SDL_JoystickNumBalls(_joysticks[i]) <<
+                std::endl;
+            std::cout << " Hats: " << SDL_JoystickNumHats(_joysticks[i]) <<
+                std::endl;
+        }
+    }
+
+#if 0
+    SDL_Event event;
+    InputMgr getKey;
+    while (1)
+    {
+        if (SDL_WaitEvent(&event))
+        {
+            InputMgr::Keys key;
+            if ((key = getKey(event)) != InputMgr::INV_EVT)
+            {
+                std::cout << key << std::endl;
+                if (key == InputMgr::QUIT)
+                    break;
+            }
+            else if (event.type == SDL_QUIT)
+            {
+                break;
+            }
+        }
+    }
+#endif
 
     SDL_WM_SetCaption( WINDOW_TITLE, 0 );
 
