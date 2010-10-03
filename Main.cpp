@@ -147,6 +147,12 @@ Main::play()
                 cause = Quitted;
             }
         }
+        else
+        {
+            std::ostringstream msg;
+            msg << "Error while waiting for event: " << SDL_GetError();
+            throw std::runtime_error(msg.str());
+        }
 
         // update state
         _board->movePlayer(lastMov);
