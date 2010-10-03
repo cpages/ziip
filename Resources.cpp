@@ -22,9 +22,6 @@ namespace
     const std::string dataFolder("data/");
 #endif
     const std::string mainMenuImage("main_menu.png");
-    //const std::string mainMenuImage("mm.png");
-    const std::string mmNewGameImage("mm_ng.png");
-    const std::string mmQuitImage("mm_q.png");
     const std::string mmSelImage("mm_sel.png");
     const std::string piecesImage("pieces.png");
     const std::string boardImage("board.png");
@@ -50,8 +47,6 @@ namespace
 
 Resources::Resources():
     _mMenu(0),
-    _mmNG(0),
-    _mmQ(0),
     _mmSel(0),
     _pieces(0),
     _board(0),
@@ -70,8 +65,6 @@ Resources::Resources():
     }
 
     _origMMenu = IMG_Load(getFileWithPath(mainMenuImage).c_str());
-    _origMMNG = IMG_Load(getFileWithPath(mmNewGameImage).c_str());
-    _origMMQ = IMG_Load(getFileWithPath(mmQuitImage).c_str());
     _origMMSel = IMG_Load(getFileWithPath(mmSelImage).c_str());
     _origPieces = IMG_Load(getFileWithPath(piecesImage).c_str());
     _origBoard = IMG_Load(getFileWithPath(boardImage).c_str());
@@ -84,6 +77,7 @@ Resources::Resources():
 Resources::~Resources()
 {
     SDL_FreeSurface(_mMenu);
+    SDL_FreeSurface(_mmSel);
     SDL_FreeSurface(_pieces);
     SDL_FreeSurface(_board);
     SDL_FreeSurface(_player);
@@ -101,12 +95,6 @@ Resources::prepareBGGraphics()
         SDL_FreeSurface(_mMenu);
     _mMenu = rescaleAndOptimize(_origMMenu, xProp);
     SDL_FreeSurface(_origMMenu);
-    assert (_mmNG == 0);
-    _mmNG = rescaleAndOptimize(_origMMNG, xProp);
-    SDL_FreeSurface(_origMMNG);
-    assert (_mmQ == 0);
-    _mmQ = rescaleAndOptimize(_origMMQ, xProp);
-    SDL_FreeSurface(_origMMQ);
     assert (_mmSel == 0);
     _mmSel = rescaleAndOptimize(_origMMSel, xProp);
     SDL_FreeSurface(_origMMSel);
@@ -126,18 +114,6 @@ SDL_Surface *
 Resources::mainMenu()
 {
     return _mMenu;
-}
-
-SDL_Surface *
-Resources::mmNG()
-{
-    return _mmNG;
-}
-
-SDL_Surface *
-Resources::mmQ()
-{
-    return _mmQ;
 }
 
 SDL_Surface *
