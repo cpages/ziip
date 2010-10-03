@@ -24,6 +24,11 @@ namespace
     const int PointsPerLevel = 1000;
     const int SpeedPercentInc = 10;
     const int InitialTimeout = 1000;
+#ifdef GEKKO
+    const std::string fontFolder("sd:/apps/ziip/fonts/");
+#else
+    const std::string fontFolder("fonts/");
+#endif
 
     SDL_Rect
     getPlayerRect(SDL_Rect rect)
@@ -279,7 +284,9 @@ Board::Score::Score(Resources *rsc):
     _rsc(rsc),
     _currScore(0)
 {
-    _font = TTF_OpenFont("fonts/LiberationMono-Bold.ttf", 24);
+    std::string fontFile = fontFolder;
+    fontFile.append("LiberationMono-Bold.ttf");
+    _font = TTF_OpenFont(fontFile.c_str(), 24);
     assert (_font != NULL);
     std::string str("SCORE: 0");
     _renderedScore = TTF_RenderText_Solid(_font, str.c_str(), scoreColor);

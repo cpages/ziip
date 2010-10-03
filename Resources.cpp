@@ -16,8 +16,11 @@ namespace
     const int ORIG_WIDTH = 800;
     const int ORIG_HEIGHT = 600;
     const int origPieceSize = 42;
-
+#ifdef GEKKO
+    const std::string dataFolder("sd:/apps/ziip/data/");
+#else
     const std::string dataFolder("data/");
+#endif
     const std::string mainMenuImage("main_menu.png");
     //const std::string mainMenuImage("mm.png");
     const std::string mmNewGameImage("mm_ng.png");
