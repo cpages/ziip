@@ -38,6 +38,26 @@ InputMgr::operator()(const SDL_Event &event)
                     break;
             }
             break;
+        case SDL_JOYHATMOTION:
+            switch (event.jhat.value)
+            {
+                case SDL_HAT_UP:
+                    keyPressed = UP;
+                    break;
+                case SDL_HAT_DOWN:
+                    keyPressed = DOWN;
+                    break;
+                case SDL_HAT_LEFT:
+                    keyPressed = LEFT;
+                    break;
+                case SDL_HAT_RIGHT:
+                    keyPressed = RIGHT;
+                    break;
+                default:
+                    //do nothing
+                    break;
+            }
+            break;
         case SDL_JOYAXISMOTION:
             if ( ( event.jaxis.value < -3200 ) || (event.jaxis.value > 3200 ) ) 
             {
@@ -61,10 +81,17 @@ InputMgr::operator()(const SDL_Event &event)
         case SDL_JOYBUTTONDOWN:
             switch (event.jbutton.button)
             {
-                case 0:
+                case 0: //A
+                case 2: //1
+                case 3: //2
+                case 9: //a
+                case 10: //b
+                case 11: //x
+                case 12: //y
                     keyPressed = BUT_A;
                     break;
-                case 6:
+                case 6: //home
+                case 19: //home classic
                     keyPressed = QUIT;
                     break;
             }
