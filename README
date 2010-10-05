@@ -1,0 +1,61 @@
+Ziip
+====
+A simple cross-platform clone of Zoop
+
+Currently Linux and Wii are supported.
+
+
+===========
+Source Code
+===========
+You can grab the latest source code in the github repository here:
+http://github.com/cpages/ziip
+
+
+=========
+Compiling
+=========
+
+Linux
+-----
+You'll need SDL, SDL_image, SDL_ttf and SDL_gfx.
+Copy or simlink Makefile.linux to Makefile and run make:
+$ make
+and run it with:
+$ ./ziip
+
+Controls:
+cursors: direction
+space: select/fire
+q: quit
+
+
+Wii
+---
+You'll need the devkitPPC toolchain, as well as the SDL Wii port. You can find
+instructions on how to get and install them here:
+    - http://wiibrew.org/wiki/SDL_Wii
+
+If you're under Linux, copy or symlink Makefile.wii to Makefile and run make:
+$ make
+If you're not, you'll have to improvise a bit :)
+
+To run it, you'll first need some data on the SD card
+data -> sd:/apps/ziip/data
+fonts -> sd:/apps/ziip/fonts
+
+If you have wiiload configured, you can run it with:
+$ make run
+
+I hope to make it easier soon.
+
+Controls:
+Wiimote:
+dpad: direction
+A, 1, 2: select/fire
+home: quit
+
+Gamepad classic:
+dpad: direction
+a, b, x, y: select/fire
+home: quit
