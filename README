@@ -12,9 +12,9 @@ You can grab the latest source code in the github repository here:
 http://github.com/cpages/ziip
 
 
-=========
-Compiling
-=========
+=====================
+Compiling and Running
+=====================
 
 Linux
 -----
@@ -59,3 +59,9 @@ Gamepad classic:
 dpad: direction
 a, b, x, y: select/fire
 home: quit
+
+
+=======
+Contact
+=======
+Carles Pagès (page@cubata.homelinux.net)
