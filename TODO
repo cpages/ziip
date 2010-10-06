@@ -2,6 +2,4 @@
 - fix board -> size, set bg color, blit with color key
 - refactor resources code -> too much duplication
 - change fonts for bitmaps?
-- fix timer reset
-- create icon and meta for hbc
 - make run under Windows
