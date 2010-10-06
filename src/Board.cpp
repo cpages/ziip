@@ -264,8 +264,8 @@ void
 Board::playerShooted()
 {
     int aimedRow = getAimedRow(_player.getPos(), _player.getDirection());
-    std::pair<colors, int> result = _rows[aimedRow].shoot(_player.getColor());
-    colors newColor = result.first;
+    std::pair<Color, int> result = _rows[aimedRow].shoot(_player.getColor());
+    Color newColor = result.first;
     bool newLevel = _score.addPoints(result.second);
     if (newLevel)
         _timer.increaseSpeed(SpeedPercentInc);

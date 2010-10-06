@@ -29,18 +29,18 @@ namespace
     const int timesSPProbability = 2;
     const int basePoints = 100;
 
-    colors
-    getRandomPiece(colors colorLastPiece)
+    Color
+    getRandomPiece(Color colorLastPiece)
     {
         int ret;
         if (colorLastPiece == NoColor)
         {
             ret = rand() % 4;
-            return static_cast<colors>(ret);
+            return static_cast<Color>(ret);
         }
         ret = rand() % (3 + timesSPProbability);
         if (ret < 4)
-            return static_cast<colors>(ret);
+            return static_cast<Color>(ret);
         return colorLastPiece;
     }
 }
@@ -81,8 +81,8 @@ Row::addPiece()
     return false;
 }
 
-std::pair<colors, int>
-Row::shoot(colors playerColor)
+std::pair<Color, int>
+Row::shoot(Color playerColor)
 {
     int scoredPoints = 0;
     if (_pieces[0] == NoColor)
@@ -98,7 +98,7 @@ Row::shoot(colors playerColor)
     }
     if (i == -1)
         return std::make_pair(playerColor, scoredPoints);
-    colors ret = _pieces[i];
+    Color ret = _pieces[i];
     _pieces[i] = playerColor;
     return std::make_pair(ret, scoredPoints);
 }

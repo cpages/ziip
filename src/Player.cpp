@@ -83,14 +83,14 @@ Player::reverse()
     }
 }
 
-colors
+Color
 Player::getColor() const
 {
     return _color;
 }
 
 void
-Player::setColor(colors newColor)
+Player::setColor(Color newColor)
 {
     _color = newColor;
 }

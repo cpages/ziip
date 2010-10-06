@@ -47,8 +47,8 @@ class Player
         playerPos getPos() const;
         playerDirection getDirection() const;
         void reverse();
-        colors getColor() const;
-        void setColor(colors newColor);
+        Color getColor() const;
+        void setColor(Color newColor);
         void move(playerDirection mov);
         void draw();
 
@@ -56,7 +56,7 @@ class Player
         Resources *_rsc;
         SDL_Rect _rect;
         playerPos _pos;
-        colors _color;
+        Color _color;
         playerDirection _dir;
 };
 

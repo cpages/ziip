@@ -30,7 +30,7 @@ class Row
 
         void clear();
         bool addPiece();
-        std::pair<colors, int> shoot(colors playerColor);
+        std::pair<Color, int> shoot(Color playerColor);
         void setOriginAndSize(SDL_Rect rect);
         void draw();
 
@@ -39,7 +39,7 @@ class Row
         int _size;
         SDL_Rect _growDir;
         SDL_Rect _rect;
-        std::vector<colors> _pieces;
+        std::vector<Color> _pieces;
 };
 
 #endif //ROW_HPP

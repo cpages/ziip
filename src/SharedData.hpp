@@ -19,13 +19,18 @@
 #ifndef SHARED_DATA_HPP
 #define SHARED_DATA_HPP
 
-enum colors
+enum Color
 {
     Red = 0,
     Green,
     Blue,
     Purple,
     NoColor
+};
+
+enum EvtType
+{
+    TimerEvtId
 };
 
 #endif //SHARED_DATA_HPP

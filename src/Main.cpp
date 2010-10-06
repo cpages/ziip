@@ -156,6 +156,8 @@ Main::play()
             }
             else if (event.type == SDL_USEREVENT)
             {
+                //up to now there is only the timer evt
+                assert (event.user.code == TimerEvtId);
                 const bool gameOver = _board->addPiece();
                 if (gameOver)
                     cause = GameOver;
