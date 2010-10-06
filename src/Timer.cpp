@@ -58,10 +58,9 @@ Timer::setTimeout(int timeout)
 {
     if (_timeout != timeout)
     {
-        //TODO: perhaps it would be cleaner to set the new timeout in the CB
         SDL_RemoveTimer(_timerID);
-        _timerID = SDL_AddTimer(_timeout, timerCB, NULL);
         _timeout = timeout;
+        _timerID = SDL_AddTimer(_timeout, timerCB, NULL);
         if (debug)
             std::cout << "Timer set to: " << _timeout << std::endl;
     }
