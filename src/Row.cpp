@@ -66,7 +66,7 @@ Row::addPiece()
     if (_pieces[_size-1] != NoColor)
         return true;
     int i = _size-1;
-    while (_pieces[i] == NoColor)
+    while (i >= 0 && _pieces[i] == NoColor)
         i--;
     if (debug)
         std::cout << i+1 << " pieces in row" << std::endl;
@@ -91,7 +91,7 @@ Row::shoot(Color playerColor)
     while (_pieces[i] == NoColor)
         i--;
     int p = 1; //to give incremental points if more than 1 piece is ziiped
-    while (_pieces[i] == playerColor && i >= 0)
+    while (i >= 0 && _pieces[i] == playerColor)
     {
         _pieces[i--] = NoColor;
         scoredPoints += basePoints * p++;
@@ -114,7 +114,7 @@ Row::draw()
 {
     int i = 0;
     const int pieceSize = _rsc->getBlockSize();
-    while (_pieces[i] != NoColor && i < _size)
+    while (i < _size && _pieces[i] != NoColor)
     {
         SDL_Rect src;
         src.x = _pieces[i] * pieceSize;

@@ -19,11 +19,25 @@
 #ifndef RESOURCES_HPP
 #define RESOURCES_HPP
 
+#include <vector>
+#include <string>
 #include "SDL/SDL.h"
 
 class Resources
 {
     public:
+        enum Surface
+        {
+            SfcScreen = 0,
+            SfcMainMenu,
+            SfcMMSel,
+            SfcPieces,
+            SfcBoard,
+            SfcPlayer,
+            SfcGameOver,
+            NumSurfaces
+        };
+
         Resources();
         ~Resources();
 
@@ -42,6 +56,8 @@ class Resources
     private:
         void prepareBGGraphics();
 
+        std::vector<std::string> _surfaceFiles;
+        std::vector<SDL_Surface *> _surfaces;
         SDL_Surface *_screen;
         SDL_Surface *_origMMenu;
         SDL_Surface *_mMenu;

@@ -39,12 +39,15 @@ namespace
 #else
     const std::string dataFolder("data/");
 #endif
-    const std::string mainMenuImage("main_menu.png");
-    const std::string mmSelImage("mm_sel.png");
-    const std::string piecesImage("pieces.png");
-    const std::string boardImage("board.png");
-    const std::string playerImage("player.png");
-    const std::string gameOverImage("game_over.png");
+    const char *surfaceFiles[] = {
+        "",
+        "main_menu.png",
+        "mm_sel.png",
+        "pieces.png",
+        "board.png",
+        "player.png",
+        "game_over.png"
+    };
 
     std::string
     getFileWithPath(std::string filename)
@@ -57,7 +60,7 @@ namespace
     rescaleAndOptimize(SDL_Surface *orig, float proportion)
     {
         SDL_Surface *tmp = zoomSurface(orig, proportion, proportion, 0);
-        SDL_Surface *optim = SDL_DisplayFormat(tmp);
+        SDL_Surface *optim = SDL_DisplayFormatAlpha(tmp);
         SDL_FreeSurface(tmp);
         return optim;
     }
@@ -73,6 +76,9 @@ Resources::Resources():
     _proportion(1.f),
     _currBlockSize(origPieceSize)
 {
+    for (int i = 0; i < NumSurfaces; ++i)
+        _surfaceFiles.push_back(std::string(surfaceFiles[i]));
+
     _screen = SDL_SetVideoMode( WINDOW_WIDTH, WINDOW_HEIGHT, BITDEPTH,
             (FULLSCREEN? SDL_FULLSCREEN : 0) | SDL_HWSURFACE | SDL_DOUBLEBUF);
     if (_screen == NULL)
@@ -82,12 +88,12 @@ Resources::Resources():
         throw std::runtime_error(msg.str());
     }
 
-    _origMMenu = IMG_Load(getFileWithPath(mainMenuImage).c_str());
-    _origMMSel = IMG_Load(getFileWithPath(mmSelImage).c_str());
-    _origPieces = IMG_Load(getFileWithPath(piecesImage).c_str());
-    _origBoard = IMG_Load(getFileWithPath(boardImage).c_str());
-    _origPlayer = IMG_Load(getFileWithPath(playerImage).c_str());
-    _origGOver = IMG_Load(getFileWithPath(gameOverImage).c_str());
+    _origMMenu = IMG_Load(getFileWithPath(_surfaceFiles[SfcMainMenu]).c_str());
+    _origMMSel = IMG_Load(getFileWithPath(_surfaceFiles[SfcMMSel]).c_str());
+    _origPieces = IMG_Load(getFileWithPath(_surfaceFiles[SfcPieces]).c_str());
+    _origBoard = IMG_Load(getFileWithPath(_surfaceFiles[SfcBoard]).c_str());
+    _origPlayer = IMG_Load(getFileWithPath(_surfaceFiles[SfcPlayer]).c_str());
+    _origGOver = IMG_Load(getFileWithPath(_surfaceFiles[SfcGameOver]).c_str());
 
     prepareBGGraphics();
 }
@@ -118,8 +124,13 @@ Resources::prepareBGGraphics()
     SDL_FreeSurface(_origMMSel);
     if (_board != 0)
         SDL_FreeSurface(_board);
-    _board = rescaleAndOptimize(_origBoard, xProp);
+    SDL_Surface *har = IMG_Load(getFileWithPath(std::string("bg01.png")).c_str());
+    _board = rescaleAndOptimize(har, xProp);
+    SDL_Surface *hor = rescaleAndOptimize(_origBoard, xProp);
+    SDL_BlitSurface(hor, NULL, _board, NULL);
     SDL_FreeSurface(_origBoard);
+    SDL_FreeSurface(har);
+    SDL_FreeSurface(hor);
 }
 
 SDL_Surface *
