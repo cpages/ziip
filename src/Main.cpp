@@ -188,7 +188,8 @@ Main::play()
             // game_over is 100x40
             goRect.x = scrW / 2 - 50;
             goRect.y = scrH / 2 - 20;
-            SDL_BlitSurface(_rsc->gameOver(), NULL, _rsc->screen(), &goRect);
+            SDL_BlitSurface(_rsc->getSfc(Resources::SfcGameOver), NULL,
+                    _rsc->screen(), &goRect);
         }
 
         SDL_Flip(_rsc->screen());
@@ -269,9 +270,10 @@ Main::MainMenu::operator()()
     Option option = InvalidOption;
     while (option == InvalidOption)
     {
-        SDL_BlitSurface(_rsc->mainMenu(), NULL, _rsc->screen(), NULL);
-        SDL_BlitSurface(_rsc->mmSel(), NULL, _rsc->screen(),
-                &_selOptRect[_selOpt]);
+        SDL_BlitSurface(_rsc->getSfc(Resources::SfcMainMenu), NULL,
+                _rsc->screen(), NULL);
+        SDL_BlitSurface(_rsc->getSfc(Resources::SfcMMSel), NULL,
+                _rsc->screen(), &_selOptRect[_selOpt]);
         SDL_Flip(_rsc->screen());
 
         if (SDL_WaitEvent(&event))

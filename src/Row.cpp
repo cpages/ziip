@@ -124,7 +124,8 @@ Row::draw()
         SDL_Rect dst;
         dst.x = _rect.x + i * _growDir.x * _rect.w;
         dst.y = _rect.y + i * _growDir.y * _rect.h;
-        SDL_BlitSurface(_rsc->pieces(), &src, _rsc->screen(), &dst);
+        SDL_BlitSurface(_rsc->getSfc(Resources::SfcPieces), &src,
+                _rsc->screen(), &dst);
         i++;
     }
 }

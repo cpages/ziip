@@ -194,14 +194,14 @@ Board::Board(Resources *rsc):
     _rowLastPiece(16),
     _score(rsc)
 {
-    _piecesImg = rsc->pieces();
-    Row tmpRow(horiRowsLen, 1, 0, rsc);
+    _piecesImg = _rsc->getSfc(Resources::SfcPieces);
+    Row tmpRow(horiRowsLen, 1, 0, _rsc);
     _rows.resize(4, tmpRow);
-    tmpRow = Row(vertRowsLen, 0, -1, rsc);
+    tmpRow = Row(vertRowsLen, 0, -1, _rsc);
     _rows.resize(8, tmpRow);
-    tmpRow = Row(horiRowsLen, -1, 0, rsc);
+    tmpRow = Row(horiRowsLen, -1, 0, _rsc);
     _rows.resize(12, tmpRow);
-    tmpRow = Row(vertRowsLen, 0, 1, rsc);
+    tmpRow = Row(vertRowsLen, 0, 1, _rsc);
     _rows.resize(16, tmpRow);
 }
 
@@ -289,7 +289,8 @@ Board::resize(int width, int height)
 void
 Board::draw()
 {
-    SDL_BlitSurface(_rsc->board(), NULL, _rsc->screen(), NULL);
+    SDL_BlitSurface(_rsc->getSfc(Resources::SfcBoard), NULL,
+            _rsc->screen(), NULL);
     _player.draw();
     _score.draw();
     for (int i = 0; i < numRows; i++)

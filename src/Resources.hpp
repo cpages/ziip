@@ -33,6 +33,7 @@ class Resources
             SfcMMSel,
             SfcPieces,
             SfcBoard,
+            SfcGrid,
             SfcPlayer,
             SfcGameOver,
             NumSurfaces
@@ -43,34 +44,20 @@ class Resources
 
         void prepareBoardGraphics(int newBlockSize);
         SDL_Surface *screen();
-        SDL_Surface *mainMenu();
-        SDL_Surface *mmSel();
-        SDL_Surface *pieces();
-        SDL_Surface *board();
-        SDL_Surface *player();
-        SDL_Surface *gameOver();
+        SDL_Surface *getSfc(Surface sfc);
         void getScreenSize(int &width, int &height);
         float getProportion();
         int getBlockSize();
 
     private:
+        void prepareSurface(Surface sfc, float prop);
         void prepareBGGraphics();
 
+        int _winWidth;
+        int _winHeight;
         std::vector<std::string> _surfaceFiles;
+        std::vector<std::string> _bgFiles;
         std::vector<SDL_Surface *> _surfaces;
-        SDL_Surface *_screen;
-        SDL_Surface *_origMMenu;
-        SDL_Surface *_mMenu;
-        SDL_Surface *_origMMSel;
-        SDL_Surface *_mmSel;
-        SDL_Surface *_origPieces;
-        SDL_Surface *_pieces;
-        SDL_Surface *_origBoard;
-        SDL_Surface *_board;
-        SDL_Surface *_origPlayer;
-        SDL_Surface *_player;
-        SDL_Surface *_origGOver;
-        SDL_Surface *_gOver;
         float _proportion;
         int _currBlockSize;
 };

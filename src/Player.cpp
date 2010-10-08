@@ -140,5 +140,6 @@ Player::draw()
     SDL_Rect dst;
     dst.x = _rect.x + _pos.x * blockSize;
     dst.y = _rect.y + _pos.y * blockSize;
-    SDL_BlitSurface(_rsc->player(), &src, _rsc->screen(), &dst);
+    SDL_BlitSurface(_rsc->getSfc(Resources::SfcPlayer), &src,
+            _rsc->screen(), &dst);
 }
