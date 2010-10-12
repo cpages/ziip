@@ -203,13 +203,24 @@ Main::run()
                     const MainMenu::Option mmOption = mMenu();
                     if (mmOption == MainMenu::Quit)
                         quit = true;
-                    else if (mmOption == MainMenu::NewGame)
+                    else if (mmOption == MainMenu::Game1P)
+                    {
+                        _numPlayers = 1;
                         state = StatPlay;
+                    }
+                    else if (mmOption == MainMenu::Game2P)
+                    {
+                        _numPlayers = 2;
+                        state = StatPlay;
+                    }
+                    else if (mmOption == MainMenu::Options)
+                    {
+                        //do nothing
+                    }
                 }
                 break;
             case StatPlay:
                 {
-                    _numPlayers = 2;
                     _rsc->prepareBoardGraphics(_numPlayers);
                     for (int i = 0; i < _numPlayers; ++i)
                         _boards[i].reset(new Board(i, _rsc.get()));
@@ -236,13 +247,15 @@ Main::MainMenu::MainMenu(Resources *rsc):
 {
     int scrW, scrH;
     _rsc->getScreenSize(scrW, scrH);
-    const int scaledSelSize = SelStepPx * _rsc->getProportion();
+    const int scaledSelSize = SelStepPx * _rsc->getBgScale();
     SDL_Rect rect;
-    rect.x = scrW / 2 - scaledSelSize/10 - scaledSelSize;
-    rect.y = scrH / 2 - scaledSelSize/2;
-    _selOptRect.push_back(rect);
-    rect.y += scaledSelSize;
-    _selOptRect.push_back(rect);
+    rect.x = scrW / 2 - scaledSelSize;
+    rect.y = scrH / 2 - scaledSelSize/2 - scaledSelSize;
+    for (int i = 0; i < MainMenu::NumOptions; ++i)
+    {
+        _selOptRect.push_back(rect);
+        rect.y += scaledSelSize;
+    }
 }
 
 Main::MainMenu::Option
@@ -269,10 +282,12 @@ Main::MainMenu::operator()()
                 switch (keyPress.key)
                 {
                     case InputMgr::UP:
-                        _selOpt = 0;
+                        if (_selOpt > 0)
+                            _selOpt--;
                         break;
                     case InputMgr::DOWN:
-                        _selOpt = 1;
+                        if (_selOpt < MainMenu::NumOptions - 1)
+                            _selOpt++;
                         break;
                     case InputMgr::BUT_A:
                         option = static_cast<Option>(_selOpt);

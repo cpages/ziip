@@ -38,8 +38,11 @@ class Main
             public:
                 enum Option
                 {
-                    NewGame = 0,
+                    Game1P = 0,
+                    Game2P,
+                    Options,
                     Quit,
+                    NumOptions,
                     InvalidOption
                 };
 

@@ -3,8 +3,7 @@
 - make run under Windows
 - add support for multiple backgrounds
 - resize (linux only)
-- fix board -> size
+- save scores
 - multiplayer support
   - input
-  - manage multiple boards
   - game modes

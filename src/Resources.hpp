@@ -46,7 +46,7 @@ class Resources
         SDL_Surface *screen();
         SDL_Surface *getSfc(Surface sfc);
         void getScreenSize(int &width, int &height);
-        float getProportion();
+        float getBgScale();
         int getBlockSize();
         SDL_Rect getBoardArea(int id) const;
         SDL_Rect getGridArea(int id) const;
@@ -62,7 +62,7 @@ class Resources
         std::vector<std::string> _surfaceFiles;
         std::vector<std::string> _bgFiles;
         std::vector<SDL_Surface *> _surfaces;
-        float _proportion;
+        float _blockScale;
         int _currBlockSize;
         std::vector<SDL_Rect> _boardAreas;
         std::vector<SDL_Rect> _gridAreas;

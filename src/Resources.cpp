@@ -75,7 +75,7 @@ namespace
 Resources::Resources():
     _winWidth(WINDOW_WIDTH),
     _winHeight(WINDOW_HEIGHT),
-    _proportion(1.f),
+    _blockScale(1.f),
     _currBlockSize(origBlockSize)
 {
     for (int i = 0; i < NumSurfaces; ++i)
@@ -170,7 +170,7 @@ Resources::fillGridRects()
     const float yProp = float(_boardAreas[0].h) / (rowsInGrid * origBlockSize);
     const float proportion = std::min(xProp, yProp);
     _currBlockSize = std::floor(origBlockSize * proportion);
-    _proportion = float(_currBlockSize) / origBlockSize;
+    _blockScale = float(_currBlockSize) / origBlockSize;
     const int gridW = colsInGrid * _currBlockSize;
     const int gridH = rowsInGrid * _currBlockSize;
     const int xOffset = std::floor(float(_boardAreas[0].w - gridW) / 2);
@@ -201,7 +201,7 @@ Resources::prepareBoardGraphics(int numPlayers)
     _surfaceFiles[SfcBoard] = _bgFiles[0];
     prepareSurface(SfcBoard, xProp);
 
-    prepareSurface(SfcGrid, _proportion);
+    prepareSurface(SfcGrid, _blockScale);
     for (unsigned int i = 0; i < _gridAreas.size(); ++i)
     {
         //we blit the grid to the background to get the final board
@@ -209,9 +209,9 @@ Resources::prepareBoardGraphics(int numPlayers)
                 _surfaces[SfcBoard], &_gridAreas[i]);
     }
 
-    prepareSurface(SfcPieces, _proportion);
-    prepareSurface(SfcPlayer, _proportion);
-    prepareSurface(SfcGameOver, _proportion);
+    prepareSurface(SfcPieces, _blockScale);
+    prepareSurface(SfcPlayer, _blockScale);
+    prepareSurface(SfcGameOver, _blockScale);
 }
 
 SDL_Surface *
@@ -234,9 +234,9 @@ Resources::getScreenSize(int &width, int &height)
 }
 
 float
-Resources::getProportion()
+Resources::getBgScale()
 {
-    return _proportion;
+    return float(_winWidth) / ORIG_WIDTH;
 }
 
 int
