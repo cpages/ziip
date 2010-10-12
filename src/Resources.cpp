@@ -34,6 +34,8 @@ namespace
     const int ORIG_WIDTH = 800;
     const int ORIG_HEIGHT = 600;
     const int origPieceSize = 42;
+    const int rowsInGrid = 14;
+    const int colsInGrid = 18;
 
 #ifdef GEKKO
     const std::string dataFolder("sd:/apps/ziip/data/");
@@ -133,8 +135,28 @@ Resources::prepareBGGraphics()
 }
 
 void
-Resources::prepareBoardGraphics(int newBlockSize)
+Resources::prepareBoardGraphics(int numPlayers)
 {
+    //TODO: multiple screens
+    SDL_Rect rect;
+    rect.x = rect.y = 0;
+    rect.w = _winWidth;
+    rect.h = _winHeight;
+    _boardAreas.clear();
+    _boardAreas.push_back(rect);
+
+    const float gridProp = static_cast<float>(rowsInGrid) / colsInGrid;
+    //find origin and size of grid
+    SDL_Rect ret;
+    if (static_cast<float>(rect.h) / rect.w > gridProp)
+        ret.w = ret.h = rect.w / colsInGrid;
+    else
+        ret.w = ret.h = rect.h / rowsInGrid;
+    ret.x = (rect.w - ret.w * colsInGrid) / 2;
+    ret.y = (rect.h - ret.h * rowsInGrid) / 2;
+    _gridAreas.clear();
+    _gridAreas.push_back(ret);
+
     const float xProp = static_cast<float>(_winWidth)/ORIG_WIDTH;
     const float yProp = static_cast<float>(_winHeight)/ORIG_HEIGHT;
     assert (xProp == yProp);
@@ -142,6 +164,7 @@ Resources::prepareBoardGraphics(int newBlockSize)
     _surfaceFiles[SfcBoard] = _bgFiles[0];
     prepareSurface(SfcBoard, xProp);
 
+    const int newBlockSize = 33;
     _currBlockSize = newBlockSize;
     const float _proportion = static_cast<float>(newBlockSize) / origPieceSize;
 
@@ -183,4 +206,16 @@ int
 Resources::getBlockSize()
 {
     return _currBlockSize;
+}
+
+SDL_Rect
+Resources::getBoardArea(int id) const
+{
+    return _boardAreas[id];
+}
+
+SDL_Rect
+Resources::getGridArea(int id) const
+{
+    return _gridAreas[id];
 }

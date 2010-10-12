@@ -34,17 +34,13 @@ class Board
         static const int numRows;
         static const int horiRowsLen;
         static const int vertRowsLen;
-        static const int rowsInScreen;
-        static const int colsInScreen;
 
-        Board(Resources *rsc);
-        ~Board();
+        Board(int id, Resources *rsc);
 
         void clear();
         bool addPiece();
         void movePlayer(Player::playerDirection mov);
         void playerShooted();
-        void resize(int width, int height);
         void draw();
 
     private:
@@ -65,17 +61,14 @@ class Board
                 SDL_Surface *_renderedScore;
         };
 
-        SDL_Rect calculateOriginAndTileSize(int width, int height);
-
+        int _id;
         Resources *_rsc;
         Timer _timer;
         Player _player;
         std::vector<Row> _rows;
         int _rowLastPiece;
-        SDL_Surface *_board;
-        SDL_Surface *_piecesImg;
         Score _score;
-        SDL_Rect _origSize;
+        SDL_Rect _rect;
 };
 
 #endif //BOARD_HPP

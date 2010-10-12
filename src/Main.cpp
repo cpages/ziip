@@ -35,7 +35,8 @@ namespace
     const char* WINDOW_TITLE = "Ziip";
 }
 
-Main::Main()
+Main::Main():
+    _numPlayers(0)
 {
     if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_EVENTTHREAD |
                 SDL_INIT_JOYSTICK) == -1)
@@ -73,32 +74,9 @@ Main::Main()
         }
     }
 
-#if 0
-    SDL_Event event;
-    InputMgr getKey;
-    while (1)
-    {
-        if (SDL_WaitEvent(&event))
-        {
-            InputMgr::Keys key;
-            if ((key = getKey(event)) != InputMgr::INV_EVT)
-            {
-                std::cout << key << std::endl;
-                if (key == InputMgr::QUIT)
-                    break;
-            }
-            else if (event.type == SDL_QUIT)
-            {
-                break;
-            }
-        }
-    }
-#endif
-
     SDL_WM_SetCaption( WINDOW_TITLE, 0 );
 
     _rsc.reset(new Resources);
-    _board.reset(new Board(_rsc.get()));
 
     //initialize random seed
     srand(time(NULL));
@@ -107,7 +85,7 @@ Main::Main()
 Main::~Main()
 {
     //force board destruction to release ttf related stuff before TTF_Quit call
-    _board.reset();
+    _boards[0].reset();
     TTF_Quit();
     SDL_Quit();
 }
@@ -144,7 +122,7 @@ Main::play()
                         lastMov = Player::Right;
                         break;
                     case InputMgr::BUT_A:
-                        _board->playerShooted();
+                        _boards[0]->playerShooted();
                         break;
                     case InputMgr::QUIT:
                         cause = Quitted;
@@ -158,7 +136,7 @@ Main::play()
             {
                 //up to now there is only the timer evt
                 assert (event.user.code == TimerEvtId);
-                const bool gameOver = _board->addPiece();
+                const bool gameOver = _boards[0]->addPiece();
                 if (gameOver)
                     cause = GameOver;
             }
@@ -175,10 +153,10 @@ Main::play()
         }
 
         // update state
-        _board->movePlayer(lastMov);
+        _boards[0]->movePlayer(lastMov);
 
         // draw scene
-        _board->draw();
+        _boards[0]->draw();
 
         if (cause == GameOver)
         {
@@ -210,11 +188,6 @@ Main::run()
     MainMenu mMenu(_rsc.get());
     bool quit = false;
 
-    //TODO: change this depending on game mode
-    int w, h;
-    _rsc->getScreenSize(w, h);
-    _board->resize(w, h);
-
     while (!quit)
     {
         switch (state)
@@ -230,11 +203,14 @@ Main::run()
                 break;
             case StatPlay:
                 {
+                    _numPlayers = 1;
+                    _rsc->prepareBoardGraphics(_numPlayers);
+                    _boards[0].reset(new Board(0, _rsc.get()));
                     const PlayExitCause pECause = play();
                     if (pECause == Quitted)
                         quit = true;
                     else if (pECause == GameOver)
-                        _board->clear();
+                        _boards[0]->clear();
                     state = StatMainMenu;
                 }
                 break;
@@ -291,6 +267,10 @@ Main::MainMenu::operator()()
                         break;
                     case InputMgr::BUT_A:
                         option = static_cast<Option>(_selOpt);
+                        break;
+                    case InputMgr::QUIT:
+                        option = Quit;
+                        break;
                     default:
                         break;
                 }

@@ -42,12 +42,14 @@ class Resources
         Resources();
         ~Resources();
 
-        void prepareBoardGraphics(int newBlockSize);
+        void prepareBoardGraphics(int numPlayers);
         SDL_Surface *screen();
         SDL_Surface *getSfc(Surface sfc);
         void getScreenSize(int &width, int &height);
         float getProportion();
         int getBlockSize();
+        SDL_Rect getBoardArea(int id) const;
+        SDL_Rect getGridArea(int id) const;
 
     private:
         void prepareSurface(Surface sfc, float prop);
@@ -60,6 +62,8 @@ class Resources
         std::vector<SDL_Surface *> _surfaces;
         float _proportion;
         int _currBlockSize;
+        std::vector<SDL_Rect> _boardAreas;
+        std::vector<SDL_Rect> _gridAreas;
 };
 
 #endif //RESOURCES_HPP

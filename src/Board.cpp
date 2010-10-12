@@ -30,8 +30,6 @@
 const int Board::numRows = 16;
 const int Board::horiRowsLen = 7;
 const int Board::vertRowsLen = 5;
-const int Board::rowsInScreen = 14;
-const int Board::colsInScreen = 18;
 
 namespace
 {
@@ -187,14 +185,14 @@ namespace
     }
 }
 
-Board::Board(Resources *rsc):
+Board::Board(int id, Resources *rsc):
+    _id(id),
     _rsc(rsc),
     _timer(InitialTimeout),
     _player(rsc),
     _rowLastPiece(16),
     _score(rsc)
 {
-    _piecesImg = _rsc->getSfc(Resources::SfcPieces);
     Row tmpRow(horiRowsLen, 1, 0, _rsc);
     _rows.resize(4, tmpRow);
     tmpRow = Row(vertRowsLen, 0, -1, _rsc);
@@ -203,33 +201,11 @@ Board::Board(Resources *rsc):
     _rows.resize(12, tmpRow);
     tmpRow = Row(vertRowsLen, 0, 1, _rsc);
     _rows.resize(16, tmpRow);
-}
 
-Board::~Board()
-{
-}
-
-SDL_Rect
-Board::calculateOriginAndTileSize(int width, int height)
-{
-    const float proportion = static_cast<float>(rowsInScreen) / colsInScreen;
-    SDL_Rect ret;
-    if (static_cast<float>(height) / width > proportion)
-    {
-        ret.w = ret.h = width / colsInScreen;
-    }
-    else
-    {
-        ret.w = ret.h = height / rowsInScreen;
-    }
-    ret.x = (width - ret.w * colsInScreen) / 2;
-    ret.y = (height - ret.h * rowsInScreen) / 2;
-    /*ret.x = 22;
-    ret.y = 6;
-    ret.w = 42;
-    ret.h = 42;*/
-
-    return ret;
+    SDL_Rect gridRect = _rsc->getGridArea(id);
+    fillRowsRects(gridRect, _rows);
+    const SDL_Rect playerRect = getPlayerRect(gridRect);
+    _player.setOriginAndSize(playerRect);
 }
 
 void
@@ -274,16 +250,6 @@ Board::playerShooted()
         _player.reverse();
         _player.setColor(newColor);
     }
-}
-
-void
-Board::resize(int width, int height)
-{
-    _origSize = calculateOriginAndTileSize(width, height);
-    _rsc->prepareBoardGraphics(_origSize.w);
-    SDL_Rect playerRect = getPlayerRect(_origSize);
-    fillRowsRects(_origSize, _rows);
-    _player.setOriginAndSize(playerRect);
 }
 
 void

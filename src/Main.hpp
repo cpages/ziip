@@ -70,8 +70,9 @@ class Main
         PlayExitCause play();
 
         std::auto_ptr<Resources> _rsc;
-        std::auto_ptr<Board> _board;
+        std::auto_ptr<Board> _boards[4];
         std::vector<SDL_Joystick *> _joysticks;
+        int _numPlayers;
 };
 
 #endif //MAIN_HPP
