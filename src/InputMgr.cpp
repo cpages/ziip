@@ -96,6 +96,7 @@ InputMgr::operator()(const SDL_Event &event)
             }
             break;
         case SDL_JOYBUTTONDOWN:
+            kp.playerId = 1;
             switch (event.jbutton.button)
             {
                 case 0: //A

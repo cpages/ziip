@@ -31,7 +31,11 @@ namespace
     const int WINDOW_WIDTH = 640;
     const int WINDOW_HEIGHT = 480;
     const int BITDEPTH = 0; //same as current display
+#ifdef GEKKO
     const bool FULLSCREEN = false;
+#else
+    const bool FULLSCREEN = false;
+#endif
     const int ORIG_WIDTH = 800;
     const int ORIG_HEIGHT = 600;
     const int origBlockSize = 42;
