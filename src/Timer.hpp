@@ -25,13 +25,14 @@
 class Timer
 {
     public:
-        Timer(int timeout);
+        Timer(int id, int timeout);
         ~Timer();
 
         void increaseSpeed(int percentage);
         void setTimeout(int timeout);
 
     private:
+        int _id;
         int _timeout;
         SDL_TimerID _timerID;
 };

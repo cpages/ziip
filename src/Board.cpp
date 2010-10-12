@@ -35,7 +35,6 @@ namespace
 {
     const bool debug = false;
 
-    const int origPieceSize = 42;
     const SDL_Color scoreColor = {255, 0, 0};
     const int PointsPerLevel = 1000;
     const int SpeedPercentInc = 10;
@@ -47,23 +46,23 @@ namespace
 #endif
 
     SDL_Rect
-    getPlayerRect(SDL_Rect rect)
+    getPlayerRect(SDL_Rect rect, int bSize)
     {
         SDL_Rect ret;
-        ret.x = rect.x + rect.w * Board::horiRowsLen;
-        ret.y = rect.y + rect.h * Board::vertRowsLen;
-        ret.w = rect.w;
-        ret.h = rect.h;
+        ret.x = rect.x + bSize * Board::horiRowsLen;
+        ret.y = rect.y + bSize * Board::vertRowsLen;
+        ret.w = bSize;
+        ret.h = bSize;
 
         return ret;
     }
 
     void
-    fillRowsRects(const SDL_Rect &newOrigSize, std::vector<Row> &rows)
+    fillRowsRects(const SDL_Rect &newOrigSize, int bSize, std::vector<Row> &rows)
     {
         SDL_Rect rect;
-        rect.w = newOrigSize.w;
-        rect.h = newOrigSize.h;
+        rect.w = bSize;
+        rect.h = bSize;
 
         rect.x = newOrigSize.x;
         for (int i = 0; i < 4; i++)
@@ -188,10 +187,10 @@ namespace
 Board::Board(int id, Resources *rsc):
     _id(id),
     _rsc(rsc),
-    _timer(InitialTimeout),
+    _timer(id, InitialTimeout),
     _player(rsc),
     _rowLastPiece(16),
-    _score(rsc)
+    _score(id, rsc)
 {
     Row tmpRow(horiRowsLen, 1, 0, _rsc);
     _rows.resize(4, tmpRow);
@@ -203,8 +202,8 @@ Board::Board(int id, Resources *rsc):
     _rows.resize(16, tmpRow);
 
     SDL_Rect gridRect = _rsc->getGridArea(id);
-    fillRowsRects(gridRect, _rows);
-    const SDL_Rect playerRect = getPlayerRect(gridRect);
+    fillRowsRects(gridRect, _rsc->getBlockSize(), _rows);
+    const SDL_Rect playerRect = getPlayerRect(gridRect, _rsc->getBlockSize());
     _player.setOriginAndSize(playerRect);
 }
 
@@ -255,8 +254,9 @@ Board::playerShooted()
 void
 Board::draw()
 {
+    SDL_Rect dst = _rsc->getBoardArea(_id);
     SDL_BlitSurface(_rsc->getSfc(Resources::SfcBoard), NULL,
-            _rsc->screen(), NULL);
+            _rsc->screen(), &dst);
     _player.draw();
     _score.draw();
     for (int i = 0; i < numRows; i++)
@@ -265,7 +265,8 @@ Board::draw()
     }
 }
 
-Board::Score::Score(Resources *rsc):
+Board::Score::Score(int id, Resources *rsc):
+    _id(id),
     _rsc(rsc),
     _currScore(0)
 {
@@ -311,5 +312,6 @@ Board::Score::addPoints(int points)
 void
 Board::Score::draw()
 {
-    SDL_BlitSurface(_renderedScore, NULL, _rsc->screen(), NULL);
+    SDL_Rect dst = _rsc->getBoardArea(_id);
+    SDL_BlitSurface(_renderedScore, NULL, _rsc->screen(), &dst);
 }

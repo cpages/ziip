@@ -28,9 +28,4 @@ enum Color
     NoColor
 };
 
-enum EvtType
-{
-    TimerEvtId
-};
-
 #endif //SHARED_DATA_HPP

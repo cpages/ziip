@@ -54,6 +54,8 @@ class Resources
     private:
         void prepareSurface(Surface sfc, float prop);
         void prepareBGGraphics();
+        void divideScreen(int numPlayers);
+        void fillGridRects();
 
         int _winWidth;
         int _winHeight;

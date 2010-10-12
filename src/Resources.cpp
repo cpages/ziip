@@ -21,6 +21,7 @@
 #include <stdexcept>
 #include <string>
 #include <cassert>
+#include <cmath>
 #include "SDL/SDL_image.h"
 #include "SDL/SDL_rotozoom.h"
 #include "Resources.hpp"
@@ -33,7 +34,7 @@ namespace
     const bool FULLSCREEN = false;
     const int ORIG_WIDTH = 800;
     const int ORIG_HEIGHT = 600;
-    const int origPieceSize = 42;
+    const int origBlockSize = 42;
     const int rowsInGrid = 14;
     const int colsInGrid = 18;
 
@@ -75,7 +76,7 @@ Resources::Resources():
     _winWidth(WINDOW_WIDTH),
     _winHeight(WINDOW_HEIGHT),
     _proportion(1.f),
-    _currBlockSize(origPieceSize)
+    _currBlockSize(origBlockSize)
 {
     for (int i = 0; i < NumSurfaces; ++i)
         _surfaceFiles.push_back(std::string(surfaceFiles[i]));
@@ -135,42 +136,78 @@ Resources::prepareBGGraphics()
 }
 
 void
+Resources::divideScreen(int numPlayers)
+{
+    _boardAreas.clear();
+    const float sq = std::sqrt(float(numPlayers));
+    const int colDiv = std::ceil(sq);
+    const int rowDiv = std::ceil(float(numPlayers)/colDiv);
+    const int boardW = std::floor(float(_winWidth)/colDiv);
+    const int boardH = std::floor(float(_winHeight)/rowDiv);
+    for (int i = 0; i < rowDiv; ++i)
+    {
+        for (int j = 0; j < colDiv; ++j)
+        {
+            //there might be some empty parts
+            if (i * colDiv + j == numPlayers)
+                return;
+
+            SDL_Rect rect;
+            rect.x = j * boardW;
+            rect.y = i * boardH;
+            rect.w = boardW;
+            rect.h = boardH;
+            _boardAreas.push_back(rect);
+        }
+    }
+}
+
+void
+Resources::fillGridRects()
+{
+    //find origin and size of grid
+    const float xProp = float(_boardAreas[0].w) / (colsInGrid * origBlockSize);
+    const float yProp = float(_boardAreas[0].h) / (rowsInGrid * origBlockSize);
+    const float proportion = std::min(xProp, yProp);
+    _currBlockSize = std::floor(origBlockSize * proportion);
+    _proportion = float(_currBlockSize) / origBlockSize;
+    const int gridW = colsInGrid * _currBlockSize;
+    const int gridH = rowsInGrid * _currBlockSize;
+    const int xOffset = std::floor(float(_boardAreas[0].w - gridW) / 2);
+    const int yOffset = std::floor(float(_boardAreas[0].h - gridH) / 2);
+
+    _gridAreas.clear();
+    for (unsigned int i = 0; i < _boardAreas.size(); ++i)
+    {
+        SDL_Rect gridRect = _boardAreas[i];
+        gridRect.x += xOffset;
+        gridRect.y += yOffset;
+        //TODO: is this necessary?
+        gridRect.w = gridW;
+        gridRect.h = gridH;
+        _gridAreas.push_back(gridRect);
+    }
+}
+
+void
 Resources::prepareBoardGraphics(int numPlayers)
 {
-    //TODO: multiple screens
-    SDL_Rect rect;
-    rect.x = rect.y = 0;
-    rect.w = _winWidth;
-    rect.h = _winHeight;
-    _boardAreas.clear();
-    _boardAreas.push_back(rect);
-
-    const float gridProp = static_cast<float>(rowsInGrid) / colsInGrid;
-    //find origin and size of grid
-    SDL_Rect ret;
-    if (static_cast<float>(rect.h) / rect.w > gridProp)
-        ret.w = ret.h = rect.w / colsInGrid;
-    else
-        ret.w = ret.h = rect.h / rowsInGrid;
-    ret.x = (rect.w - ret.w * colsInGrid) / 2;
-    ret.y = (rect.h - ret.h * rowsInGrid) / 2;
-    _gridAreas.clear();
-    _gridAreas.push_back(ret);
+    divideScreen(numPlayers);
+    fillGridRects();
 
     const float xProp = static_cast<float>(_winWidth)/ORIG_WIDTH;
     const float yProp = static_cast<float>(_winHeight)/ORIG_HEIGHT;
     assert (xProp == yProp);
-
     _surfaceFiles[SfcBoard] = _bgFiles[0];
     prepareSurface(SfcBoard, xProp);
 
-    const int newBlockSize = 33;
-    _currBlockSize = newBlockSize;
-    const float _proportion = static_cast<float>(newBlockSize) / origPieceSize;
-
-    prepareSurface(SfcGrid, xProp);
-    //we blit the grid to the background to get the final board
-    SDL_BlitSurface(_surfaces[SfcGrid], NULL, _surfaces[SfcBoard], NULL);
+    prepareSurface(SfcGrid, _proportion);
+    for (unsigned int i = 0; i < _gridAreas.size(); ++i)
+    {
+        //we blit the grid to the background to get the final board
+        SDL_BlitSurface(_surfaces[SfcGrid], NULL,
+                _surfaces[SfcBoard], &_gridAreas[i]);
+    }
 
     prepareSurface(SfcPieces, _proportion);
     prepareSurface(SfcPlayer, _proportion);

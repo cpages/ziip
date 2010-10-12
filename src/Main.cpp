@@ -85,7 +85,8 @@ Main::Main():
 Main::~Main()
 {
     //force board destruction to release ttf related stuff before TTF_Quit call
-    _boards[0].reset();
+    for (int i = 0; i < _numPlayers; ++i)
+        _boards[i].reset();
     TTF_Quit();
     SDL_Quit();
 }
@@ -134,9 +135,8 @@ Main::play()
             }
             else if (event.type == SDL_USEREVENT)
             {
-                //up to now there is only the timer evt
-                assert (event.user.code == TimerEvtId);
-                const bool gameOver = _boards[0]->addPiece();
+                const int id = event.user.code;
+                const bool gameOver = _boards[id]->addPiece();
                 if (gameOver)
                     cause = GameOver;
             }
@@ -156,7 +156,8 @@ Main::play()
         _boards[0]->movePlayer(lastMov);
 
         // draw scene
-        _boards[0]->draw();
+        for (int i = 0; i < _numPlayers; ++i)
+            _boards[i]->draw();
 
         if (cause == GameOver)
         {
@@ -205,12 +206,14 @@ Main::run()
                 {
                     _numPlayers = 1;
                     _rsc->prepareBoardGraphics(_numPlayers);
-                    _boards[0].reset(new Board(0, _rsc.get()));
+                    for (int i = 0; i < _numPlayers; ++i)
+                        _boards[i].reset(new Board(i, _rsc.get()));
                     const PlayExitCause pECause = play();
                     if (pECause == Quitted)
                         quit = true;
                     else if (pECause == GameOver)
-                        _boards[0]->clear();
+                        for (int i = 0; i < _numPlayers; ++i)
+                            _boards[i]->clear();
                     state = StatMainMenu;
                 }
                 break;

@@ -28,17 +28,18 @@ namespace
     {
         SDL_Event event;
         event.type = SDL_USEREVENT;
-        event.user.code = TimerEvtId;
+        event.user.code = *static_cast<int *>(param);
         SDL_PushEvent(&event);
 
         return interval;
     }
 }
 
-Timer::Timer(int timeout):
+Timer::Timer(int id, int timeout):
+    _id(id),
     _timeout(timeout)
 {
-    _timerID = SDL_AddTimer(_timeout, timerCB, NULL);
+    _timerID = SDL_AddTimer(_timeout, timerCB, static_cast<void *>(&_id));
 }
 
 Timer::~Timer()

@@ -47,7 +47,7 @@ class Board
         class Score
         {
             public:
-                Score(Resources *rsc);
+                Score(int id, Resources *rsc);
                 ~Score();
 
                 void reset();
@@ -55,6 +55,7 @@ class Board
                 void draw();
 
             private:
+                int _id;
                 Resources *_rsc;
                 int _currScore;
                 TTF_Font *_font;
