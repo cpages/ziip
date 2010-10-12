@@ -61,7 +61,7 @@ Timer::setTimeout(int timeout)
     {
         SDL_RemoveTimer(_timerID);
         _timeout = timeout;
-        _timerID = SDL_AddTimer(_timeout, timerCB, NULL);
+        _timerID = SDL_AddTimer(_timeout, timerCB, static_cast<void *>(&_id));
         if (debug)
             std::cout << "Timer set to: " << _timeout << std::endl;
     }

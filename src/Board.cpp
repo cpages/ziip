@@ -254,9 +254,9 @@ Board::playerShooted()
 void
 Board::draw()
 {
-    SDL_Rect dst = _rsc->getBoardArea(_id);
-    SDL_BlitSurface(_rsc->getSfc(Resources::SfcBoard), NULL,
-            _rsc->screen(), &dst);
+    SDL_Rect rect = _rsc->getBoardArea(_id);
+    SDL_BlitSurface(_rsc->getSfc(Resources::SfcBoard), &rect,
+            _rsc->screen(), &rect);
     _player.draw();
     _score.draw();
     for (int i = 0; i < numRows; i++)

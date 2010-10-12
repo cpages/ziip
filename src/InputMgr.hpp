@@ -35,9 +35,13 @@ class InputMgr
             QUIT
         };
 
-        InputMgr();
+        struct KeyPressed
+        {
+            int playerId;
+            Keys key;
+        };
 
-        Keys operator()(const SDL_Event &event);
+        KeyPressed operator()(const SDL_Event &event);
 };
 
 #endif //INPUT_MGR_HPP

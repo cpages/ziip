@@ -18,38 +18,36 @@
 */
 #include "InputMgr.hpp"
 
-InputMgr::InputMgr()
-{
-}
-
-InputMgr::Keys
+InputMgr::KeyPressed
 InputMgr::operator()(const SDL_Event &event)
 {
-    Keys keyPressed = INV_EVT;
+    KeyPressed kp;
+    kp.key = INV_EVT;
 
     switch (event.type)
     {
         case SDL_KEYDOWN:
+            kp.playerId = 0;
             switch (event.key.keysym.sym)
             {
                 case SDLK_UP:
-                    keyPressed = UP;
+                    kp.key = UP;
                     break;
                 case SDLK_DOWN:
-                    keyPressed = DOWN;
+                    kp.key = DOWN;
                     break;
                 case SDLK_LEFT:
-                    keyPressed = LEFT;
+                    kp.key = LEFT;
                     break;
                 case SDLK_RIGHT:
-                    keyPressed = RIGHT;
+                    kp.key = RIGHT;
                     break;
                 case SDLK_SPACE:
                 case SDLK_RETURN:
-                    keyPressed = BUT_A;
+                    kp.key = BUT_A;
                     break;
                 case SDLK_q:
-                    keyPressed = QUIT;
+                    kp.key = QUIT;
                     break;
                 default:
                     //do nothing
@@ -60,16 +58,16 @@ InputMgr::operator()(const SDL_Event &event)
             switch (event.jhat.value)
             {
                 case SDL_HAT_UP:
-                    keyPressed = UP;
+                    kp.key = UP;
                     break;
                 case SDL_HAT_DOWN:
-                    keyPressed = DOWN;
+                    kp.key = DOWN;
                     break;
                 case SDL_HAT_LEFT:
-                    keyPressed = LEFT;
+                    kp.key = LEFT;
                     break;
                 case SDL_HAT_RIGHT:
-                    keyPressed = RIGHT;
+                    kp.key = RIGHT;
                     break;
                 default:
                     //do nothing
@@ -77,22 +75,23 @@ InputMgr::operator()(const SDL_Event &event)
             }
             break;
         case SDL_JOYAXISMOTION:
+            kp.playerId = 1;
             if ( ( event.jaxis.value < -3200 ) || (event.jaxis.value > 3200 ) ) 
             {
                 if( event.jaxis.axis == 0) 
                 {
                     if (event.jaxis.value < 0 )
-                        keyPressed = LEFT;
+                        kp.key = LEFT;
                     else
-                        keyPressed = RIGHT;
+                        kp.key = RIGHT;
                 }
 
                 if( event.jaxis.axis == 1) 
                 {
                     if (event.jaxis.value < 0 )
-                        keyPressed = UP;
+                        kp.key = UP;
                     else
-                        keyPressed = DOWN;
+                        kp.key = DOWN;
                 }
             }
             break;
@@ -106,11 +105,11 @@ InputMgr::operator()(const SDL_Event &event)
                 case 10: //b
                 case 11: //x
                 case 12: //y
-                    keyPressed = BUT_A;
+                    kp.key = BUT_A;
                     break;
                 case 6: //home
                 case 19: //home classic
-                    keyPressed = QUIT;
+                    kp.key = QUIT;
                     break;
             }
             break;
@@ -118,5 +117,5 @@ InputMgr::operator()(const SDL_Event &event)
             break;
     }
 
-    return keyPressed;
+    return kp;
 }

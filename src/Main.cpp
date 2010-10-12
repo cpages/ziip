@@ -97,6 +97,10 @@ Main::play()
     SDL_Event event;
     InputMgr getKey;
     Player::playerDirection lastMov;
+    int id = 0;
+
+    for (int i = 0; i < _numPlayers; ++i)
+        _boards[i]->draw();
 
     Main::PlayExitCause cause = InvalidCause;
     while (cause == InvalidCause)
@@ -105,10 +109,12 @@ Main::play()
         if (SDL_WaitEvent(&event))
         {
             lastMov = Player::NoDir;
-            InputMgr::Keys key;
-            if ((key = getKey(event)) != InputMgr::INV_EVT)
+            InputMgr::KeyPressed keyPress;
+            keyPress = getKey(event);
+            if (keyPress.key != InputMgr::INV_EVT)
             {
-                switch (key)
+                id = keyPress.playerId;
+                switch (keyPress.key)
                 {
                     case InputMgr::UP:
                         lastMov = Player::Up;
@@ -123,7 +129,7 @@ Main::play()
                         lastMov = Player::Right;
                         break;
                     case InputMgr::BUT_A:
-                        _boards[0]->playerShooted();
+                        _boards[id]->playerShooted();
                         break;
                     case InputMgr::QUIT:
                         cause = Quitted;
@@ -135,7 +141,7 @@ Main::play()
             }
             else if (event.type == SDL_USEREVENT)
             {
-                const int id = event.user.code;
+                id = event.user.code;
                 const bool gameOver = _boards[id]->addPiece();
                 if (gameOver)
                     cause = GameOver;
@@ -153,11 +159,10 @@ Main::play()
         }
 
         // update state
-        _boards[0]->movePlayer(lastMov);
+        _boards[id]->movePlayer(lastMov);
 
         // draw scene
-        for (int i = 0; i < _numPlayers; ++i)
-            _boards[i]->draw();
+        _boards[id]->draw();
 
         if (cause == GameOver)
         {
@@ -204,7 +209,7 @@ Main::run()
                 break;
             case StatPlay:
                 {
-                    _numPlayers = 1;
+                    _numPlayers = 2;
                     _rsc->prepareBoardGraphics(_numPlayers);
                     for (int i = 0; i < _numPlayers; ++i)
                         _boards[i].reset(new Board(i, _rsc.get()));
@@ -257,10 +262,11 @@ Main::MainMenu::operator()()
 
         if (SDL_WaitEvent(&event))
         {
-            InputMgr::Keys key;
-            if ((key = getKey(event)) != InputMgr::INV_EVT)
+            InputMgr::KeyPressed keyPress;
+            keyPress = getKey(event);
+            if (keyPress.key != InputMgr::INV_EVT)
             {
-                switch (key)
+                switch (keyPress.key)
                 {
                     case InputMgr::UP:
                         _selOpt = 0;
