@@ -22,7 +22,6 @@
 #include <cassert>
 #include <cstdlib>
 #include <ctime>
-#include "SDL/SDL_ttf.h"
 #include "Resources.hpp"
 #include "Player.hpp"
 #include "InputMgr.hpp"
@@ -43,14 +42,6 @@ Main::Main():
     {
         std::ostringstream msg;
         msg << "Could not initialize SDL: " << SDL_GetError();
-        throw std::runtime_error(msg.str());
-    }
-
-    //init TTF stuff
-    if (TTF_Init() == -1)
-    {
-        std::ostringstream msg;
-        msg << "Could not initialize SDL_ttf: " << SDL_GetError();
         throw std::runtime_error(msg.str());
     }
 
@@ -84,10 +75,6 @@ Main::Main():
 
 Main::~Main()
 {
-    //force board destruction to release ttf related stuff before TTF_Quit call
-    for (int i = 0; i < _numPlayers; ++i)
-        _boards[i].reset();
-    TTF_Quit();
     SDL_Quit();
 }
 

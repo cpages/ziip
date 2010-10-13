@@ -21,7 +21,6 @@
 
 #include <vector>
 #include "SDL/SDL.h"
-#include "SDL/SDL_ttf.h"
 #include "Timer.hpp"
 #include "Player.hpp"
 #include "Row.hpp"
@@ -58,7 +57,6 @@ class Board
                 int _id;
                 Resources *_rsc;
                 int _currScore;
-                TTF_Font *_font;
                 SDL_Surface *_renderedScore;
         };
 

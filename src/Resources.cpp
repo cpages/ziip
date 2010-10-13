@@ -44,9 +44,13 @@ namespace
 
 #ifdef GEKKO
     const std::string dataFolder("sd:/apps/ziip/data/");
+    const std::string fontFolder("sd:/apps/ziip/fonts/");
 #else
     const std::string dataFolder("data/");
+    const std::string fontFolder("fonts/");
 #endif
+    const std::string fontName("LiberationMono-Bold.ttf");
+    const int fontSize = 24;
     const char *surfaceFiles[] = {
         "",
         "main_menu.png",
@@ -109,6 +113,39 @@ Resources::~Resources()
     //we don't want to free the screen, SDL_Quit does this
     for (int i = 1; i < NumSurfaces; ++i)
         SDL_FreeSurface(_surfaces[i]);
+}
+
+Resources::FontMgr::FontMgr()
+{
+    //init TTF stuff
+    if (TTF_Init() == -1)
+    {
+        std::ostringstream msg;
+        msg << "Could not initialize SDL_ttf: " << SDL_GetError();
+        throw std::runtime_error(msg.str());
+    }
+
+    std::string fontFile = fontFolder;
+    fontFile.append(fontName);
+    _font = TTF_OpenFont(fontFile.c_str(), fontSize);
+    if (_font == NULL)
+    {
+        std::ostringstream msg;
+        msg << "Could not load font: " << SDL_GetError();
+        throw std::runtime_error(msg.str());
+    }
+}
+
+Resources::FontMgr::~FontMgr()
+{
+    TTF_CloseFont(_font); 
+    TTF_Quit();
+}
+
+SDL_Surface *
+Resources::FontMgr::renderText(const std::string &str, const SDL_Color &color)
+{
+    return TTF_RenderText_Solid(_font, str.c_str(), color);
 }
 
 void
@@ -259,4 +296,10 @@ SDL_Rect
 Resources::getGridArea(int id) const
 {
     return _gridAreas[id];
+}
+
+SDL_Surface *
+Resources::renderText(const std::string &str, const SDL_Color &color)
+{
+    return _fontMgr.renderText(str, color);
 }

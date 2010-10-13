@@ -39,11 +39,6 @@ namespace
     const int PointsPerLevel = 1000;
     const int SpeedPercentInc = 10;
     const int InitialTimeout = 1000;
-#ifdef GEKKO
-    const std::string fontFolder("sd:/apps/ziip/fonts/");
-#else
-    const std::string fontFolder("fonts/");
-#endif
 
     SDL_Rect
     getPlayerRect(SDL_Rect rect, int bSize)
@@ -270,18 +265,13 @@ Board::Score::Score(int id, Resources *rsc):
     _rsc(rsc),
     _currScore(0)
 {
-    std::string fontFile = fontFolder;
-    fontFile.append("LiberationMono-Bold.ttf");
-    _font = TTF_OpenFont(fontFile.c_str(), 24);
-    assert (_font != NULL);
-    std::string str("SCORE: 0");
-    _renderedScore = TTF_RenderText_Solid(_font, str.c_str(), scoreColor);
+    const std::string str("SCORE: 0");
+    _renderedScore = _rsc->renderText(str, scoreColor);
 }
 
 Board::Score::~Score()
 {
     SDL_FreeSurface(_renderedScore);
-    TTF_CloseFont(_font); 
 }
 
 void
@@ -289,9 +279,9 @@ Board::Score::reset()
 {
     _currScore = 0;
     SDL_FreeSurface(_renderedScore);
-    std::ostringstream str;
-    str << "SCORE: " << _currScore;
-    _renderedScore = TTF_RenderText_Solid(_font, str.str().c_str(), scoreColor);
+    std::ostringstream sstr;
+    sstr << "SCORE: " << _currScore;
+    _renderedScore = _rsc->renderText(sstr.str(), scoreColor);
 }
 
 bool
@@ -303,9 +293,9 @@ Board::Score::addPoints(int points)
     if ((_currScore/PointsPerLevel) != levelVal)
         nextLevel = true;
     SDL_FreeSurface(_renderedScore);
-    std::ostringstream str;
-    str << "SCORE: " << _currScore;
-    _renderedScore = TTF_RenderText_Solid(_font, str.str().c_str(), scoreColor);
+    std::ostringstream sstr;
+    sstr << "SCORE: " << _currScore;
+    _renderedScore = _rsc->renderText(sstr.str(), scoreColor);
     return nextLevel;
 }
 

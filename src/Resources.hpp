@@ -22,6 +22,7 @@
 #include <vector>
 #include <string>
 #include "SDL/SDL.h"
+#include "SDL/SDL_ttf.h"
 
 class Resources
 {
@@ -51,12 +52,28 @@ class Resources
         SDL_Rect getBoardArea(int id) const;
         SDL_Rect getGridArea(int id) const;
 
+        SDL_Surface *renderText(const std::string &str, const SDL_Color &color);
+
     private:
+        class FontMgr
+        {
+            public:
+                FontMgr();
+                ~FontMgr();
+
+                SDL_Surface *renderText(const std::string &str,
+                        const SDL_Color &color);
+
+            private:
+                TTF_Font *_font;
+        };
+
         void prepareSurface(Surface sfc, float prop);
         void prepareBGGraphics();
         void divideScreen(int numPlayers);
         void fillGridRects();
 
+        FontMgr _fontMgr;
         int _winWidth;
         int _winHeight;
         std::vector<std::string> _surfaceFiles;
