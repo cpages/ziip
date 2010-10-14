@@ -1,3 +1,5 @@
+- clear events when game finishes
+- remove game_over graphics stuff
 - get some decent graphics
 - change fonts for bitmaps?
 - make run under Windows

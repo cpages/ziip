@@ -236,6 +236,7 @@ Board::playerShooted()
     int aimedRow = getAimedRow(_player.getPos(), _player.getDirection());
     std::pair<Color, int> result = _rows[aimedRow].shoot(_player.getColor());
     Color newColor = result.first;
+    //TODO: move score computation here
     bool newLevel = _score.addPoints(result.second);
     if (newLevel)
         _timer.increaseSpeed(SpeedPercentInc);
@@ -244,6 +245,12 @@ Board::playerShooted()
         _player.reverse();
         _player.setColor(newColor);
     }
+}
+
+int
+Board::getScore() const
+{
+    return _score.getScore();
 }
 
 void
@@ -297,6 +304,12 @@ Board::Score::addPoints(int points)
     sstr << "SCORE: " << _currScore;
     _renderedScore = _rsc->renderText(sstr.str(), scoreColor);
     return nextLevel;
+}
+
+int
+Board::Score::getScore() const
+{
+    return _currScore;
 }
 
 void

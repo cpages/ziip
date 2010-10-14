@@ -76,6 +76,7 @@ class Main
         std::auto_ptr<Board> _boards[4];
         std::vector<SDL_Joystick *> _joysticks;
         int _numPlayers;
+        std::auto_ptr<HiScore> _hiScore;
 };
 
 #endif //MAIN_HPP

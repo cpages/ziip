@@ -40,6 +40,7 @@ class Board
         bool addPiece();
         void movePlayer(Player::playerDirection mov);
         void playerShooted();
+        int getScore() const;
         void draw();
 
     private:
@@ -51,6 +52,7 @@ class Board
 
                 void reset();
                 bool addPoints(int points);
+                int getScore() const;
                 void draw();
 
             private:

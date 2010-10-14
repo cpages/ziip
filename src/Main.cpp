@@ -25,6 +25,7 @@
 #include "Resources.hpp"
 #include "Player.hpp"
 #include "InputMgr.hpp"
+#include "HiScore.hpp"
 #include "Main.hpp"
 
 namespace
@@ -32,6 +33,15 @@ namespace
     const bool debug = false;
 
     const char* WINDOW_TITLE = "Ziip";
+
+    bool
+    gameOver(const std::vector<bool> &gOver)
+    {
+        for (unsigned int i = 0; i < gOver.size(); ++i)
+            if (gOver[i])
+                return true;
+        return false;
+    }
 }
 
 Main::Main():
@@ -68,6 +78,7 @@ Main::Main():
     SDL_WM_SetCaption( WINDOW_TITLE, 0 );
 
     _rsc.reset(new Resources);
+    _hiScore.reset(new HiScore(_rsc.get()));
 
     //initialize random seed
     srand(time(NULL));
@@ -84,6 +95,7 @@ Main::play()
     SDL_Event event;
     InputMgr getKey;
     Player::playerDirection lastMov;
+    std::vector<bool> gOver(_numPlayers, false);
     int id = 0;
 
     for (int i = 0; i < _numPlayers; ++i)
@@ -129,9 +141,13 @@ Main::play()
             else if (event.type == SDL_USEREVENT)
             {
                 id = event.user.code;
-                const bool gameOver = _boards[id]->addPiece();
-                if (gameOver)
+                gOver[id] = _boards[id]->addPiece();
+                //TODO: add cases depending on game mode for multiplayer
+                if (gameOver(gOver))
+                {
+                    _hiScore->addScore(_boards[id]->getScore());
                     cause = GameOver;
+                }
             }
             else if (event.type == SDL_QUIT)
             {
@@ -146,6 +162,7 @@ Main::play()
         }
 
         // update state
+        //TODO: review this: lastMov always set?
         _boards[id]->movePlayer(lastMov);
 
         // draw scene
@@ -153,14 +170,16 @@ Main::play()
 
         if (cause == GameOver)
         {
+            const std::string goStr("Game Over");
+            const SDL_Color goCol = {255, 255, 255};
+            SDL_Surface *go = _rsc->renderText(goStr, goCol);
             int scrW, scrH;
             _rsc->getScreenSize(scrW, scrH);
             SDL_Rect goRect;
-            // game_over is 100x40
-            goRect.x = scrW / 2 - 50;
-            goRect.y = scrH / 2 - 20;
-            SDL_BlitSurface(_rsc->getSfc(Resources::SfcGameOver), NULL,
-                    _rsc->screen(), &goRect);
+            goRect.x = scrW / 2 - 60;
+            goRect.y = scrH / 2 - 12;
+            SDL_BlitSurface(go, NULL, _rsc->screen(), &goRect);
+            SDL_FreeSurface(go);
         }
 
         SDL_Flip(_rsc->screen());
@@ -168,7 +187,25 @@ Main::play()
         SDL_Delay(1);
 
         if (cause == GameOver)
-            SDL_Delay(5000);
+        {
+            InputMgr::KeyPressed keyPress;
+            keyPress.key = InputMgr::INV_EVT;
+            while (keyPress.key == InputMgr::INV_EVT)
+            {
+                //TODO: check for exit
+                if (SDL_WaitEvent(&event))
+                    keyPress = getKey(event);
+            }
+            //TODO: print score board
+            _hiScore->renderHiScore();
+            keyPress.key = InputMgr::INV_EVT;
+            while (keyPress.key == InputMgr::INV_EVT)
+            {
+                //TODO: check for exit
+                if (SDL_WaitEvent(&event))
+                    keyPress = getKey(event);
+            }
+        }
     }
 
     return cause;
