@@ -19,13 +19,15 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <sstream>
 #include <cassert>
 #include <algorithm>
+#include <cmath>
 #include "HiScore.hpp"
 
 namespace
 {
-    const bool debug = true;
+    const bool debug = false;
     const int hiscoreVersion = 1;
 
 #ifdef GEKKO
@@ -40,7 +42,8 @@ const int HiScore::NumScores = 10;
 
 HiScore::HiScore(Resources *rsc):
     _rsc(rsc),
-    _scores(NumScores)
+    _scores(NumScores),
+    _lastSet(NumScores) //invalid pos
 {
     const std::string hiscoreFile = hiscoreFolder + hiscoreName;
     std::ifstream fsScore(hiscoreFile.c_str());
@@ -85,10 +88,13 @@ HiScore::addScore(int score)
             i--;
         }
         _scores[i] = score;
+        _lastSet = i;
     }
+    else
+        _lastSet = NumScores;
 }
 
-void
+SDL_Surface *
 HiScore::renderHiScore()
 {
     if (debug)
@@ -97,4 +103,30 @@ HiScore::renderHiScore()
         for (int i = 0; i < NumScores; ++i)
             std::cout << _scores[i] << std::endl;
     }
+    // dirty trick to copy sfc
+    SDL_Surface *hiScoreSfc =
+        SDL_DisplayFormatAlpha(_rsc->getSfc(Resources::SfcHiScores));
+    int width, height;
+    _rsc->getScreenSize(width, height);
+    const int yInc = std::floor(float(height)/(NumScores+2));
+    SDL_Rect dst;
+    dst.x = std::floor(float(width)/4);
+    dst.y = yInc/2;
+    const std::string hsStr("High Scores:");
+    const SDL_Color col = {255, 255, 255};
+    const SDL_Color hsCol = {255, 0, 0};
+    SDL_Surface *sfc = _rsc->renderText(hsStr, col);
+    SDL_BlitSurface(sfc, NULL, hiScoreSfc, &dst);
+    SDL_FreeSurface(sfc);
+    for (int i = 0; i < NumScores; ++i)
+    {
+        std::ostringstream sstr;
+        sstr << i << ". " << _scores[i];
+        sfc = _rsc->renderText(sstr.str(), i==_lastSet?hsCol:col);
+        dst.y += yInc;
+        SDL_BlitSurface(sfc, NULL, hiScoreSfc, &dst);
+        SDL_FreeSurface(sfc);
+    }
+
+    return hiScoreSfc;
 }

@@ -197,7 +197,11 @@ Main::play()
                     keyPress = getKey(event);
             }
             //TODO: print score board
-            _hiScore->renderHiScore();
+            SDL_Surface *hsSfc = _hiScore->renderHiScore();
+            SDL_BlitSurface(hsSfc, NULL, _rsc->screen(), NULL);
+            SDL_FreeSurface(hsSfc);
+            SDL_Flip(_rsc->screen());
+            SDL_Delay(1);
             keyPress.key = InputMgr::INV_EVT;
             while (keyPress.key == InputMgr::INV_EVT)
             {

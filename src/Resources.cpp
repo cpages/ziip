@@ -59,7 +59,8 @@ namespace
         "",
         "grid.png",
         "player.png",
-        "game_over.png"
+        "game_over.png",
+        "bg00.png"
     };
 
     std::string
@@ -174,6 +175,7 @@ Resources::prepareBGGraphics()
 
     prepareSurface(SfcMainMenu, xProp);
     prepareSurface(SfcMMSel, xProp);
+    prepareSurface(SfcHiScores, xProp);
 }
 
 void

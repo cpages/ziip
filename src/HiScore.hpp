@@ -29,13 +29,14 @@ class HiScore
         ~HiScore();
 
         void addScore(int score);
-        void renderHiScore();
+        SDL_Surface *renderHiScore();
 
     private:
         static const int NumScores;
 
         Resources *_rsc;
         std::vector<int> _scores;
+        int _lastSet;
 };
 
 #endif //HI_SCORE_HPP

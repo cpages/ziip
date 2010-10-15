@@ -37,6 +37,7 @@ class Resources
             SfcGrid,
             SfcPlayer,
             SfcGameOver,
+            SfcHiScores,
             NumSurfaces
         };
 
