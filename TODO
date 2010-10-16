@@ -1,9 +1,14 @@
-- remove game_over graphics stuff
-- get some decent graphics
-- change fonts for bitmaps?
-- make run under Windows
-- add support for multiple backgrounds
+High:
+- config file (key mapping, scr size, ...)
 - resize (linux only)
 - multiplayer support
   - input ~
   - game modes ~
+- get some decent graphics
+
+Medium:
+- add support for multiple backgrounds
+
+Low:
+- change fonts for bitmaps?
+- make run under Windows

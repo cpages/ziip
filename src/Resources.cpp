@@ -60,7 +60,6 @@ namespace
         "",
         "grid.png",
         "player.png",
-        "game_over.png",
         "bg00.png"
     };
 
@@ -256,7 +255,6 @@ Resources::prepareBoardGraphics(int numPlayers)
 
     prepareSurface(SfcPieces, _blockScale);
     prepareSurface(SfcPlayer, _blockScale);
-    prepareSurface(SfcGameOver, _blockScale);
 }
 
 SDL_Surface *
