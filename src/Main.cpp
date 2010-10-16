@@ -86,12 +86,16 @@ Main::play()
 {
     SDL_Event event;
     InputMgr getKey;
-    Player::playerDirection lastMov = Player::NoDir;
     std::vector<bool> gOver(_numPlayers, false);
-    int id = 0;
+    Player::playerDirection lastMov = Player::NoDir;
+    int id = -1;
+    bool repaint = false;
 
+    // initial paint
     for (int i = 0; i < _numPlayers; ++i)
         _boards[i]->draw();
+    SDL_Flip(_rsc->screen());
+    SDL_Delay(1);
 
     Main::PlayExitCause cause = InvalidCause;
     while (cause == InvalidCause)
@@ -100,11 +104,17 @@ Main::play()
         if (SDL_WaitEvent(&event))
         {
             lastMov = Player::NoDir;
+            id = -1;
+            repaint = false;
+
             InputMgr::KeyPressed keyPress;
             keyPress = getKey(event);
             if (keyPress.key != InputMgr::INV_EVT)
             {
                 id = keyPress.playerId;
+                if (id >= _numPlayers)
+                    continue;
+                repaint = true;
                 switch (keyPress.key)
                 {
                     case InputMgr::UP:
@@ -132,7 +142,9 @@ Main::play()
             }
             else if (event.type == EVT_TIMER)
             {
+                repaint = true;
                 id = event.user.code;
+                assert (id < _numPlayers);
                 gOver[id] = _boards[id]->addPiece();
                 //TODO: do we need to go through Main?
                 if (gOver[id])
@@ -145,7 +157,9 @@ Main::play()
             }
             else if (event.type == EVT_PIECE && _gameMode == GMDeathMatch)
             {
+                repaint = true;
                 id = event.user.code;
+                assert (id < _numPlayers);
                 int &numPieces = *static_cast<int *>(event.user.data1);
                 for (int i = 0; i < _numPlayers; ++i)
                 {
@@ -181,20 +195,48 @@ Main::play()
             throw std::runtime_error(msg.str());
         }
 
+        if (id == -1) //unhandled event, don't do nothing
+            continue;
+        assert (id != -1);
+
         // update state
         if (lastMov != Player::NoDir)
             _boards[id]->movePlayer(lastMov);
 
         // draw scene
-        if (_gameMode == GMDeathMatch) //paint all, because of incoming pieces
-            for (int i = 0; i < _numPlayers; ++i)
-                _boards[i]->draw();
-        else
-            _boards[id]->draw();
+        if (repaint)
+        {
+            if (_gameMode == GMDeathMatch) //paint all, because of incoming pieces
+                for (int i = 0; i < _numPlayers; ++i)
+                    _boards[i]->draw();
+            else
+                _boards[id]->draw();
+        }
 
         if (cause == GameOver)
         {
-            const std::string goStr("Game Over");
+            std::string goStr;
+            std::ostringstream sstr;
+            switch (_gameMode)
+            {
+                case GMSinglePlayer:
+                    goStr = std::string("Game Over");
+                    break;
+                case GMHiScore:
+                    {
+                        const int w = winner(gOver);
+                        if (w)
+                            sstr << "Player " << w << " wins!";
+                        else
+                            sstr << "Draw";
+                        goStr = sstr.str();
+                    }
+                    break;
+                case GMDeathMatch:
+                    sstr << "Player " << winner(gOver) << " wins!";
+                    goStr = sstr.str();
+                    break;
+            }
             const SDL_Color goCol = {255, 255, 255};
             SDL_Surface *go = _rsc->renderText(goStr, goCol);
             int scrW, scrH;
@@ -218,21 +260,38 @@ Main::play()
             keyPress.key = InputMgr::INV_EVT;
             while (keyPress.key == InputMgr::INV_EVT)
             {
-                //TODO: check for exit
-                if (SDL_WaitEvent(&event))
-                    keyPress = getKey(event);
+                //TODO: error check
+                SDL_WaitEvent(&event);
+                keyPress = getKey(event);
+                if (event.type == SDL_QUIT ||
+                        keyPress.key == InputMgr::QUIT)
+                {
+                    cause = Quitted;
+                    break;
+                }
             }
-            SDL_Surface *hsSfc = _hiScore->renderHiScore();
-            SDL_BlitSurface(hsSfc, NULL, _rsc->screen(), NULL);
-            SDL_FreeSurface(hsSfc);
-            SDL_Flip(_rsc->screen());
-            SDL_Delay(1);
-            keyPress.key = InputMgr::INV_EVT;
-            while (keyPress.key == InputMgr::INV_EVT)
+            // don't show hiscore in deathmatch or if user has quit
+            if (_gameMode != GMDeathMatch &&
+                    cause != Quitted)
             {
-                //TODO: check for exit
-                if (SDL_WaitEvent(&event))
+                SDL_Surface *hsSfc = _hiScore->renderHiScore();
+                SDL_BlitSurface(hsSfc, NULL, _rsc->screen(), NULL);
+                SDL_FreeSurface(hsSfc);
+                SDL_Flip(_rsc->screen());
+                SDL_Delay(1);
+                keyPress.key = InputMgr::INV_EVT;
+                while (keyPress.key == InputMgr::INV_EVT)
+                {
+                    //TODO: error check
+                    SDL_WaitEvent(&event);
                     keyPress = getKey(event);
+                    if (event.type == SDL_QUIT ||
+                            keyPress.key == InputMgr::QUIT)
+                    {
+                        cause = Quitted;
+                        break;
+                    }
+                }
             }
         }
     }
@@ -270,6 +329,50 @@ Main::gameOver(const std::vector<bool> &gOver)
     // make g++ happy
     assert (0);
     return false;
+}
+
+int
+Main::winner(const std::vector<bool> &gOver)
+{
+    int winPlayer = -1;
+    switch (_gameMode)
+    {
+        case (GMSinglePlayer):
+            assert (0); //we shouldn't be calling this
+            break;
+        case GMHiScore:
+            {
+                winPlayer = 0; //draw by default
+                int hiScore = 0;
+                for (int i = 0; i < _numPlayers; ++i)
+                {
+                    const int score = _boards[i]->getScore();
+                    if (score >= hiScore) 
+                    {
+                        if (score > hiScore)
+                            winPlayer = i+1;
+                        else
+                            winPlayer = 0; //draw
+                        hiScore = score;
+                    }
+                }
+            }
+            break;
+        case GMDeathMatch:
+            for (int i = 0; i < _numPlayers; ++i)
+            {
+                if (gOver[i] == false)
+                {
+                    winPlayer = i+1;
+                    break;
+                }
+            }
+            break;
+    }
+
+    assert (winPlayer != -1);
+
+    return winPlayer;
 }
 
 int

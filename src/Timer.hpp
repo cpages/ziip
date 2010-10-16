@@ -29,11 +29,13 @@ class Timer
 
         void increaseSpeed(int percentage);
         void setTimeout(int timeout);
+        void stop();
 
     private:
         int _id;
         int _timeout;
         SDL_TimerID _timerID;
+        bool _running;
 };
 
 #endif //TIMER_HPP

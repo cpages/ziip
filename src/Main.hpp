@@ -104,6 +104,7 @@ class Main
 
         PlayExitCause play();
         bool gameOver(const std::vector<bool> &gOver);
+        int winner(const std::vector<bool> &gOver);
 
         std::auto_ptr<Resources> _rsc;
         std::auto_ptr<Board> _boards[4];

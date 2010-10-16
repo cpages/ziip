@@ -17,6 +17,9 @@
     along with Ziip.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <iostream>
+#include <sstream>
+#include <cassert>
+#include <stdexcept>
 #include "SharedData.hpp"
 #include "Timer.hpp"
 
@@ -37,14 +40,26 @@ namespace
 
 Timer::Timer(int id, int timeout):
     _id(id),
-    _timeout(timeout)
+    _timeout(timeout),
+    _running(false)
 {
     _timerID = SDL_AddTimer(_timeout, timerCB, static_cast<void *>(&_id));
+    if (_timerID)
+    {
+        _running = true;
+    }
+    else
+    {
+        std::ostringstream msg;
+        msg << "Error creating timer: " << SDL_GetError();
+        throw std::runtime_error(msg.str());
+    }
 }
 
 Timer::~Timer()
 {
-    SDL_RemoveTimer(_timerID);
+    if (_running)
+        SDL_RemoveTimer(_timerID);
 }
 
 void
@@ -64,5 +79,15 @@ Timer::setTimeout(int timeout)
         _timerID = SDL_AddTimer(_timeout, timerCB, static_cast<void *>(&_id));
         if (debug)
             std::cout << "Timer set to: " << _timeout << std::endl;
+    }
+}
+
+void
+Timer::stop()
+{
+    if (_running)
+    {
+        SDL_RemoveTimer(_timerID);
+        _running = false;
     }
 }

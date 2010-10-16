@@ -22,12 +22,13 @@ InputMgr::KeyPressed
 InputMgr::operator()(const SDL_Event &event)
 {
     KeyPressed kp;
+    kp.playerId = -1;
     kp.key = INV_EVT;
 
     switch (event.type)
     {
         case SDL_KEYDOWN:
-            kp.playerId = 0;
+            kp.playerId = 1;
             switch (event.key.keysym.sym)
             {
                 case SDLK_UP:
@@ -55,6 +56,7 @@ InputMgr::operator()(const SDL_Event &event)
             }
             break;
         case SDL_JOYHATMOTION:
+            kp.playerId = event.jhat.which;
             switch (event.jhat.value)
             {
                 case SDL_HAT_UP:
@@ -75,7 +77,7 @@ InputMgr::operator()(const SDL_Event &event)
             }
             break;
         case SDL_JOYAXISMOTION:
-            kp.playerId = 1;
+            kp.playerId = event.jaxis.which;
             if ( ( event.jaxis.value < -3200 ) || (event.jaxis.value > 3200 ) ) 
             {
                 if( event.jaxis.axis == 0) 
@@ -96,7 +98,7 @@ InputMgr::operator()(const SDL_Event &event)
             }
             break;
         case SDL_JOYBUTTONDOWN:
-            kp.playerId = 1;
+            kp.playerId = event.jbutton.which;
             switch (event.jbutton.button)
             {
                 case 0: //A

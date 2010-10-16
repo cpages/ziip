@@ -283,6 +283,7 @@ Board::getScore() const
 void
 Board::gameOver()
 {
+    _timer.stop();
     _gameOver = true;
 }
 
@@ -303,7 +304,10 @@ Board::draw()
         const std::string goStr("Game Over");
         const SDL_Color goCol = {255, 255, 255};
         SDL_Surface *go = _rsc->renderText(goStr, goCol);
-        SDL_BlitSurface(go, NULL, _rsc->screen(), &rect);
+        SDL_Rect dst = rect;
+        dst.x += dst.w/2 - 60;
+        dst.y += 20;
+        SDL_BlitSurface(go, NULL, _rsc->screen(), &dst);
         SDL_FreeSurface(go);
     }
 }
