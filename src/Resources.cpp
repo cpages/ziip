@@ -54,6 +54,7 @@ namespace
     const char *surfaceFiles[] = {
         "",
         "main_menu.png",
+        "mp_menu.png",
         "mm_sel.png",
         "pieces.png",
         "",
@@ -174,6 +175,7 @@ Resources::prepareBGGraphics()
     assert (xProp == yProp);
 
     prepareSurface(SfcMainMenu, xProp);
+    prepareSurface(SfcMPMenu, xProp);
     prepareSurface(SfcMMSel, xProp);
     prepareSurface(SfcHiScores, xProp);
 }

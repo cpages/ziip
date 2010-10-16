@@ -20,7 +20,6 @@
 #define TIMER_HPP
 
 #include "SDL/SDL.h"
-#include "SharedData.hpp"
 
 class Timer
 {

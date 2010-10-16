@@ -34,14 +34,6 @@ namespace
 
     const char* WINDOW_TITLE = "Ziip";
 
-    bool
-    gameOver(const std::vector<bool> &gOver)
-    {
-        for (unsigned int i = 0; i < gOver.size(); ++i)
-            if (gOver[i])
-                return true;
-        return false;
-    }
 }
 
 Main::Main():
@@ -94,7 +86,7 @@ Main::play()
 {
     SDL_Event event;
     InputMgr getKey;
-    Player::playerDirection lastMov;
+    Player::playerDirection lastMov = Player::NoDir;
     std::vector<bool> gOver(_numPlayers, false);
     int id = 0;
 
@@ -138,14 +130,42 @@ Main::play()
                         break;
                 }
             }
-            else if (event.type == SDL_USEREVENT)
+            else if (event.type == EVT_TIMER)
             {
                 id = event.user.code;
                 gOver[id] = _boards[id]->addPiece();
-                //TODO: add cases depending on game mode for multiplayer
+                //TODO: do we need to go through Main?
+                if (gOver[id])
+                    _boards[id]->gameOver();
                 if (gameOver(gOver))
                 {
                     _hiScore->addScore(_boards[id]->getScore());
+                    cause = GameOver;
+                }
+            }
+            else if (event.type == EVT_PIECE && _gameMode == GMDeathMatch)
+            {
+                id = event.user.code;
+                int &numPieces = *static_cast<int *>(event.user.data1);
+                for (int i = 0; i < _numPlayers; ++i)
+                {
+                    if (id == i)
+                        continue;
+                    for (int j = 0; j < numPieces; ++j)
+                    {
+                        gOver[i] = _boards[i]->addPiece();
+                        //TODO: do we need to go through Main?
+                        if (gOver[i])
+                        {
+                            _boards[i]->gameOver();
+                            break;
+                        }
+                    }
+                }
+                numPieces = 0;
+                if (gameOver(gOver))
+                {
+                    //_hiScore->addScore(_boards[i]->getScore());
                     cause = GameOver;
                 }
             }
@@ -162,11 +182,15 @@ Main::play()
         }
 
         // update state
-        //TODO: review this: lastMov always set?
-        _boards[id]->movePlayer(lastMov);
+        if (lastMov != Player::NoDir)
+            _boards[id]->movePlayer(lastMov);
 
         // draw scene
-        _boards[id]->draw();
+        if (_gameMode == GMDeathMatch) //paint all, because of incoming pieces
+            for (int i = 0; i < _numPlayers; ++i)
+                _boards[i]->draw();
+        else
+            _boards[id]->draw();
 
         if (cause == GameOver)
         {
@@ -188,6 +212,8 @@ Main::play()
 
         if (cause == GameOver)
         {
+            SDL_Delay(2000);
+            while (SDL_PollEvent(&event)); //empty evt queue
             InputMgr::KeyPressed keyPress;
             keyPress.key = InputMgr::INV_EVT;
             while (keyPress.key == InputMgr::INV_EVT)
@@ -196,7 +222,6 @@ Main::play()
                 if (SDL_WaitEvent(&event))
                     keyPress = getKey(event);
             }
-            //TODO: print score board
             SDL_Surface *hsSfc = _hiScore->renderHiScore();
             SDL_BlitSurface(hsSfc, NULL, _rsc->screen(), NULL);
             SDL_FreeSurface(hsSfc);
@@ -215,11 +240,44 @@ Main::play()
     return cause;
 }
 
+bool
+Main::gameOver(const std::vector<bool> &gOver)
+{
+    switch (_gameMode)
+    {
+        case Main::GMSinglePlayer:
+            return gOver[0];
+            break;
+        case Main::GMHiScore:
+            for (unsigned int i = 0; i < gOver.size(); ++i)
+                if (!gOver[i])
+                    return false;
+            return true;
+            break;
+        case Main::GMDeathMatch:
+            {
+                int pAlive = 0;
+                for (unsigned int i = 0; i < gOver.size(); ++i)
+                    if (!gOver[i])
+                        pAlive++;
+                assert (pAlive != 0);
+                if (pAlive == 1)
+                    return true;
+                return false;
+            }
+            break;
+    }
+    // make g++ happy
+    assert (0);
+    return false;
+}
+
 int
 Main::run()
 {
     State state = StatMainMenu;
     MainMenu mMenu(_rsc.get());
+    MPMenu mpMenu(_rsc.get());
     bool quit = false;
 
     while (!quit)
@@ -233,17 +291,40 @@ Main::run()
                         quit = true;
                     else if (mmOption == MainMenu::Game1P)
                     {
+                        _gameMode = GMSinglePlayer;
                         _numPlayers = 1;
                         state = StatPlay;
                     }
                     else if (mmOption == MainMenu::Game2P)
                     {
-                        _numPlayers = 2;
-                        state = StatPlay;
+                        state = StatMPMenu;
                     }
                     else if (mmOption == MainMenu::Options)
                     {
                         //do nothing
+                    }
+                }
+                break;
+            case StatMPMenu:
+                {
+                    const MPMenu::Option mpmOption = mpMenu();
+                    if (mpmOption == MPMenu::Quit)
+                        quit = true;
+                    else if (mpmOption == MPMenu::GameHiScore)
+                    {
+                        _gameMode = GMHiScore;
+                        _numPlayers = 2;
+                        state = StatPlay;
+                    }
+                    else if (mpmOption == MPMenu::GameDeathMatch)
+                    {
+                        _gameMode = GMDeathMatch;
+                        _numPlayers = 2;
+                        state = StatPlay;
+                    }
+                    else if (mpmOption == MPMenu::Back)
+                    {
+                        state = StatMainMenu;
                     }
                 }
                 break;
@@ -252,12 +333,11 @@ Main::run()
                     _rsc->prepareBoardGraphics(_numPlayers);
                     for (int i = 0; i < _numPlayers; ++i)
                         _boards[i].reset(new Board(i, _rsc.get()));
+                    for (int i = _numPlayers; i < 4; ++i)
+                        _boards[i].reset();
                     const PlayExitCause pECause = play();
                     if (pECause == Quitted)
                         quit = true;
-                    else if (pECause == GameOver)
-                        for (int i = 0; i < _numPlayers; ++i)
-                            _boards[i]->clear();
                     state = StatMainMenu;
                 }
                 break;
@@ -315,6 +395,76 @@ Main::MainMenu::operator()()
                         break;
                     case InputMgr::DOWN:
                         if (_selOpt < MainMenu::NumOptions - 1)
+                            _selOpt++;
+                        break;
+                    case InputMgr::BUT_A:
+                        option = static_cast<Option>(_selOpt);
+                        break;
+                    case InputMgr::QUIT:
+                        option = Quit;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else if (event.type == SDL_QUIT)
+            {
+                option = Quit;
+            }
+        }
+    }
+
+    return option;
+}
+
+const int Main::MPMenu::SelStepPx = 100;
+
+Main::MPMenu::MPMenu(Resources *rsc):
+    _rsc(rsc),
+    _selOpt(0)
+{
+    int scrW, scrH;
+    _rsc->getScreenSize(scrW, scrH);
+    const int scaledSelSize = SelStepPx * _rsc->getBgScale();
+    SDL_Rect rect;
+    rect.x = scrW / 2 - scaledSelSize;
+    rect.y = scrH / 2 - scaledSelSize/2;
+    for (int i = 0; i < MPMenu::NumOptions; ++i)
+    {
+        _selOptRect.push_back(rect);
+        rect.y += scaledSelSize;
+    }
+}
+
+Main::MPMenu::Option
+Main::MPMenu::operator()()
+{
+    SDL_Event event;
+    InputMgr getKey;
+
+    Option option = InvalidOption;
+    while (option == InvalidOption)
+    {
+        SDL_BlitSurface(_rsc->getSfc(Resources::SfcMPMenu), NULL,
+                _rsc->screen(), NULL);
+        SDL_BlitSurface(_rsc->getSfc(Resources::SfcMMSel), NULL,
+                _rsc->screen(), &_selOptRect[_selOpt]);
+        SDL_Flip(_rsc->screen());
+
+        if (SDL_WaitEvent(&event))
+        {
+            InputMgr::KeyPressed keyPress;
+            keyPress = getKey(event);
+            if (keyPress.key != InputMgr::INV_EVT)
+            {
+                switch (keyPress.key)
+                {
+                    case InputMgr::UP:
+                        if (_selOpt > 0)
+                            _selOpt--;
+                        break;
+                    case InputMgr::DOWN:
+                        if (_selOpt < MPMenu::NumOptions - 1)
                             _selOpt++;
                         break;
                     case InputMgr::BUT_A:

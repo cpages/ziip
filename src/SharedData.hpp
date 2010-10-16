@@ -19,6 +19,11 @@
 #ifndef SHARED_DATA_HPP
 #define SHARED_DATA_HPP
 
+#include "SDL/SDL.h"
+
+#define EVT_TIMER SDL_USEREVENT
+#define EVT_PIECE SDL_USEREVENT+1
+
 enum Color
 {
     Red = 0,

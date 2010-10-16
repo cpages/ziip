@@ -41,6 +41,7 @@ class Board
         void movePlayer(Player::playerDirection mov);
         void playerShooted();
         int getScore() const;
+        void gameOver();
         void draw();
 
     private:
@@ -70,6 +71,8 @@ class Board
         int _rowLastPiece;
         Score _score;
         SDL_Rect _rect;
+        bool _gameOver;
+        int _pendZiiped;
 };
 
 #endif //BOARD_HPP

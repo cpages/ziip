@@ -39,6 +39,7 @@ namespace
     const int PointsPerLevel = 1000;
     const int SpeedPercentInc = 10;
     const int InitialTimeout = 1000;
+    const int basePoints = 100;
 
     SDL_Rect
     getPlayerRect(SDL_Rect rect, int bSize)
@@ -177,6 +178,15 @@ namespace
 
         return row;
     }
+
+    int
+    countPoints(int ziiped)
+    {
+        int points = 0;
+        for (int i = 0; i < ziiped; ++i)
+            points += basePoints * (i+1);
+        return points;
+    }
 }
 
 Board::Board(int id, Resources *rsc):
@@ -185,7 +195,9 @@ Board::Board(int id, Resources *rsc):
     _timer(id, InitialTimeout),
     _player(rsc),
     _rowLastPiece(16),
-    _score(id, rsc)
+    _score(id, rsc),
+    _gameOver(false),
+    _pendZiiped(0)
 {
     Row tmpRow(horiRowsLen, 1, 0, _rsc);
     _rows.resize(4, tmpRow);
@@ -218,6 +230,8 @@ Board::clear()
 bool
 Board::addPiece()
 {
+    if (_gameOver)
+        return true;
     _rowLastPiece = getRandomRow(_rowLastPiece);
     if (debug)
         std::cout << "Piece at row " << _rowLastPiece << std::endl;
@@ -227,17 +241,30 @@ Board::addPiece()
 void
 Board::movePlayer(Player::playerDirection mov)
 {
+    if (_gameOver)
+        return;
     _player.move(mov);
 }
 
 void
 Board::playerShooted()
 {
+    if (_gameOver)
+        return;
     int aimedRow = getAimedRow(_player.getPos(), _player.getDirection());
     std::pair<Color, int> result = _rows[aimedRow].shoot(_player.getColor());
-    Color newColor = result.first;
-    //TODO: move score computation here
-    bool newLevel = _score.addPoints(result.second);
+    const Color newColor = result.first;
+    const int ziiped = result.second;
+
+    // evt to send pieces to other players in deathmatch
+    SDL_Event event;
+    event.type = EVT_PIECE;
+    event.user.code = _id;
+    _pendZiiped += ziiped;
+    event.user.data1 = &_pendZiiped;
+    SDL_PushEvent(&event);
+
+    bool newLevel = _score.addPoints(countPoints(ziiped));
     if (newLevel)
         _timer.increaseSpeed(SpeedPercentInc);
     if (newColor != NoColor)
@@ -254,6 +281,12 @@ Board::getScore() const
 }
 
 void
+Board::gameOver()
+{
+    _gameOver = true;
+}
+
+void
 Board::draw()
 {
     SDL_Rect rect = _rsc->getBoardArea(_id);
@@ -264,6 +297,14 @@ Board::draw()
     for (int i = 0; i < numRows; i++)
     {
         _rows[i].draw();
+    }
+    if (_gameOver)
+    {
+        const std::string goStr("Game Over");
+        const SDL_Color goCol = {255, 255, 255};
+        SDL_Surface *go = _rsc->renderText(goStr, goCol);
+        SDL_BlitSurface(go, NULL, _rsc->screen(), &rect);
+        SDL_FreeSurface(go);
     }
 }
 

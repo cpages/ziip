@@ -27,7 +27,7 @@ namespace
     unsigned int timerCB(unsigned int interval, void *param)
     {
         SDL_Event event;
-        event.type = SDL_USEREVENT;
+        event.type = EVT_TIMER;
         event.user.code = *static_cast<int *>(param);
         SDL_PushEvent(&event);
 
