@@ -19,6 +19,8 @@
 #ifndef CONFIG_HPP
 #define CONFIG_HPP
 
+#include <vector>
+
 class Config
 {
     public:
@@ -26,18 +28,23 @@ class Config
 
         int getWinWidth() const;
         int getWinHeight() const;
+        std::vector<int> getControls() const;
 
     private:
+        static const int NumControls;
+
         enum ConfigSection
         {
             CSScreen,
-            CSControls
+            CSControls,
+            NumSections
         };
 
         void loadConfig(const std::string fName);
 
         int _winWidth;
         int _winHeight;
+        std::vector<int> _controls;
 };
 
 #endif //CONFIG_HPP

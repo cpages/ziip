@@ -28,8 +28,6 @@
 
 namespace
 {
-    const int WINDOW_WIDTH = 640;
-    const int WINDOW_HEIGHT = 480;
     const int BITDEPTH = 0; //same as current display
 #ifdef GEKKO
     const bool FULLSCREEN = false;
@@ -82,8 +80,9 @@ namespace
 }
 
 Resources::Resources():
-    _winWidth(WINDOW_WIDTH),
-    _winHeight(WINDOW_HEIGHT),
+    _winWidth(_cfg.getWinWidth()),
+    _winHeight(_cfg.getWinHeight()),
+    _inputMgr(_cfg.getControls()),
     _blockScale(1.f),
     _currBlockSize(origBlockSize)
 {
@@ -304,4 +303,10 @@ SDL_Surface *
 Resources::renderText(const std::string &str, const SDL_Color &color)
 {
     return _fontMgr.renderText(str, color);
+}
+
+InputMgr::KeyPressed
+Resources::getKey(const SDL_Event &event)
+{
+    return _inputMgr(event);
 }

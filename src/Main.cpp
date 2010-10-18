@@ -85,7 +85,6 @@ Main::PlayExitCause
 Main::play()
 {
     SDL_Event event;
-    InputMgr getKey;
     std::vector<bool> gOver(_numPlayers, false);
     Player::playerDirection lastMov = Player::NoDir;
     int id = -1;
@@ -108,7 +107,7 @@ Main::play()
             repaint = false;
 
             InputMgr::KeyPressed keyPress;
-            keyPress = getKey(event);
+            keyPress = _rsc->getKey(event);
             if (keyPress.key != InputMgr::INV_EVT)
             {
                 id = keyPress.playerId;
@@ -262,7 +261,7 @@ Main::play()
             {
                 //TODO: error check
                 SDL_WaitEvent(&event);
-                keyPress = getKey(event);
+                keyPress = _rsc->getKey(event);
                 if (event.type == SDL_QUIT ||
                         keyPress.key == InputMgr::QUIT)
                 {
@@ -284,7 +283,7 @@ Main::play()
                 {
                     //TODO: error check
                     SDL_WaitEvent(&event);
-                    keyPress = getKey(event);
+                    keyPress = _rsc->getKey(event);
                     if (event.type == SDL_QUIT ||
                             keyPress.key == InputMgr::QUIT)
                     {
@@ -473,7 +472,6 @@ Main::MainMenu::Option
 Main::MainMenu::operator()()
 {
     SDL_Event event;
-    InputMgr getKey;
 
     Option option = InvalidOption;
     while (option == InvalidOption)
@@ -487,7 +485,7 @@ Main::MainMenu::operator()()
         if (SDL_WaitEvent(&event))
         {
             InputMgr::KeyPressed keyPress;
-            keyPress = getKey(event);
+            keyPress = _rsc->getKey(event);
             if (keyPress.key != InputMgr::INV_EVT)
             {
                 switch (keyPress.key)
@@ -543,7 +541,6 @@ Main::MPMenu::Option
 Main::MPMenu::operator()()
 {
     SDL_Event event;
-    InputMgr getKey;
 
     Option option = InvalidOption;
     while (option == InvalidOption)
@@ -557,7 +554,7 @@ Main::MPMenu::operator()()
         if (SDL_WaitEvent(&event))
         {
             InputMgr::KeyPressed keyPress;
-            keyPress = getKey(event);
+            keyPress = _rsc->getKey(event);
             if (keyPress.key != InputMgr::INV_EVT)
             {
                 switch (keyPress.key)

@@ -23,6 +23,8 @@
 #include <string>
 #include "SDL/SDL.h"
 #include "SDL/SDL_ttf.h"
+#include "Config.hpp"
+#include "InputMgr.hpp"
 
 class Resources
 {
@@ -55,6 +57,8 @@ class Resources
 
         SDL_Surface *renderText(const std::string &str, const SDL_Color &color);
 
+        InputMgr::KeyPressed getKey(const SDL_Event &event);
+
     private:
         class FontMgr
         {
@@ -75,8 +79,10 @@ class Resources
         void fillGridRects();
 
         FontMgr _fontMgr;
+        Config _cfg;
         int _winWidth;
         int _winHeight;
+        InputMgr _inputMgr;
         std::vector<std::string> _surfaceFiles;
         std::vector<std::string> _bgFiles;
         std::vector<SDL_Surface *> _surfaces;

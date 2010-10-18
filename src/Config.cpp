@@ -29,12 +29,17 @@ namespace
     const int DefaultWinHeight = 480;
 }
 
+const int Config::NumControls = 5;
+
 Config::Config():
     _winWidth(DefaultWinWidth),
-    _winHeight(DefaultWinHeight)
+    _winHeight(DefaultWinHeight),
+    _controls(NumControls, -1)
 {
 #ifdef GEKKO
     const std::string path("sd:/apps/ziip/user/");
+    _controls[0] = 0;
+    _controls[1] = 1;
 #else
     const std::string homeDir(getenv("HOME"));
     const std::string path = homeDir + std::string("/.ziip/");
@@ -50,7 +55,7 @@ Config::loadConfig(const std::string fName)
 {
     std::ifstream fs(fName.c_str());
 
-    ConfigSection section;
+    ConfigSection section = NumSections; //invalid value
     while (fs.good())
     {
         std::string line;
@@ -85,6 +90,16 @@ Config::loadConfig(const std::string fName)
         }
         else if (section == CSControls) //controls def.
         {
+            std::istringstream istr(line);
+            int p1c, p2c;
+
+            istr >> p1c >> p2c;
+
+            if (istr.fail())
+                throw std::runtime_error("Error parsing config. Unknown field:" + line);
+
+            _controls[p1c] = 0;
+            _controls[p2c] = 1;
         }
         else
         {
@@ -103,4 +118,10 @@ int
 Config::getWinHeight() const
 {
     return _winHeight;
+}
+
+std::vector<int>
+Config::getControls() const
+{
+    return _controls;
 }

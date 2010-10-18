@@ -19,6 +19,7 @@
 #ifndef INPUT_MGR_HPP
 #define INPUT_MGR_HPP
 
+#include <vector>
 #include "SDL/SDL.h"
 
 class InputMgr
@@ -41,7 +42,12 @@ class InputMgr
             Keys key;
         };
 
+        InputMgr(const std::vector<int> &controls);
+
         KeyPressed operator()(const SDL_Event &event);
+
+    private:
+        std::vector<int> _controls;
 };
 
 #endif //INPUT_MGR_HPP

@@ -18,6 +18,11 @@
 */
 #include "InputMgr.hpp"
 
+InputMgr::InputMgr(const std::vector<int> &controls):
+    _controls(controls)
+{
+}
+
 InputMgr::KeyPressed
 InputMgr::operator()(const SDL_Event &event)
 {
@@ -28,7 +33,7 @@ InputMgr::operator()(const SDL_Event &event)
     switch (event.type)
     {
         case SDL_KEYDOWN:
-            kp.playerId = 1;
+            kp.playerId = _controls[4];
             switch (event.key.keysym.sym)
             {
                 case SDLK_UP:
@@ -56,7 +61,7 @@ InputMgr::operator()(const SDL_Event &event)
             }
             break;
         case SDL_JOYHATMOTION:
-            kp.playerId = event.jhat.which;
+            kp.playerId = _controls[event.jhat.which];
             switch (event.jhat.value)
             {
                 case SDL_HAT_UP:
@@ -77,7 +82,7 @@ InputMgr::operator()(const SDL_Event &event)
             }
             break;
         case SDL_JOYAXISMOTION:
-            kp.playerId = event.jaxis.which;
+            kp.playerId = _controls[event.jaxis.which];
             if ( ( event.jaxis.value < -3200 ) || (event.jaxis.value > 3200 ) ) 
             {
                 if( event.jaxis.axis == 0) 
@@ -98,7 +103,7 @@ InputMgr::operator()(const SDL_Event &event)
             }
             break;
         case SDL_JOYBUTTONDOWN:
-            kp.playerId = event.jbutton.which;
+            kp.playerId = _controls[event.jbutton.which];
             switch (event.jbutton.button)
             {
                 case 0: //A
