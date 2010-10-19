@@ -3,3 +3,4 @@ Session.vim
 *.o
 ziip
 Makefile
+build
