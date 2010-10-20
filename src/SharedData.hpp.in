@@ -33,4 +33,13 @@ enum Color
     NoColor
 };
 
+// variables defined by CMake
+#define Ziip_VERSION_MAJOR @Ziip_VERSION_MAJOR@
+#define Ziip_VERSION_MINOR @Ziip_VERSION_MINOR@
+#cmakedefine USE_LOCAL
+#define BUILD_DATA_FOLDER "@BUILD_DATA_FOLDER@"
+#define BUILD_FONT_FOLDER "@BUILD_FONT_FOLDER@"
+#define INSTALL_DATA_FOLDER "@INSTALL_DATA_FOLDER@"
+#define INSTALL_FONT_FOLDER "@INSTALL_FONT_FOLDER@"
+
 #endif //SHARED_DATA_HPP

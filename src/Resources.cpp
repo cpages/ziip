@@ -24,6 +24,7 @@
 #include <cmath>
 #include "SDL/SDL_image.h"
 #include "SDL/SDL_rotozoom.h"
+#include "SharedData.hpp"
 #include "Resources.hpp"
 
 namespace
@@ -44,8 +45,13 @@ namespace
     const std::string dataFolder("sd:/apps/ziip/data/");
     const std::string fontFolder("sd:/apps/ziip/fonts/");
 #else
-    const std::string dataFolder("data/");
-    const std::string fontFolder("fonts/");
+#ifdef USE_LOCAL
+    const std::string dataFolder(BUILD_DATA_FOLDER);
+    const std::string fontFolder(BUILD_FONT_FOLDER);
+#else
+    const std::string dataFolder(INSTALL_DATA_FOLDER);
+    const std::string fontFolder(INSTALL_FONT_FOLDER);
+#endif
 #endif
     const std::string fontName("LiberationMono-Bold.ttf");
     const int fontSize = 24;
