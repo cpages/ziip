@@ -27,6 +27,7 @@ find_path (SDL_INCLUDE_DIR SDL.h
   PATHS ${SDL_PKGCONF_INCLUDE_DIRS}
   ${INC_SEARCH_PATHS}
   ${COMMON_SEARCH_PATHS})
+mark_as_advanced (SDL_INCLUDE_DIR)
 MESSAGE ("SDL_INCLUDE_DIR is ${SDL_INCLUDE_DIR}")
 
 # SDL-1.1 is the name used by FreeBSD ports...
@@ -37,6 +38,7 @@ find_library (SDL_LIB
   PATH_SUFFIXES lib64 lib
   PATHS ${SDL_PKGCONF_LIBRARY_DIRS}
   ${COMMON_SEARCH_PATHS})
+mark_as_advanced (SDL_LIB)
 MESSAGE ("SDL_LIB is ${SDL_LIB}")
 
 if (NOT SDL_BUILDING_LIBRARY)
@@ -51,6 +53,7 @@ if (NOT SDL_BUILDING_LIBRARY)
       PATH_SUFFIXES lib64 lib
       PATHS ${SDL_PKGCONF_LIBRARY_DIRS}
       ${COMMON_SEARCH_PATHS})
+    mark_as_advanced (SDLMAIN_LIBRARY)
   endif ()
 endif ()
 
@@ -86,15 +89,11 @@ endmacro ()
 
 FIND_LIBS (SDL_FIND_COMPONENTS)
 
-set (HARL /home/page)
-
-set (SDL_PROCESS_INCLUDES SDL_INCLUDE_DIR HARL)
+set (SDL_PROCESS_INCLUDES SDL_INCLUDE_DIR)
 set (SDL_PROCESS_LIBS SDL_LIB)
 foreach (LIB ${SDL_FIND_COMPONENTS})
   list (APPEND SDL_PROCESS_LIBS SDL_${LIB})
 endforeach ()
-
-MESSAGE ("PL is ${SDL_PROCESS_LIBS}")
 
 libfind_process(SDL)
 

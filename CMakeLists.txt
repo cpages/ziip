@@ -20,10 +20,7 @@ if (NOT SDL_FOUND)
     message (FATAL_ERROR "SDL libraries not found")
 endif ()
 
-include_directories ("${SDL_INCLUDE_DIR}"
-    "${SDLIMAGE_INCLUDE_DIR}"
-    "${SDLTTF_INCLUDE_DIR}"
-    "${SDLGFX_INCLUDE_DIR}"
+include_directories ("${SDL_INCLUDE_DIRS}"
     "${PROJECT_SOURCE_DIR}/src")
 
 # set some data for the program to find resources
@@ -52,8 +49,7 @@ set (SOURCES
     src/Timer.cpp)
 
 add_executable (ziip ${SOURCES})
-target_link_libraries (ziip ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY}
-    ${SDLTTF_LIBRARY} ${SDLGFX_LIBRARY})
+target_link_libraries (ziip ${SDL_LIBRARIES})
 
 install (TARGETS ziip DESTINATION bin)
 install (DIRECTORY data/ DESTINATION ${DEST_DATA_DIR})
