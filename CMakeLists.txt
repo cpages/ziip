@@ -3,16 +3,20 @@ project (Ziip)
 set (Ziip_VERSION_MAJOR 0)
 set (Ziip_VERSION_MINOR 1)
 
-find_package (SDL REQUIRED)
-find_package (SDL_image REQUIRED)
-find_package (SDL_ttf REQUIRED)
+#message ("FRP: ${CMAKE_FIND_ROOT_PATH}")
+
+#find_path (HARL SDL.h /include/SDL /usr/include/SDL)
+#message ("HARL: ${HARL}")
+
+set (CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
+find_package (SDL REQUIRED ttf gfx image)
+#find_package (SDL_image REQUIRED)
+#find_package (SDL_ttf REQUIRED)
 # cmake doesn't provide a module for SDL_gfx, adding one downloaded from
 # http://www.cmake.org/pipermail/cmake/2007-August/015852.html
-set (CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
-find_package (SDL_gfx REQUIRED)
+#find_package (SDL_gfx REQUIRED)
 
-if (NOT SDL_FOUND OR NOT SDLIMAGE_FOUND OR NOT SDLTTF_FOUND OR
-        NOT SDLGFX_FOUND)
+if (NOT SDL_FOUND)
     message (FATAL_ERROR "SDL libraries not found")
 endif ()
 
