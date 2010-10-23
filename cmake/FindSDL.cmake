@@ -97,43 +97,33 @@ endforeach ()
 
 libfind_process(SDL)
 
-#if (SDL_LIBRARY_TEMP)
-#  # For SDLmain
-#  IF(NOT SDL_BUILDING_LIBRARY)
-#    IF(SDLMAIN_LIBRARY)
-#      SET(SDL_LIBRARY_TEMP ${SDLMAIN_LIBRARY} ${SDL_LIBRARY_TEMP})
-#    ENDIF(SDLMAIN_LIBRARY)
-#  ENDIF(NOT SDL_BUILDING_LIBRARY)
-#
-#  # For OS X, SDL uses Cocoa as a backend so it must link to Cocoa.
-#  # CMake doesn't display the -framework Cocoa string in the UI even 
-#  # though it actually is there if I modify a pre-used variable.
-#  # I think it has something to do with the CACHE STRING.
-#  # So I use a temporary variable until the end so I can set the 
-#  # "real" variable in one-shot.
-#  IF(APPLE)
-#    SET(SDL_LIBRARY_TEMP ${SDL_LIBRARY_TEMP} "-framework Cocoa")
-#  ENDIF(APPLE)
-#    
-#  # For threads, as mentioned Apple doesn't need this.
-#  # In fact, there seems to be a problem if I used the Threads package
-#  # and try using this line, so I'm just skipping it entirely for OS X.
-#  IF(NOT APPLE)
-#    SET(SDL_LIBRARY_TEMP ${SDL_LIBRARY_TEMP} ${CMAKE_THREAD_LIBS_INIT})
-#  ENDIF(NOT APPLE)
-#
-#  # For MinGW library
-#  IF(MINGW)
-#    SET(SDL_LIBRARY_TEMP ${MINGW32_LIBRARY} ${SDL_LIBRARY_TEMP})
-#  ENDIF(MINGW)
-#
-#  # Set the final string here so the GUI reflects the final state.
-#  SET(SDL_LIBRARY ${SDL_LIBRARY_TEMP} CACHE STRING "Where the SDL Library can be found")
-#  # Set the temp variable to INTERNAL so it is not seen in the CMake GUI
-#  SET(SDL_LIBRARY_TEMP "${SDL_LIBRARY_TEMP}" CACHE INTERNAL "")
-#
-#  SET(SDL_FOUND "YES")
-#ENDIF(SDL_LIBRARY_TEMP)
+if (SDL_FOUND)
+  # For SDLmain
+  if (NOT SDL_BUILDING_LIBRARY)
+    if (SDLMAIN_LIBRARY)
+      set (SDL_LIBRARIES ${SDLMAIN_LIBRARY} ${SDL_LIBRARIES})
+    endif ()
+  endif ()
 
-#MESSAGE("SDL_LIBRARY is ${SDL_LIBRARY}")
+  # For OS X, SDL uses Cocoa as a backend so it must link to Cocoa.
+  # CMake doesn't display the -framework Cocoa string in the UI even 
+  # though it actually is there if I modify a pre-used variable.
+  # I think it has something to do with the CACHE STRING.
+  # So I use a temporary variable until the end so I can set the 
+  # "real" variable in one-shot.
+  if (APPLE)
+    set (SDL_LIBRARIES ${SDL_LIBRARIES} "-framework Cocoa")
+  endif ()
+    
+  # For threads, as mentioned Apple doesn't need this.
+  # In fact, there seems to be a problem if I used the Threads package
+  # and try using this line, so I'm just skipping it entirely for OS X.
+  if (NOT APPLE)
+    set (SDL_LIBRARIES ${SDL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+  endif ()
 
+  # For MinGW library
+  if (MINGW)
+    set (SDL_LIBRARIES ${MINGW32_LIBRARY} ${SDL_LIBRARIES})
+  endif ()
+endif ()
