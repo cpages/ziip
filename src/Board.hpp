@@ -20,7 +20,7 @@
 #define BOARD_HPP
 
 #include <vector>
-#include "SDL/SDL.h"
+#include "SDL.h"
 #include "Timer.hpp"
 #include "Player.hpp"
 #include "Row.hpp"

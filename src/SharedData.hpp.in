@@ -19,7 +19,7 @@
 #ifndef SHARED_DATA_HPP
 #define SHARED_DATA_HPP
 
-#include "SDL/SDL.h"
+#include "SDL.h"
 
 #define EVT_TIMER SDL_USEREVENT
 #define EVT_PIECE SDL_USEREVENT+1

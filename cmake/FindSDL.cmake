@@ -8,6 +8,7 @@ include (LibFindMacros)
 libfind_pkg_check_modules (SDL_PKGCONF sdl)
 
 set (COMMON_SEARCH_PATHS
+  / # cross-compile with CMAKE_FIND_ROOT_PATH set
   /sw # Fink
   /opt/local # DarwinPorts
   /opt/csw # Blastwave
@@ -36,6 +37,7 @@ find_library (SDL_LIB
   NAMES SDL SDL-1.1
   HINTS $ENV{SDLDIR}
   PATH_SUFFIXES lib64 lib
+    lib/wii # Wii
   PATHS ${SDL_PKGCONF_LIBRARY_DIRS}
   ${COMMON_SEARCH_PATHS})
 mark_as_advanced (SDL_LIB)
@@ -80,6 +82,7 @@ macro (FIND_LIBS _LIBS)
       NAMES SDL_${LIB}
       HINTS $ENV{SDLDIR}
       PATH_SUFFIXES lib64 lib
+        lib/wii # Wii
       PATHS ${SDL_${LIB}_PKGCONF_LIBRARY_DIRS}
       ${COMMON_SEARCH_PATHS})
     MESSAGE ("SDL_LIBRARY is ${SDL_${LIB}}")
@@ -90,10 +93,11 @@ endmacro ()
 FIND_LIBS (SDL_FIND_COMPONENTS)
 
 set (SDL_PROCESS_INCLUDES SDL_INCLUDE_DIR)
-set (SDL_PROCESS_LIBS SDL_LIB)
+set (SDL_PROCESS_LIBS "")
 foreach (LIB ${SDL_FIND_COMPONENTS})
   list (APPEND SDL_PROCESS_LIBS SDL_${LIB})
 endforeach ()
+list (APPEND SDL_PROCESS_LIBS SDL_LIB)
 
 libfind_process(SDL)
 

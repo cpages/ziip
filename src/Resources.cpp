@@ -22,8 +22,8 @@
 #include <string>
 #include <cassert>
 #include <cmath>
-#include "SDL/SDL_image.h"
-#include "SDL/SDL_rotozoom.h"
+#include "SDL_image.h"
+#include "SDL_rotozoom.h"
 #include "SharedData.hpp"
 #include "Resources.hpp"
 

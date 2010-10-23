@@ -20,7 +20,7 @@
 #define MAIN_HPP
 
 #include <memory>
-#include "SDL/SDL.h"
+#include "SDL.h"
 #include "SharedData.hpp"
 #include "Board.hpp"
 

@@ -19,7 +19,7 @@
 #ifndef TIMER_HPP
 #define TIMER_HPP
 
-#include "SDL/SDL.h"
+#include "SDL.h"
 
 class Timer
 {

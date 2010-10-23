@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with Ziip.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "SDL/SDL.h"
+#include "SDL.h"
 #include "SharedData.hpp"
 #include "Resources.hpp"
 #include "Player.hpp"

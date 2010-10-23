@@ -21,8 +21,8 @@
 
 #include <vector>
 #include <string>
-#include "SDL/SDL.h"
-#include "SDL/SDL_ttf.h"
+#include "SDL.h"
+#include "SDL_ttf.h"
 #include "Config.hpp"
 #include "InputMgr.hpp"
 

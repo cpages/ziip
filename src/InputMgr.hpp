@@ -20,7 +20,7 @@
 #define INPUT_MGR_HPP
 
 #include <vector>
-#include "SDL/SDL.h"
+#include "SDL.h"
 
 class InputMgr
 {
