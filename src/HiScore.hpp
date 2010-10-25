@@ -20,6 +20,7 @@
 #define HI_SCORE_HPP
 
 #include <vector>
+#include <string>
 #include "Resources.hpp"
 
 class HiScore
@@ -34,9 +35,12 @@ class HiScore
     private:
         static const int NumScores;
 
+        void populateEmptyFile() const;
+
         Resources *_rsc;
         std::vector<int> _scores;
         int _lastSet;
+        std::string _hiscoreFile;
 };
 
 #endif //HI_SCORE_HPP

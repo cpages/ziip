@@ -20,6 +20,7 @@
 #define CONFIG_HPP
 
 #include <vector>
+#include <string>
 
 class Config
 {
@@ -40,11 +41,13 @@ class Config
             NumSections
         };
 
-        void loadConfig(const std::string fName);
+        void createDefaultConf() const;
+        void loadConfig();
 
         int _winWidth;
         int _winHeight;
         std::vector<int> _controls;
+        std::string _confFile;
 };
 
 #endif //CONFIG_HPP

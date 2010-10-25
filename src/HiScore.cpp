@@ -17,12 +17,18 @@
     along with Ziip.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <iostream>
-#include <string>
 #include <fstream>
 #include <sstream>
 #include <cassert>
 #include <algorithm>
 #include <cmath>
+#include <stdexcept>
+// for filesystem checks
+#include <cstdlib>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include "HiScore.hpp"
 
 namespace
@@ -30,12 +36,16 @@ namespace
     const bool debug = false;
     const int hiscoreVersion = 1;
 
-#ifdef GEKKO
-    const std::string hiscoreFolder("sd:/apps/ziip/user/");
-#else
-    const std::string hiscoreFolder("/home/page/.ziip/");
-#endif
-    const std::string hiscoreName("hiscore.dat");
+    bool
+    checkPath(const std::string &path)
+    {
+        struct stat statBuf;
+
+        if (stat(path.c_str(), &statBuf) < 0) 
+            return false;
+
+        return S_ISDIR(statBuf.st_mode);
+    }
 }
 
 const int HiScore::NumScores = 10;
@@ -45,15 +55,32 @@ HiScore::HiScore(Resources *rsc):
     _scores(NumScores),
     _lastSet(NumScores) //invalid pos
 {
-    const std::string hiscoreFile = hiscoreFolder + hiscoreName;
-    std::ifstream fsScore(hiscoreFile.c_str());
+#ifdef GEKKO
+    const std::string hiscoreDir("sd:/apps/ziip/user/");
+#else
+    const std::string homeDir(getenv("HOME"));
+    const std::string hiscoreDir = homeDir + std::string("/.ziip/");
+    if (!checkPath(hiscoreDir))
+        if (mkdir(hiscoreDir.c_str(), S_IRWXU) == -1)
+            throw std::runtime_error("Error creating conf. folder");
+#endif
+    const std::string hiscoreName("hiscore.dat");
+    _hiscoreFile = hiscoreDir + hiscoreName;
+
+    std::ifstream fsScore(_hiscoreFile.c_str());
+    if (fsScore.fail()) //if it doesn't exist
+    {
+        populateEmptyFile();
+        fsScore.close();
+        fsScore.open(_hiscoreFile.c_str());
+    }
 
     //extract version
     int tmp;
     fsScore >> tmp;
-    assert (tmp == 1);
+    assert (tmp == hiscoreVersion);
 
-    if (tmp == 1)
+    if (tmp == hiscoreVersion)
     {
         //check number of scores
         fsScore >> tmp;
@@ -65,8 +92,7 @@ HiScore::HiScore(Resources *rsc):
 
 HiScore::~HiScore()
 {
-    const std::string hiscoreFile = hiscoreFolder + hiscoreName;
-    std::ofstream fsScore(hiscoreFile.c_str());
+    std::ofstream fsScore(_hiscoreFile.c_str());
 
     //put version
     fsScore << hiscoreVersion << std::endl;
@@ -74,6 +100,22 @@ HiScore::~HiScore()
     fsScore << NumScores << std::endl;
     for (int i = 0; i < NumScores; ++i)
         fsScore << _scores[i] << std::endl;
+}
+
+void
+HiScore::populateEmptyFile() const
+{
+    std::ofstream ostr(_hiscoreFile.c_str());
+    if (ostr.fail())
+        throw std::runtime_error("Error creating hiscore file");
+
+    ostr << hiscoreVersion << std::endl;
+    ostr << NumScores << std::endl ;
+    for (int i = 0; i < NumScores; ++i)
+        ostr << "0" << std::endl;
+
+    ostr.flush();
+    ostr.close();
 }
 
 void

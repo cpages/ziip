@@ -1,5 +1,4 @@
 High:
-- config file (key mapping, scr size, ...)
 - resize (linux only)
 - multiplayer support
   - input ~
@@ -8,6 +7,7 @@ High:
 
 Medium:
 - add support for multiple backgrounds
+- improve conf. file
 
 Low:
 - change fonts for bitmaps?

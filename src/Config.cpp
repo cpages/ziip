@@ -21,12 +21,30 @@
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
+// for filesystem checks
+#include <cstdlib>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include "HiScore.hpp"
 #include "Config.hpp"
 
 namespace
 {
     const int DefaultWinWidth = 640;
     const int DefaultWinHeight = 480;
+
+    bool
+    checkPath(const std::string &path)
+    {
+        struct stat statBuf;
+
+        if (stat(path.c_str(), &statBuf) < 0) 
+            return false;
+
+        return S_ISDIR(statBuf.st_mode);
+    }
 }
 
 const int Config::NumControls = 5;
@@ -37,23 +55,48 @@ Config::Config():
     _controls(NumControls, -1)
 {
 #ifdef GEKKO
-    const std::string path("sd:/apps/ziip/user/");
+    const std::string confDir("sd:/apps/ziip/user/");
     _controls[0] = 0;
     _controls[1] = 1;
 #else
     const std::string homeDir(getenv("HOME"));
-    const std::string path = homeDir + std::string("/.ziip/");
+    const std::string confDir = homeDir + std::string("/.ziip/");
+    if (!checkPath(confDir))
+        if (mkdir(confDir.c_str(), S_IRWXU) == -1)
+            throw std::runtime_error("Error creating conf. folder");
 #endif
     const std::string confName("config");
+    _confFile = confDir + confName;
 
-    const std::string confFile = path + confName;
-    loadConfig(confFile);
+#ifndef GEKKO
+    loadConfig();
+#endif
 }
 
 void
-Config::loadConfig(const std::string fName)
+Config::createDefaultConf() const
 {
-    std::ifstream fs(fName.c_str());
+    std::ofstream ostr(_confFile.c_str());
+    if (ostr.fail())
+        throw std::runtime_error("Error creating hiscore file");
+
+    ostr << "[controls]" << std::endl;
+    ostr << "4 0" << std::endl;
+
+    ostr.flush();
+    ostr.close();
+}
+
+void
+Config::loadConfig()
+{
+    std::ifstream fs(_confFile.c_str());
+    if (fs.fail()) //if it doesn't exist
+    {
+        createDefaultConf();
+        fs.close();
+        fs.open(_confFile.c_str());
+    }
 
     ConfigSection section = NumSections; //invalid value
     while (fs.good())
