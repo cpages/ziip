@@ -34,6 +34,16 @@ class Board
         static const int horiRowsLen;
         static const int vertRowsLen;
 
+        struct State
+        {
+            std::vector<Color> colsStat;
+            Player::playerPos playerPos;
+            Player::playerDirection playerDir;
+            Color playerColor;
+            int score;
+            bool gameOver;
+        };
+
         Board(int id, Resources *rsc);
 
         void clear();
@@ -42,6 +52,8 @@ class Board
         void playerShooted();
         int getScore() const;
         void gameOver();
+        State getState() const;
+        void setState(const State &state);
         void draw();
 
     private:
@@ -54,6 +66,7 @@ class Board
                 void reset();
                 bool addPoints(int points);
                 int getScore() const;
+                void setScore(int score);
                 void draw();
 
             private:

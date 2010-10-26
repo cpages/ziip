@@ -32,6 +32,8 @@ class Row
         bool addPiece();
         std::pair<Color, int> shoot(Color playerColor);
         void setOriginAndSize(SDL_Rect rect);
+        std::vector<Color> getState() const;
+        void setState(const Color *state);
         void draw();
 
     private:

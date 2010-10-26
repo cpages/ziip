@@ -55,10 +55,22 @@ Player::getPos() const
     return _pos;
 }
 
+void
+Player::setPos(playerPos pos)
+{
+    _pos = pos;
+}
+
 Player::playerDirection
 Player::getDirection() const
 {
     return _dir;
+}
+
+void
+Player::setDirection(playerDirection dir)
+{
+    _dir = dir;
 }
 
 void

@@ -24,3 +24,12 @@ Multiplayer:
 deathmatch (longest to live)
 ? (more points)
 cooperative (single board)
+
+Network:
+ - packID
+ - colsDump
+ - playerPos
+ - playerOrient
+ - playerCol
+ - score
+ - gameOver

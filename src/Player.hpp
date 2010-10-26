@@ -45,7 +45,9 @@ class Player
         void reset();
         void setOriginAndSize(SDL_Rect rect);
         playerPos getPos() const;
+        void setPos(playerPos pos);
         playerDirection getDirection() const;
+        void setDirection(playerDirection dir);
         void reverse();
         Color getColor() const;
         void setColor(Color newColor);

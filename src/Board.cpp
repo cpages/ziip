@@ -287,6 +287,47 @@ Board::gameOver()
     _gameOver = true;
 }
 
+Board::State
+Board::getState() const
+{
+    State state;
+    assert (_rows.size() == numRows);
+    std::vector<Color> &cs = state.colsStat;
+    for (int i = 0; i < numRows; ++i)
+    {
+        const std::vector<Color> rs = _rows[i].getState();
+        cs.insert(cs.end(), rs.begin(), rs.end());
+    }
+    state.playerPos = _player.getPos();
+    state.playerDir = _player.getDirection();
+    state.playerColor = _player.getColor();
+    state.score = getScore();
+    state.gameOver = _gameOver;
+
+    return state;
+}
+
+void
+Board::setState(const State &state)
+{
+    assert (_rows.size() == numRows);
+    const Color *pos = &state.colsStat[0];
+    // this is a bit dirty, but should work
+    for (int i = 0; i < 4; ++i, pos+=horiRowsLen)
+        _rows[i].setState(pos);
+    for (int i = 4; i < 8; ++i, pos+=vertRowsLen)
+        _rows[i].setState(pos);
+    for (int i = 8; i < 12; ++i, pos+=horiRowsLen)
+        _rows[i].setState(pos);
+    for (int i = 12; i < 16; ++i, pos+=vertRowsLen)
+        _rows[i].setState(pos);
+    _player.setPos(state.playerPos);
+    _player.setDirection(state.playerDir);
+    _player.setColor(state.playerColor);
+    _score.setScore(state.score);
+    _gameOver = state.gameOver;
+}
+
 void
 Board::draw()
 {
@@ -355,6 +396,13 @@ int
 Board::Score::getScore() const
 {
     return _currScore;
+}
+
+void
+Board::Score::setScore(int score)
+{
+    _currScore = score;
+    addPoints(0); //dirty hack to force repaint
 }
 
 void

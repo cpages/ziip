@@ -107,6 +107,18 @@ Row::setOriginAndSize(SDL_Rect rect)
     _rect = rect;
 }
 
+std::vector<Color>
+Row::getState() const
+{
+    return _pieces;
+}
+
+void
+Row::setState(const Color *state)
+{
+    _pieces.assign(state, state + _size);
+}
+
 void
 Row::draw()
 {
