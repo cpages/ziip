@@ -23,13 +23,12 @@
 #include <cstdlib>
 #include <utility>
 #include "SharedData.hpp"
-#include "Resources.hpp"
 #include "Player.hpp"
 #include "Board.hpp"
 
-const int Board::numRows = 16;
-const int Board::horiRowsLen = 7;
-const int Board::vertRowsLen = 5;
+const int Board::numRows = HORI_ROWS + VERT_ROWS;
+const int Board::horiRowsLen = HORI_ROWS_LEN;
+const int Board::vertRowsLen = VERT_ROWS_LEN;
 
 namespace
 {
@@ -291,12 +290,16 @@ Board::State
 Board::getState() const
 {
     State state;
-    assert (_rows.size() == numRows);
-    std::vector<Color> &cs = state.colsStat;
+    assert (int(_rows.size()) == numRows);
+    int pos = 0;
     for (int i = 0; i < numRows; ++i)
     {
         const std::vector<Color> rs = _rows[i].getState();
-        cs.insert(cs.end(), rs.begin(), rs.end());
+        for (int j = 0; j < rs.size(); ++j)
+        {
+            state.colsStat[pos] = rs[j];
+            pos++;
+        }
     }
     state.playerPos = _player.getPos();
     state.playerDir = _player.getDirection();
@@ -310,8 +313,8 @@ Board::getState() const
 void
 Board::setState(const State &state)
 {
-    assert (_rows.size() == numRows);
-    const Color *pos = &state.colsStat[0];
+    assert (int(_rows.size()) == numRows);
+    const Color *pos = state.colsStat;
     // this is a bit dirty, but should work
     for (int i = 0; i < 4; ++i, pos+=horiRowsLen)
         _rows[i].setState(pos);

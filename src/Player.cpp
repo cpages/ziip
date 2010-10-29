@@ -18,7 +18,6 @@
 */
 #include "SDL.h"
 #include "SharedData.hpp"
-#include "Resources.hpp"
 #include "Player.hpp"
 
 Player::Player(Resources *rsc):

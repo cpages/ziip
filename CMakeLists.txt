@@ -4,7 +4,7 @@ set (Ziip_VERSION_MAJOR 0)
 set (Ziip_VERSION_MINOR 1)
 
 set (CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
-find_package (SDL REQUIRED ttf gfx image)
+find_package (SDL REQUIRED ttf gfx image net)
 
 if (NOT SDL_FOUND)
     message (FATAL_ERROR "SDL libraries not found")
@@ -46,7 +46,8 @@ set (SOURCES
     src/Player.cpp
     src/Resources.cpp
     src/Row.cpp
-    src/Timer.cpp)
+    src/Timer.cpp
+    src/Net.cpp)
 
 add_executable (ziip ${SOURCES})
 target_link_libraries (ziip ${SDL_LIBRARIES} ${ADDITIONAL_DEPS})

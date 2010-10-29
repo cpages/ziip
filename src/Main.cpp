@@ -26,6 +26,7 @@
 #include "Player.hpp"
 #include "InputMgr.hpp"
 #include "HiScore.hpp"
+#include "Net.hpp"
 #include "Main.hpp"
 
 namespace
@@ -34,6 +35,12 @@ namespace
 
     const char* WINDOW_TITLE = "Ziip";
 
+    void
+    printUsage()
+    {
+        //TODO: add (c) notice and version
+        std::cout << "Usage: ziip [s]" << std::endl;
+    }
 }
 
 Main::Main():
@@ -589,18 +596,44 @@ Main::MPMenu::operator()()
 
 int main(int argc, char *argv[])
 {
-    int ret;
+    int ret = -1;
 
-    try
+    if (argc > 2)
     {
-        Main mainApp;
-
-        ret = mainApp.run();
+        printUsage();
     }
-    catch (std::runtime_error &rte)
+    else if (argc == 2)
     {
-        std::cerr << rte.what() << std::endl;
-        ret = -1;
+        const std::string param(argv[1]);
+        if (!param.compare("s"))
+        {
+            std::cout << "Starting in server mode..." << std::endl;
+            Server srv;
+            srv.listen();
+            ret = 0;
+        }
+        else
+        {
+            std::cout << "Wrong parameter" << std::endl;
+            printUsage();
+        }
+    }
+    else
+    {
+        Client cli;
+        cli.connect();
+        SDL_Delay(3000);
+        cli.listen();
+        return 0;
+        try
+        {
+            Main mainApp;
+            ret = mainApp.run();
+        }
+        catch (std::runtime_error &rte)
+        {
+            std::cerr << rte.what() << std::endl;
+        }
     }
 
     return ret;

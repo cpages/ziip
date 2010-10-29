@@ -20,6 +20,7 @@
 #define PLAYER_HPP
 
 #include "SharedData.hpp"
+#include "Resources.hpp"
 
 class Player
 {

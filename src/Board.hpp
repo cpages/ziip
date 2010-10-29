@@ -23,7 +23,14 @@
 #include "SDL.h"
 #include "Timer.hpp"
 #include "Player.hpp"
+#include "Resources.hpp"
 #include "Row.hpp"
+
+#define HORI_ROWS 8
+#define HORI_ROWS_LEN 7
+#define VERT_ROWS 8
+#define VERT_ROWS_LEN 5
+#define PIECES_IN_BOARD HORI_ROWS * HORI_ROWS_LEN + VERT_ROWS * VERT_ROWS_LEN
 
 class Player;
 
@@ -36,7 +43,8 @@ class Board
 
         struct State
         {
-            std::vector<Color> colsStat;
+            //std::vector<Color> colsStat;
+            Color colsStat[PIECES_IN_BOARD];
             Player::playerPos playerPos;
             Player::playerDirection playerDir;
             Color playerColor;

@@ -22,8 +22,9 @@ blocks 42x42
 
 Multiplayer:
 deathmatch (longest to live)
-? (more points)
+high score (more points)
 cooperative (single board)
+network
 
 Network:
  - packID
