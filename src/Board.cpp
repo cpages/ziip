@@ -295,7 +295,7 @@ Board::getState() const
     for (int i = 0; i < numRows; ++i)
     {
         const std::vector<Color> rs = _rows[i].getState();
-        for (int j = 0; j < rs.size(); ++j)
+        for (unsigned int j = 0; j < rs.size(); ++j)
         {
             state.colsStat[pos] = rs[j];
             pos++;

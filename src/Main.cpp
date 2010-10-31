@@ -26,7 +26,6 @@
 #include "Player.hpp"
 #include "InputMgr.hpp"
 #include "HiScore.hpp"
-#include "Net.hpp"
 #include "Main.hpp"
 
 namespace
@@ -150,6 +149,8 @@ Main::play()
             {
                 repaint = true;
                 id = event.user.code;
+                if (_gameMode == GMNet && id != 0)
+                    continue;
                 assert (id < _numPlayers);
                 gOver[id] = _boards[id]->addPiece();
                 //TODO: do we need to go through Main?
@@ -189,6 +190,17 @@ Main::play()
                     cause = GameOver;
                 }
             }
+            else if (event.type == EVT_CHECK_NET)
+            {
+                while (_client.listen(0));
+                Board::State state;
+                if (_client.newState(state))
+                {
+                    id = 1;
+                    _boards[id]->setState(state);
+                    repaint = true;
+                }
+            }
             else if (event.type == SDL_QUIT)
             {
                 cause = Quitted;
@@ -212,6 +224,11 @@ Main::play()
         // draw scene
         if (repaint)
         {
+            if (_gameMode == GMNet)
+            {
+                _client.sendState(_boards[0]->getState());
+            }
+
             if (_gameMode == GMDeathMatch) //paint all, because of incoming pieces
                 for (int i = 0; i < _numPlayers; ++i)
                     _boards[i]->draw();
@@ -331,6 +348,9 @@ Main::gameOver(const std::vector<bool> &gOver)
                 return false;
             }
             break;
+        case GMNet:
+            return false;
+            break;
     }
     // make g++ happy
     assert (0);
@@ -379,6 +399,29 @@ Main::winner(const std::vector<bool> &gOver)
     assert (winPlayer != -1);
 
     return winPlayer;
+}
+
+bool
+Main::waitForGame()
+{
+    SDL_Event event;
+    bool go = false;
+    while (!go)
+    {
+        if (SDL_WaitEvent(&event))
+        {
+            if (event.type == EVT_CHECK_NET)
+            {
+                _client.listen(1);
+                go = _client.startGame();
+            }
+            else if (event.type == SDL_QUIT)
+            {
+                return false;
+            }
+        }
+    }
+    return go;
 }
 
 int
@@ -431,11 +474,27 @@ Main::run()
                         _numPlayers = 2;
                         state = StatPlay;
                     }
+                    else if (mpmOption == MPMenu::GameNet)
+                    {
+                        _gameMode = GMNet;
+                        _numPlayers = 2;
+                        if (_client.connect())
+                        {
+                            state = StatAwaiting;
+                            std::cout << "Awaiting..." << std::endl;
+                        }
+                    }
                     else if (mpmOption == MPMenu::Back)
                     {
                         state = StatMainMenu;
                     }
                 }
+                break;
+            case StatAwaiting:
+                if (waitForGame())
+                    state = StatPlay;
+                else
+                    state = StatMainMenu;
                 break;
             case StatPlay:
                 {
@@ -575,7 +634,11 @@ Main::MPMenu::operator()()
                             _selOpt++;
                         break;
                     case InputMgr::BUT_A:
-                        option = static_cast<Option>(_selOpt);
+                        //TODO: fix this testing hack
+                        if (_selOpt == 2)
+                            option = GameNet;
+                        else
+                            option = static_cast<Option>(_selOpt);
                         break;
                     case InputMgr::QUIT:
                         option = Quit;
@@ -620,11 +683,6 @@ int main(int argc, char *argv[])
     }
     else
     {
-        Client cli;
-        cli.connect();
-        SDL_Delay(3000);
-        cli.listen();
-        return 0;
         try
         {
             Main mainApp;

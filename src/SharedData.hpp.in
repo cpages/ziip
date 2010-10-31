@@ -23,6 +23,7 @@
 
 #define EVT_TIMER SDL_USEREVENT
 #define EVT_PIECE SDL_USEREVENT+1
+#define EVT_CHECK_NET SDL_USEREVENT+2
 
 enum Color
 {

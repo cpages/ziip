@@ -35,11 +35,22 @@ namespace
             throw std::runtime_error(msg.str());
         }
     }
+
+    unsigned int
+    timerCB(unsigned int interval, void *param)
+    {
+        SDL_Event event;
+        event.type = EVT_CHECK_NET;
+        SDL_PushEvent(&event);
+
+        return interval;
+    }
 }
 
 const int Server::maxClients = 2;
 
-Server::Server()
+Server::Server():
+    _playing(false)
 {
     initSDLNet();
 	_socket = SDLNet_UDP_Open(8888);
@@ -65,19 +76,15 @@ Server::listen()
 {
 	while (1)
     {
-		/* Wait for events */
 		int num = SDLNet_CheckSockets(_socketSet, 5000);
-        if (!num)
-            std::cout << "Timeout!" << std::endl;
-        else
+        if (num)
         {
-            /* Check for new connections */
-            if ( SDLNet_SocketReady(_socket) ) {
-                std::cout << "Incom!!!" << std::endl;
+            //this is redundant now, as we only have 1 socket
+            if (SDLNet_SocketReady(_socket))
+            {
                 SDLNet_UDP_Recv(_socket, _packet);
                 procPacket();
                 //std::string str((const char *)_packet->data, _packet->len);
-                //std::cout << str << std::endl;
                 //SDLNet_UDP_Send(_socket, -1, _packet);
             }
         }
@@ -91,30 +98,73 @@ Server::procPacket()
     switch (p->type)
     {
         case PTConnReq:
-            std::cout << "Conn req.!" << std::endl;
-            p->connOk = false;
-            if (_clients.size() < maxClients)
+            if (p->protocol != PROTOCOL)
+                p->protocol = ECOldProtocol;
+            else
             {
-                _clients.push_back(_packet->address);
-                p->connOk = true;
+                p->protocol = ECFull;
+                if (int(_clients.size()) < maxClients)
+                {
+                    _clients.push_back(_packet->address);
+                    p->protocol = ECNoError;
+                }
             }
-            _packet->len = sizeof(*p);
             SDLNet_UDP_Send(_socket, -1, _packet);
+            if (!_playing && _clients.size() == maxClients)
+            {
+                startGame();
+            }
             break;
         case PTConnEnd:
-            std::cout << "Conn end" << std::endl;
+            break;
+        case PTStartGame:
             break;
         case PTState:
-            std::cout << "State" << std::endl;
+            relayPacket();
             break;
         default:
             throw std::runtime_error("Unknown packet rcvd!");
     }
 }
 
+void
+Server::startGame()
+{
+    Packet *p = (Packet *)_packet->data;
+    p->type = PTStartGame;
+    for (unsigned int i = 0; i < _clients.size(); ++i)
+    {
+        _packet->address = _clients[i];
+        SDLNet_UDP_Send(_socket, -1, _packet);
+    }
+}
+
+//TODO: this could be really improved
+void
+Server::relayPacket()
+{
+    int orig = -1;
+    for (unsigned int i = 0; i < maxClients; ++i)
+    {
+        if (_packet->address.port == _clients[i].port)
+            orig = i;
+    }
+    for (unsigned int i = 0; i < maxClients; ++i)
+    {
+        if (i == orig)
+            continue;
+        _packet->address = _clients[i];
+        SDLNet_UDP_Send(_socket, -1, _packet);
+    }
+}
+
 Client::Client():
     _socket(0),
-    _socketSet(0)
+    _socketSet(0),
+    _connected(false),
+    _timerID(0),
+    _startGame(false),
+    _newStatePend(false)
 {
     initSDLNet();
     _packet = SDLNet_AllocPacket(MAX_PACKET_SIZE);
@@ -136,7 +186,7 @@ Client::preparePacket(const Packet &p)
     _packet->channel = -1; //no channel
     const size_t pLen = sizeof(p);
     memcpy(_packet->data, &p, pLen);
-    _packet->len = sizeof(pLen);
+    _packet->len = pLen;
     if (_packet->len > _packet->maxlen)
         throw std::runtime_error("Error: Packet too big!");
     _packet->address = _ipServer;
@@ -174,7 +224,7 @@ Client::initSocket()
 	SDLNet_UDP_AddSocket(_socketSet, _socket);
 }
 
-void
+bool
 Client::connect()
 {
     initSocket();
@@ -182,33 +232,95 @@ Client::connect()
         throw std::runtime_error("Error resolving server IP");
     Packet p;
     p.type = PTConnReq;
+    p.protocol = PROTOCOL;
+    preparePacket(p);
+    sendPacket();
+    listen(5000); //wait for up to 5 sec. for connection
+    return _connected;
+}
+
+bool
+Client::listen(int timeout)
+{
+    int num = SDLNet_CheckSockets(_socketSet, timeout);
+    if (num)
+    {
+        //this is redundant now, as we only have 1 socket
+        if (SDLNet_SocketReady(_socket))
+        {
+            SDLNet_UDP_Recv(_socket, _packet);
+            procPacket();
+            //std::string str((const char *)_packet->data, _packet->len);
+            //SDLNet_UDP_Send(_socket, -1, _packet);
+        }
+        return true;
+    }
+    return false;
+}
+
+bool
+Client::startGame()
+{
+    return _startGame;
+}
+
+void
+Client::sendState(const Board::State &state)
+{
+    Packet p;
+    p.type = PTState;
+    p.state = state;
     preparePacket(p);
     sendPacket();
 }
 
-void
-Client::listen()
+bool
+Client::newState(Board::State &state)
 {
-    /* Wait for events */
-    int num = SDLNet_CheckSockets(_socketSet, 10);
-    if (!num)
-        std::cout << "Timeout!" << std::endl;
-    else
+    if (_newStatePend)
     {
-        /* Check for new connections */
-        if ( SDLNet_SocketReady(_socket) ) {
-            std::cout << "Incom!!!" << std::endl;
-            SDLNet_UDP_Recv(_socket, _packet);
-            Packet p;
-            memcpy(&p, _packet->data, _packet->len);
-            std::cout << p.type << std::endl;
-            if (p.connOk)
-                std::cout << "Conn. ok" << std::endl;
+        state = _newState;
+        _newStatePend = false;
+        return true;
+    }
+
+    return false;
+}
+
+void
+Client::procPacket()
+{
+    Packet *p = (Packet *)_packet->data;
+    switch (p->type)
+    {
+        case PTConnReq:
+            if (p->protocol == ECNoError)
+            {
+                _connected = true;
+                _timerID = SDL_AddTimer(100, timerCB, NULL);
+                if (!_timerID)
+                {
+                    std::ostringstream msg;
+                    msg << "Error creating timer: " << SDL_GetError();
+                    throw std::runtime_error(msg.str());
+                }
+            }
             else
-                std::cout << "Conn. ref" << std::endl;
-            //std::string str((const char *)_packet->data, _packet->len);
-            //std::cout << str << std::endl;
-            //SDLNet_UDP_Send(_socket, -1, _packet);
-        }
+            {
+                //TODO: deal with errors
+                std::cout << "Error connecting" << std::endl;
+            }
+            break;
+        case PTConnEnd:
+            break;
+        case PTStartGame:
+            _startGame = true;
+            break;
+        case PTState:
+            _newState = p->state;
+            _newStatePend = true;
+            break;
+        default:
+            throw std::runtime_error("Unknown packet rcvd!");
     }
 }

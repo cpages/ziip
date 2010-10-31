@@ -27,7 +27,8 @@ namespace
 {
     const bool debug = false;
 
-    unsigned int timerCB(unsigned int interval, void *param)
+    unsigned int
+    timerCB(unsigned int interval, void *param)
     {
         SDL_Event event;
         event.type = EVT_TIMER;

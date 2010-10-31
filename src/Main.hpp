@@ -23,6 +23,7 @@
 #include "SDL.h"
 #include "SharedData.hpp"
 #include "Board.hpp"
+#include "Net.hpp"
 
 class Main
 {
@@ -67,7 +68,8 @@ class Main
                     Back,
                     NumOptions,
                     Quit, //not on the menu
-                    InvalidOption
+                    InvalidOption,
+                    GameNet
                 };
 
                 MPMenu(Resources *rsc);
@@ -85,6 +87,7 @@ class Main
         {
             StatMainMenu,
             StatMPMenu,
+            StatAwaiting,
             StatPlay
         };
 
@@ -92,7 +95,8 @@ class Main
         {
             GMSinglePlayer,
             GMHiScore,
-            GMDeathMatch
+            GMDeathMatch,
+            GMNet
         };
 
         enum PlayExitCause
@@ -105,6 +109,7 @@ class Main
         PlayExitCause play();
         bool gameOver(const std::vector<bool> &gOver);
         int winner(const std::vector<bool> &gOver);
+        bool waitForGame();
 
         std::auto_ptr<Resources> _rsc;
         std::auto_ptr<Board> _boards[4];
@@ -112,6 +117,7 @@ class Main
         GameMode _gameMode;
         int _numPlayers;
         std::auto_ptr<HiScore> _hiScore;
+        Client _client;
 };
 
 #endif //MAIN_HPP

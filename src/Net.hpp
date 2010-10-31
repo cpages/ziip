@@ -24,12 +24,21 @@
 #include "Board.hpp"
 
 #define MAX_PACKET_SIZE 512
+#define PROTOCOL 1
 
 enum PacketType
 {
     PTConnReq = 0,
     PTConnEnd = 1,
-    PTState = 2
+    PTStartGame = 2,
+    PTState = 3
+};
+
+enum ErrorConnection
+{
+    ECNoError = 0,
+    ECOldProtocol = -1,
+    ECFull = -2
 };
 
 struct Packet
@@ -37,7 +46,7 @@ struct Packet
     PacketType type;
     union
     {
-        bool connOk;
+        int protocol;
         Board::State state;
     };
 };
@@ -54,11 +63,14 @@ class Server
         static const int maxClients;
 
         void procPacket();
+        void startGame();
+        void relayPacket();
 
         UDPsocket _socket;
         SDLNet_SocketSet _socketSet;
         UDPpacket *_packet;
         std::vector<IPaddress> _clients;
+        bool _playing;
 };
 
 class Client
@@ -67,18 +79,27 @@ class Client
         Client();
         ~Client();
 
-        void connect();
-        void listen();
+        bool connect();
+        bool listen(int timeout);
+        bool startGame();
+        void sendState(const Board::State &state);
+        bool newState(Board::State &state);
 
     private:
         void preparePacket(const Packet &p);
         void sendPacket();
         void initSocket();
+        void procPacket();
 
         UDPsocket _socket;
         SDLNet_SocketSet _socketSet;
         UDPpacket *_packet;
         IPaddress _ipServer;
+        bool _connected;
+        SDL_TimerID _timerID;
+        bool _startGame;
+        Board::State _newState;
+        bool _newStatePend;
 };
 
 #endif //NET_HPP
