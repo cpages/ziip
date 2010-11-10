@@ -198,6 +198,12 @@ Main::play()
                 {
                     id = 1;
                     _boards[id]->setState(state);
+                    if (state.gameOver)
+                    {
+                        gOver[id] = true;
+                        if (gameOver(gOver))
+                            cause = GameOver;
+                    }
                     repaint = true;
                 }
             }
@@ -327,16 +333,17 @@ Main::gameOver(const std::vector<bool> &gOver)
 {
     switch (_gameMode)
     {
-        case Main::GMSinglePlayer:
+        case GMSinglePlayer:
             return gOver[0];
             break;
-        case Main::GMHiScore:
+        case GMHiScore:
+        case GMNet: //for the moment, it's the same as hiscore
             for (unsigned int i = 0; i < gOver.size(); ++i)
                 if (!gOver[i])
                     return false;
             return true;
             break;
-        case Main::GMDeathMatch:
+        case GMDeathMatch:
             {
                 int pAlive = 0;
                 for (unsigned int i = 0; i < gOver.size(); ++i)
@@ -347,9 +354,6 @@ Main::gameOver(const std::vector<bool> &gOver)
                     return true;
                 return false;
             }
-            break;
-        case GMNet:
-            return false;
             break;
     }
     // make g++ happy
@@ -410,14 +414,17 @@ Main::waitForGame()
     {
         if (SDL_WaitEvent(&event))
         {
-            if (event.type == EVT_CHECK_NET)
-            {
-                _client.listen(1);
-                go = _client.startGame();
-            }
-            else if (event.type == SDL_QUIT)
+            InputMgr::KeyPressed keyPress;
+            keyPress = _rsc->getKey(event);
+            if (keyPress.key == InputMgr::QUIT ||
+                    event.type == SDL_QUIT)
             {
                 return false;
+            }
+            else if (event.type == EVT_CHECK_NET)
+            {
+                _client.listen(0);
+                go = _client.startGame();
             }
         }
     }
@@ -595,7 +602,7 @@ Main::MPMenu::MPMenu(Resources *rsc):
     const int scaledSelSize = SelStepPx * _rsc->getBgScale();
     SDL_Rect rect;
     rect.x = scrW / 2 - scaledSelSize;
-    rect.y = scrH / 2 - scaledSelSize/2;
+    rect.y = scrH / 2 - scaledSelSize - scaledSelSize/2;
     for (int i = 0; i < MPMenu::NumOptions; ++i)
     {
         _selOptRect.push_back(rect);
@@ -634,11 +641,7 @@ Main::MPMenu::operator()()
                             _selOpt++;
                         break;
                     case InputMgr::BUT_A:
-                        //TODO: fix this testing hack
-                        if (_selOpt == 2)
-                            option = GameNet;
-                        else
-                            option = static_cast<Option>(_selOpt);
+                        option = static_cast<Option>(_selOpt);
                         break;
                     case InputMgr::QUIT:
                         option = Quit;

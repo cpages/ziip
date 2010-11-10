@@ -65,11 +65,11 @@ class Main
                 {
                     GameHiScore = 0,
                     GameDeathMatch,
+                    GameNet,
                     Back,
                     NumOptions,
                     Quit, //not on the menu
-                    InvalidOption,
-                    GameNet
+                    InvalidOption
                 };
 
                 MPMenu(Resources *rsc);

@@ -21,6 +21,7 @@
 #include <stdexcept>
 #include <sstream>
 #include <cstring>
+#include <cassert>
 #include "Net.hpp"
 
 namespace
@@ -84,17 +85,27 @@ Server::listen()
             {
                 SDLNet_UDP_Recv(_socket, _packet);
                 procPacket();
-                //std::string str((const char *)_packet->data, _packet->len);
-                //SDLNet_UDP_Send(_socket, -1, _packet);
             }
         }
     }
 }
 
 void
+Server::sendPacket()
+{
+    int sent = SDLNet_UDP_Send(_socket, _packet->channel, _packet);
+    if (!sent)
+    {
+        std::ostringstream msg;
+        msg << "Error sending packet: " << SDLNet_GetError();
+        throw std::runtime_error(msg.str());
+    }
+}
+
+void
 Server::procPacket()
 {
-    Packet *p = (Packet *)_packet->data;
+    Packet *p = reinterpret_cast<Packet *>(_packet->data);
     switch (p->type)
     {
         case PTConnReq:
@@ -105,11 +116,13 @@ Server::procPacket()
                 p->protocol = ECFull;
                 if (int(_clients.size()) < maxClients)
                 {
+                    p->id = _clients.size();
                     _clients.push_back(_packet->address);
                     p->protocol = ECNoError;
                 }
             }
-            SDLNet_UDP_Send(_socket, -1, _packet);
+            p->time = time(NULL);
+            sendPacket();
             if (!_playing && _clients.size() == maxClients)
             {
                 startGame();
@@ -130,37 +143,59 @@ Server::procPacket()
 void
 Server::startGame()
 {
-    Packet *p = (Packet *)_packet->data;
+    Packet *p = reinterpret_cast<Packet *>(_packet->data);
+    p->time = time(NULL);
     p->type = PTStartGame;
     for (unsigned int i = 0; i < _clients.size(); ++i)
     {
         _packet->address = _clients[i];
-        SDLNet_UDP_Send(_socket, -1, _packet);
+        sendPacket();
     }
+
+    _gOver.resize(_clients.size(), false);
+    _playing = true;
 }
 
-//TODO: this could be really improved
+void
+Server::gameOver()
+{
+    _clients.clear();
+    _gOver.clear();
+    _playing = false;
+}
+
 void
 Server::relayPacket()
 {
-    int orig = -1;
+    Packet *p = reinterpret_cast<Packet *>(_packet->data);
+    const int id = p->id;
+    assert (id >= 0 && id < _clients.size());
+
     for (unsigned int i = 0; i < maxClients; ++i)
     {
-        if (_packet->address.port == _clients[i].port)
-            orig = i;
-    }
-    for (unsigned int i = 0; i < maxClients; ++i)
-    {
-        if (i == orig)
+        if (id == i) //don't relay to oneself
             continue;
         _packet->address = _clients[i];
-        SDLNet_UDP_Send(_socket, -1, _packet);
+        sendPacket();
+    }
+
+    //TODO: temporary way
+    if (p->state.gameOver)
+    {
+        bool gOver;
+        _gOver[id] = true;
+        for (unsigned int i = 0; i < _gOver.size(); ++i)
+            if (!_gOver[i])
+                gOver = false;
+        if (gOver)
+            gameOver();
     }
 }
 
 Client::Client():
     _socket(0),
     _socketSet(0),
+    _id(-1),
     _connected(false),
     _timerID(0),
     _startGame(false),
@@ -168,6 +203,7 @@ Client::Client():
 {
     initSDLNet();
     _packet = SDLNet_AllocPacket(MAX_PACKET_SIZE);
+    initSocket();
 }
 
 Client::~Client()
@@ -195,6 +231,8 @@ Client::preparePacket(const Packet &p)
 void
 Client::sendPacket()
 {
+    Packet *p = reinterpret_cast<Packet *>(_packet->data);
+    p->time = time(NULL);
     int sent = SDLNet_UDP_Send(_socket, _packet->channel, _packet);
     if (!sent)
     {
@@ -227,8 +265,7 @@ Client::initSocket()
 bool
 Client::connect()
 {
-    initSocket();
-    if (SDLNet_ResolveHost(&_ipServer, "localhost", 8888) == -1)
+    if (SDLNet_ResolveHost(&_ipServer, "cubata.homelinux.net", 8888) == -1)
         throw std::runtime_error("Error resolving server IP");
     Packet p;
     p.type = PTConnReq;
@@ -290,7 +327,7 @@ Client::newState(Board::State &state)
 void
 Client::procPacket()
 {
-    Packet *p = (Packet *)_packet->data;
+    Packet *p = reinterpret_cast<Packet *>(_packet->data);
     switch (p->type)
     {
         case PTConnReq:

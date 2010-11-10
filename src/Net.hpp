@@ -20,6 +20,7 @@
 #define NET_HPP
 
 #include <vector>
+#include <ctime>
 #include "SDL_net.h"
 #include "Board.hpp"
 
@@ -43,6 +44,8 @@ enum ErrorConnection
 
 struct Packet
 {
+    time_t time;
+    int id;
     PacketType type;
     union
     {
@@ -62,14 +65,17 @@ class Server
     private:
         static const int maxClients;
 
+        void sendPacket();
         void procPacket();
         void startGame();
+        void gameOver();
         void relayPacket();
 
         UDPsocket _socket;
         SDLNet_SocketSet _socketSet;
         UDPpacket *_packet;
         std::vector<IPaddress> _clients;
+        std::vector<bool> _gOver;
         bool _playing;
 };
 
@@ -95,6 +101,7 @@ class Client
         SDLNet_SocketSet _socketSet;
         UDPpacket *_packet;
         IPaddress _ipServer;
+        int _id;
         bool _connected;
         SDL_TimerID _timerID;
         bool _startGame;
