@@ -233,6 +233,7 @@ Client::sendPacket()
 {
     Packet *p = reinterpret_cast<Packet *>(_packet->data);
     p->time = time(NULL);
+    p->id = _id;
     int sent = SDLNet_UDP_Send(_socket, _packet->channel, _packet);
     if (!sent)
     {
@@ -333,6 +334,7 @@ Client::procPacket()
         case PTConnReq:
             if (p->protocol == ECNoError)
             {
+                _id = p->id;
                 _connected = true;
                 _timerID = SDL_AddTimer(100, timerCB, NULL);
                 if (!_timerID)
