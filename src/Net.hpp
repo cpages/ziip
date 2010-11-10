@@ -44,7 +44,7 @@ enum ErrorConnection
 
 struct Packet
 {
-    time_t time;
+    long long time; //time_t depends on x86/x86_64, long long is always 64 bits
     int id;
     PacketType type;
     union
