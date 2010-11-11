@@ -23,12 +23,7 @@
 #include <algorithm>
 #include <cmath>
 #include <stdexcept>
-// for filesystem checks
-#include <cstdlib>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
+#include "SharedData.hpp"
 #include "HiScore.hpp"
 
 namespace
@@ -36,16 +31,7 @@ namespace
     const bool debug = false;
     const int hiscoreVersion = 1;
 
-    bool
-    checkPath(const std::string &path)
-    {
-        struct stat statBuf;
-
-        if (stat(path.c_str(), &statBuf) < 0) 
-            return false;
-
-        return S_ISDIR(statBuf.st_mode);
-    }
+    const std::string hiscoreFName("hiscore.dat");
 }
 
 const int HiScore::NumScores = 10;
@@ -55,17 +41,11 @@ HiScore::HiScore(Resources *rsc):
     _scores(NumScores),
     _lastSet(NumScores) //invalid pos
 {
-#ifdef GEKKO
-    const std::string hiscoreDir("sd:/apps/ziip/user/");
-#else
-    const std::string homeDir(getenv("HOME"));
-    const std::string hiscoreDir = homeDir + std::string("/.ziip/");
-    if (!checkPath(hiscoreDir))
-        if (mkdir(hiscoreDir.c_str(), S_IRWXU) == -1)
-            throw std::runtime_error("Error creating conf. folder");
+    const std::string hiscoreDir = getPath(FolderConf);
+#ifndef GEKKO
+    ensureFolder(hiscoreDir);
 #endif
-    const std::string hiscoreName("hiscore.dat");
-    _hiscoreFile = hiscoreDir + hiscoreName;
+    _hiscoreFile = hiscoreDir + hiscoreFName;
 
     std::ifstream fsScore(_hiscoreFile.c_str());
     if (fsScore.fail()) //if it doesn't exist

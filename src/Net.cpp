@@ -18,6 +18,7 @@
 */
 
 #include <iostream>
+#include <fstream>
 #include <stdexcept>
 #include <sstream>
 #include <cstring>
@@ -26,6 +27,10 @@
 
 namespace
 {
+    const int serverPort = 8888;
+    const int clientPort = 8887;
+    const std::string serversFName("servers");
+
     void
     initSDLNet()
     {
@@ -46,6 +51,34 @@ namespace
 
         return interval;
     }
+
+    void
+    readServerFromFile(const std::string &serversFile, std::string &server,
+            int &port)
+    {
+        std::ifstream fs(serversFile.c_str());
+        if (fs.fail()) //if it doesn't exist
+        {
+            server = std::string("cubata.homelinux.net");
+            port = serverPort;
+        }
+        else
+        {
+            fs >> server;
+            fs >> port;
+            //TODO: enable more than one server
+#if 0
+            while (fs.good())
+            {
+                std::string line;
+                getline(fs,line);
+
+                if (!fs.good())
+                    break;
+            }
+#endif
+        }
+    }
 }
 
 const int Server::maxClients = 2;
@@ -54,7 +87,7 @@ Server::Server():
     _playing(false)
 {
     initSDLNet();
-	_socket = SDLNet_UDP_Open(8888);
+	_socket = SDLNet_UDP_Open(serverPort);
 	if (_socket == NULL )
         throw std::runtime_error("Err!");
 	_socketSet = SDLNet_AllocSocketSet(1);
@@ -123,7 +156,7 @@ Server::procPacket()
             }
             p->time = time(NULL);
             sendPacket();
-            if (!_playing && _clients.size() == maxClients)
+            if (!_playing && int(_clients.size()) == maxClients)
             {
                 startGame();
             }
@@ -169,11 +202,11 @@ Server::relayPacket()
 {
     Packet *p = reinterpret_cast<Packet *>(_packet->data);
     const int id = p->id;
-    assert (id >= 0 && id < _clients.size());
+    assert (id >= 0 && id < int(_clients.size()));
 
-    for (unsigned int i = 0; i < maxClients; ++i)
+    for (unsigned int i = 0; i < _clients.size(); ++i)
     {
-        if (id == i) //don't relay to oneself
+        if (id == int(i)) //don't relay to oneself
             continue;
         _packet->address = _clients[i];
         sendPacket();
@@ -246,7 +279,7 @@ Client::sendPacket()
 void
 Client::initSocket()
 {
-	_socket = SDLNet_UDP_Open(8887);
+	_socket = SDLNet_UDP_Open(clientPort);
 	if (_socket == NULL)
     {
         std::ostringstream msg;
@@ -266,7 +299,13 @@ Client::initSocket()
 bool
 Client::connect()
 {
-    if (SDLNet_ResolveHost(&_ipServer, "cubata.homelinux.net", 8888) == -1)
+    const std::string serversFile = getPath(FolderConf) + serversFName;
+    std::string server;
+    int port;
+    readServerFromFile(serversFile, server, port);
+    std::cout << "Connecting to " << server << ":" << port << " ..." <<
+        std::endl;
+    if (SDLNet_ResolveHost(&_ipServer, server.c_str(), port) == -1)
         throw std::runtime_error("Error resolving server IP");
     Packet p;
     p.type = PTConnReq;

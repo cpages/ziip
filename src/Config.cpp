@@ -17,17 +17,11 @@
     along with Ziip.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <string>
-#include <cstdlib>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
-// for filesystem checks
-#include <cstdlib>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
 #include "HiScore.hpp"
+#include "SharedData.hpp"
 #include "Config.hpp"
 
 namespace
@@ -35,16 +29,7 @@ namespace
     const int DefaultWinWidth = 640;
     const int DefaultWinHeight = 480;
 
-    bool
-    checkPath(const std::string &path)
-    {
-        struct stat statBuf;
-
-        if (stat(path.c_str(), &statBuf) < 0) 
-            return false;
-
-        return S_ISDIR(statBuf.st_mode);
-    }
+    const std::string confFName("config");
 }
 
 const int Config::NumControls = 5;
@@ -54,19 +39,14 @@ Config::Config():
     _winHeight(DefaultWinHeight),
     _controls(NumControls, -1)
 {
+    const std::string confDir = getPath(FolderConf);
 #ifdef GEKKO
-    const std::string confDir("sd:/apps/ziip/user/");
     _controls[0] = 0;
     _controls[1] = 1;
 #else
-    const std::string homeDir(getenv("HOME"));
-    const std::string confDir = homeDir + std::string("/.ziip/");
-    if (!checkPath(confDir))
-        if (mkdir(confDir.c_str(), S_IRWXU) == -1)
-            throw std::runtime_error("Error creating conf. folder");
+    ensureFolder(confDir);
 #endif
-    const std::string confName("config");
-    _confFile = confDir + confName;
+    _confFile = confDir + confFName;
 
 #ifndef GEKKO
     loadConfig();

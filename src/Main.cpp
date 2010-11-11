@@ -252,6 +252,7 @@ Main::play()
                     goStr = std::string("Game Over");
                     break;
                 case GMHiScore:
+                case GMNet:
                     {
                         const int w = winner(gOver);
                         if (w)
@@ -371,6 +372,7 @@ Main::winner(const std::vector<bool> &gOver)
             assert (0); //we shouldn't be calling this
             break;
         case GMHiScore:
+        case GMNet:
             {
                 winPlayer = 0; //draw by default
                 int hiScore = 0;

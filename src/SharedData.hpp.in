@@ -19,6 +19,7 @@
 #ifndef SHARED_DATA_HPP
 #define SHARED_DATA_HPP
 
+#include <string>
 #include "SDL.h"
 
 #define EVT_TIMER SDL_USEREVENT
@@ -42,5 +43,18 @@ enum Color
 #define BUILD_FONT_FOLDER "@BUILD_FONT_FOLDER@"
 #define INSTALL_DATA_FOLDER "@INSTALL_DATA_FOLDER@"
 #define INSTALL_FONT_FOLDER "@INSTALL_FONT_FOLDER@"
+
+enum Folder
+{
+    FolderData,
+    FolderFont,
+    FolderConf
+};
+
+std::string
+getPath(Folder folder);
+
+void
+ensureFolder(const std::string &path);
 
 #endif //SHARED_DATA_HPP

@@ -41,18 +41,6 @@ namespace
     const int rowsInGrid = 14;
     const int colsInGrid = 18;
 
-#ifdef GEKKO
-    const std::string dataFolder("sd:/apps/ziip/data/");
-    const std::string fontFolder("sd:/apps/ziip/fonts/");
-#else
-#ifdef USE_LOCAL
-    const std::string dataFolder(BUILD_DATA_FOLDER);
-    const std::string fontFolder(BUILD_FONT_FOLDER);
-#else
-    const std::string dataFolder(INSTALL_DATA_FOLDER);
-    const std::string fontFolder(INSTALL_FONT_FOLDER);
-#endif
-#endif
     const std::string fontName("LiberationMono-Bold.ttf");
     const int fontSize = 24;
     const char *surfaceFiles[] = {
@@ -70,7 +58,7 @@ namespace
     std::string
     getFileWithPath(std::string filename)
     {
-        std::string ret = dataFolder;
+        std::string ret = getPath(FolderData);
         return ret.append(filename);
     }
 
@@ -131,7 +119,7 @@ Resources::FontMgr::FontMgr()
         throw std::runtime_error(msg.str());
     }
 
-    std::string fontFile = fontFolder;
+    std::string fontFile = getPath(FolderFont);
     fontFile.append(fontName);
     _font = TTF_OpenFont(fontFile.c_str(), fontSize);
     if (_font == NULL)

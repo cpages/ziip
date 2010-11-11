@@ -47,7 +47,8 @@ set (SOURCES
     src/Resources.cpp
     src/Row.cpp
     src/Timer.cpp
-    src/Net.cpp)
+    src/Net.cpp
+    src/SharedData.cpp)
 
 add_executable (ziip ${SOURCES})
 target_link_libraries (ziip ${SDL_LIBRARIES} ${ADDITIONAL_DEPS})
