@@ -161,6 +161,10 @@ Main::play()
                     _hiScore->addScore(_boards[id]->getScore());
                     cause = GameOver;
                 }
+                if (_gameMode == GMNet)
+                {
+                    _client.sendState(_boards[0]->getState());
+                }
             }
             else if (event.type == EVT_PIECE && _gameMode == GMDeathMatch)
             {
@@ -230,11 +234,6 @@ Main::play()
         // draw scene
         if (repaint)
         {
-            if (_gameMode == GMNet)
-            {
-                _client.sendState(_boards[0]->getState());
-            }
-
             if (_gameMode == GMDeathMatch) //paint all, because of incoming pieces
                 for (int i = 0; i < _numPlayers; ++i)
                     _boards[i]->draw();
@@ -485,6 +484,7 @@ Main::run()
                     }
                     else if (mpmOption == MPMenu::GameNet)
                     {
+                        _client.newGame();
                         _gameMode = GMNet;
                         _numPlayers = 2;
                         if (_client.connect())

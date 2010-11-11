@@ -21,6 +21,7 @@
 
 #include <vector>
 #include <ctime>
+#include <fstream>
 #include "SDL_net.h"
 #include "Board.hpp"
 
@@ -54,6 +55,17 @@ struct Packet
     };
 };
 
+class NetLogger
+{
+    public:
+        NetLogger(const std::string &logFile);
+
+        NetLogger& operator()(const std::string &msg);
+
+    private:
+        std::ofstream _fs;
+};
+
 class Server
 {
     public:
@@ -77,6 +89,7 @@ class Server
         std::vector<IPaddress> _clients;
         std::vector<bool> _gOver;
         bool _playing;
+        NetLogger _log;
 };
 
 class Client
@@ -85,6 +98,7 @@ class Client
         Client();
         ~Client();
 
+        void newGame();
         bool connect();
         bool listen(int timeout);
         bool startGame();

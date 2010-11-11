@@ -18,7 +18,6 @@
 */
 
 #include <iostream>
-#include <fstream>
 #include <stdexcept>
 #include <sstream>
 #include <cstring>
@@ -81,10 +80,24 @@ namespace
     }
 }
 
+NetLogger::NetLogger(const std::string &logFile):
+    _fs(logFile.c_str())
+{
+}
+
+NetLogger &
+NetLogger::operator()(const std::string &msg)
+{
+    _fs << time(NULL) << ": " << msg << std::endl;
+
+    return *this;
+}
+
 const int Server::maxClients = 2;
 
 Server::Server():
-    _playing(false)
+    _playing(false),
+    _log("server.log")
 {
     initSDLNet();
 	_socket = SDLNet_UDP_Open(serverPort);
@@ -151,6 +164,10 @@ Server::procPacket()
                 {
                     p->id = _clients.size();
                     _clients.push_back(_packet->address);
+                    std::ostringstream ss;
+                    ss << "New client from " << _packet->address.host
+                        << "; Clients: " << _clients.size();
+                    _log(ss.str());
                     p->protocol = ECNoError;
                 }
             }
@@ -187,6 +204,7 @@ Server::startGame()
 
     _gOver.resize(_clients.size(), false);
     _playing = true;
+    _log("Game started");
 }
 
 void
@@ -195,6 +213,7 @@ Server::gameOver()
     _clients.clear();
     _gOver.clear();
     _playing = false;
+    _log("Game over");
 }
 
 void
@@ -215,8 +234,8 @@ Server::relayPacket()
     //TODO: temporary way
     if (p->state.gameOver)
     {
-        bool gOver;
         _gOver[id] = true;
+        bool gOver = true;
         for (unsigned int i = 0; i < _gOver.size(); ++i)
             if (!_gOver[i])
                 gOver = false;
@@ -247,6 +266,14 @@ Client::~Client()
     if (_socket)
         SDLNet_UDP_Close(_socket);
     SDLNet_Quit();
+}
+
+void
+Client::newGame()
+{
+    _connected = false;
+    _startGame = false;
+    _newStatePend = false;
 }
 
 void
