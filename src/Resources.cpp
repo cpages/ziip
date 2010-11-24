@@ -66,7 +66,7 @@ namespace
     rescaleAndOptimize(SDL_Surface *orig, float proportion)
     {
         //TODO: error checking
-        SDL_Surface *tmp = zoomSurface(orig, proportion, proportion, 0);
+        SDL_Surface *tmp = zoomSurface(orig, proportion, proportion, 1);
         SDL_Surface *optim = SDL_DisplayFormatAlpha(tmp);
         SDL_FreeSurface(tmp);
         return optim;
