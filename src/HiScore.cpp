@@ -33,7 +33,7 @@ namespace
 #ifdef GEKKO
     const std::string hiscoreFolder("sd:/apps/ziip/user/");
 #else
-    const std::string hiscoreFolder("/home/page/.ziip/");
+    const std::string hiscoreFolder("/home/amqs/.ziip/");
 #endif
     const std::string hiscoreName("hiscore.dat");
 }
@@ -46,6 +46,7 @@ HiScore::HiScore(Resources *rsc):
     _lastSet(NumScores) //invalid pos
 {
     const std::string hiscoreFile = hiscoreFolder + hiscoreName;
+
     std::ifstream fsScore(hiscoreFile.c_str());
 
     //extract version
