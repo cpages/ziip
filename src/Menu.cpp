@@ -46,7 +46,7 @@ Menu::Menu(Resources *rsc, const std::string &title,
     std::vector<SDL_Surface *> optsText(_nOpts);
 
     int maxWidth = 0;
-    for (unsigned int i = 0; i < _nOpts; ++i)
+    for (int i = 0; i < _nOpts; ++i)
     {
         optsText[i] = _rsc->renderText(opts[i], goCol);
         maxWidth = std::max(maxWidth, optsText[i]->w);
@@ -57,7 +57,7 @@ Menu::Menu(Resources *rsc, const std::string &title,
     rect.y = top;
 
     _menu = _rsc->getSfc(Resources::SfcMainMenu);
-    for (unsigned int i = 0; i < _nOpts; ++i)
+    for (int i = 0; i < _nOpts; ++i)
     {
         SDL_BlitSurface(optsText[i], NULL, _menu, &rect);
         SDL_FreeSurface(optsText[i]);
