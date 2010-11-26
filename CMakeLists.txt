@@ -43,12 +43,13 @@ set (SOURCES
     src/HiScore.cpp
     src/InputMgr.cpp
     src/Main.cpp
+    src/Menu.cpp
+    src/Net.cpp
     src/Player.cpp
     src/Resources.cpp
     src/Row.cpp
-    src/Timer.cpp
-    src/Net.cpp
-    src/SharedData.cpp)
+    src/SharedData.cpp
+    src/Timer.cpp)
 
 add_executable (ziip ${SOURCES})
 target_link_libraries (ziip ${SDL_LIBRARIES} ${ADDITIONAL_DEPS})

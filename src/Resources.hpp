@@ -33,7 +33,6 @@ class Resources
         {
             SfcScreen = 0,
             SfcMainMenu,
-            SfcMPMenu,
             SfcMMSel,
             SfcPieces,
             SfcBoard,

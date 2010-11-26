@@ -20,6 +20,8 @@
 #define MAIN_HPP
 
 #include <memory>
+#include <vector>
+#include <string>
 #include "SDL.h"
 #include "SharedData.hpp"
 #include "Board.hpp"
@@ -34,53 +36,22 @@ class Main
         int run();
 
     private:
-        class MainMenu
+        enum MMenuOpts
         {
-            public:
-                enum Option
-                {
-                    Game1P = 0,
-                    Game2P,
-                    Options,
-                    Quit,
-                    NumOptions,
-                    InvalidOption
-                };
-
-                MainMenu(Resources *rsc);
-
-                Option operator()();
-
-            private:
-                static const int SelStepPx;
-                Resources *_rsc;
-                size_t _selOpt;
-                std::vector<SDL_Rect> _selOptRect;
+            Game1P = 0,
+            Game2P,
+            Options,
+            Quit,
+            MMNOpts
         };
 
-        class MPMenu
+        enum MPMenuOpts
         {
-            public:
-                enum Option
-                {
-                    GameHiScore = 0,
-                    GameDeathMatch,
-                    GameNet,
-                    Back,
-                    NumOptions,
-                    Quit, //not on the menu
-                    InvalidOption
-                };
-
-                MPMenu(Resources *rsc);
-
-                Option operator()();
-
-            private:
-                static const int SelStepPx;
-                Resources *_rsc;
-                size_t _selOpt;
-                std::vector<SDL_Rect> _selOptRect;
+            GameHiScore = 0,
+            GameDeathMatch,
+            GameNet,
+            Back,
+            MPMNOpts
         };
 
         enum State
@@ -106,6 +77,7 @@ class Main
             Quitted
         };
 
+        void fillMenuOpts();
         PlayExitCause play();
         bool gameOver(const std::vector<bool> &gOver);
         int winner(const std::vector<bool> &gOver);
@@ -114,6 +86,8 @@ class Main
         std::auto_ptr<Resources> _rsc;
         std::auto_ptr<Board> _boards[4];
         std::vector<SDL_Joystick *> _joysticks;
+        std::vector<std::string> _mmOpts;
+        std::vector<std::string> _mpmOpts;
         GameMode _gameMode;
         int _numPlayers;
         std::auto_ptr<HiScore> _hiScore;

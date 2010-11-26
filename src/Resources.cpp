@@ -46,7 +46,6 @@ namespace
     const char *surfaceFiles[] = {
         "",
         "main_menu.png",
-        "mp_menu.png",
         "mm_sel.png",
         "pieces.png",
         "",
@@ -167,7 +166,6 @@ Resources::prepareBGGraphics()
     assert (xProp == yProp);
 
     prepareSurface(SfcMainMenu, xProp);
-    prepareSurface(SfcMPMenu, xProp);
     prepareSurface(SfcMMSel, xProp);
     prepareSurface(SfcHiScores, xProp);
 }
@@ -259,6 +257,10 @@ Resources::screen()
 SDL_Surface *
 Resources::getSfc(Surface sfc)
 {
+    //TODO: fix this dirty hack!!!
+    const float xProp = static_cast<float>(_winWidth)/ORIG_WIDTH;
+    if (sfc == SfcMainMenu)
+        prepareSurface(SfcMainMenu, xProp);
     return _surfaces[sfc];
 }
 

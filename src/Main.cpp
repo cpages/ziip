@@ -26,6 +26,7 @@
 #include "Player.hpp"
 #include "InputMgr.hpp"
 #include "HiScore.hpp"
+#include "Menu.hpp"
 #include "Main.hpp"
 
 namespace
@@ -80,11 +81,29 @@ Main::Main():
 
     //initialize random seed
     srand(time(NULL));
+
+    fillMenuOpts();
 }
 
 Main::~Main()
 {
     SDL_Quit();
+}
+
+void
+Main::fillMenuOpts()
+{
+    _mmOpts.resize(MMNOpts);
+    _mmOpts[Game1P] = std::string("Play");
+    _mmOpts[Game2P] = std::string("Multiplayer");
+    _mmOpts[Options] = std::string("Options");
+    _mmOpts[Quit] = std::string("Quit");
+
+    _mpmOpts.resize(MPMNOpts);
+    _mpmOpts[GameHiScore] = std::string("Highscore");
+    _mpmOpts[GameDeathMatch] = std::string("Deathmatch");
+    _mpmOpts[GameNet] = std::string("Netplay");
+    _mpmOpts[Back] = std::string("Back");
 }
 
 Main::PlayExitCause 
@@ -435,9 +454,9 @@ Main::waitForGame()
 int
 Main::run()
 {
+    //dummy title, for now
+    const std::string dt("har");
     State state = StatMainMenu;
-    MainMenu mMenu(_rsc.get());
-    MPMenu mpMenu(_rsc.get());
     bool quit = false;
 
     while (!quit)
@@ -446,20 +465,21 @@ Main::run()
         {
             case StatMainMenu:
                 {
-                    const MainMenu::Option mmOption = mMenu();
-                    if (mmOption == MainMenu::Quit)
+                    Menu mMenu(_rsc.get(), dt, _mmOpts);
+                    const int mmOption = mMenu();
+                    if (mmOption == -2 || mmOption == Quit)
                         quit = true;
-                    else if (mmOption == MainMenu::Game1P)
+                    else if (mmOption == Game1P)
                     {
                         _gameMode = GMSinglePlayer;
                         _numPlayers = 1;
                         state = StatPlay;
                     }
-                    else if (mmOption == MainMenu::Game2P)
+                    else if (mmOption == Game2P)
                     {
                         state = StatMPMenu;
                     }
-                    else if (mmOption == MainMenu::Options)
+                    else if (mmOption == Options)
                     {
                         //do nothing
                     }
@@ -467,22 +487,23 @@ Main::run()
                 break;
             case StatMPMenu:
                 {
-                    const MPMenu::Option mpmOption = mpMenu();
-                    if (mpmOption == MPMenu::Quit)
+                    Menu mpMenu(_rsc.get(), dt, _mpmOpts);
+                    const int mpmOption = mpMenu();
+                    if (mpmOption == -2)
                         quit = true;
-                    else if (mpmOption == MPMenu::GameHiScore)
+                    else if (mpmOption == GameHiScore)
                     {
                         _gameMode = GMHiScore;
                         _numPlayers = 2;
                         state = StatPlay;
                     }
-                    else if (mpmOption == MPMenu::GameDeathMatch)
+                    else if (mpmOption == GameDeathMatch)
                     {
                         _gameMode = GMDeathMatch;
                         _numPlayers = 2;
                         state = StatPlay;
                     }
-                    else if (mpmOption == MPMenu::GameNet)
+                    else if (mpmOption == GameNet)
                     {
                         _client.newGame();
                         _gameMode = GMNet;
@@ -493,7 +514,7 @@ Main::run()
                             std::cout << "Awaiting..." << std::endl;
                         }
                     }
-                    else if (mpmOption == MPMenu::Back)
+                    else if (mpmOption == Back)
                     {
                         state = StatMainMenu;
                     }
@@ -522,144 +543,6 @@ Main::run()
     }
 
     return 0;
-}
-
-const int Main::MainMenu::SelStepPx = 100;
-
-Main::MainMenu::MainMenu(Resources *rsc):
-    _rsc(rsc),
-    _selOpt(0)
-{
-    int scrW, scrH;
-    _rsc->getScreenSize(scrW, scrH);
-    const int scaledSelSize = SelStepPx * _rsc->getBgScale();
-    SDL_Rect rect;
-    rect.x = scrW / 2 - scaledSelSize;
-    rect.y = scrH / 2 - scaledSelSize/2 - scaledSelSize;
-    for (int i = 0; i < MainMenu::NumOptions; ++i)
-    {
-        _selOptRect.push_back(rect);
-        rect.y += scaledSelSize;
-    }
-}
-
-Main::MainMenu::Option
-Main::MainMenu::operator()()
-{
-    SDL_Event event;
-
-    Option option = InvalidOption;
-    while (option == InvalidOption)
-    {
-        SDL_BlitSurface(_rsc->getSfc(Resources::SfcMainMenu), NULL,
-                _rsc->screen(), NULL);
-        SDL_BlitSurface(_rsc->getSfc(Resources::SfcMMSel), NULL,
-                _rsc->screen(), &_selOptRect[_selOpt]);
-        SDL_Flip(_rsc->screen());
-
-        if (SDL_WaitEvent(&event))
-        {
-            InputMgr::KeyPressed keyPress;
-            keyPress = _rsc->getKey(event);
-            if (keyPress.key != InputMgr::INV_EVT)
-            {
-                switch (keyPress.key)
-                {
-                    case InputMgr::UP:
-                        if (_selOpt > 0)
-                            _selOpt--;
-                        break;
-                    case InputMgr::DOWN:
-                        if (_selOpt < MainMenu::NumOptions - 1)
-                            _selOpt++;
-                        break;
-                    case InputMgr::BUT_A:
-                        option = static_cast<Option>(_selOpt);
-                        break;
-                    case InputMgr::QUIT:
-                        option = Quit;
-                        break;
-                    default:
-                        break;
-                }
-            }
-            else if (event.type == SDL_QUIT)
-            {
-                option = Quit;
-            }
-        }
-    }
-
-    return option;
-}
-
-const int Main::MPMenu::SelStepPx = 100;
-
-Main::MPMenu::MPMenu(Resources *rsc):
-    _rsc(rsc),
-    _selOpt(0)
-{
-    int scrW, scrH;
-    _rsc->getScreenSize(scrW, scrH);
-    const int scaledSelSize = SelStepPx * _rsc->getBgScale();
-    SDL_Rect rect;
-    rect.x = scrW / 2 - scaledSelSize;
-    rect.y = scrH / 2 - scaledSelSize - scaledSelSize/2;
-    for (int i = 0; i < MPMenu::NumOptions; ++i)
-    {
-        _selOptRect.push_back(rect);
-        rect.y += scaledSelSize;
-    }
-}
-
-Main::MPMenu::Option
-Main::MPMenu::operator()()
-{
-    SDL_Event event;
-
-    Option option = InvalidOption;
-    while (option == InvalidOption)
-    {
-        SDL_BlitSurface(_rsc->getSfc(Resources::SfcMPMenu), NULL,
-                _rsc->screen(), NULL);
-        SDL_BlitSurface(_rsc->getSfc(Resources::SfcMMSel), NULL,
-                _rsc->screen(), &_selOptRect[_selOpt]);
-        SDL_Flip(_rsc->screen());
-
-        if (SDL_WaitEvent(&event))
-        {
-            InputMgr::KeyPressed keyPress;
-            keyPress = _rsc->getKey(event);
-            if (keyPress.key != InputMgr::INV_EVT)
-            {
-                switch (keyPress.key)
-                {
-                    case InputMgr::UP:
-                        if (_selOpt > 0)
-                            _selOpt--;
-                        break;
-                    case InputMgr::DOWN:
-                        if (_selOpt < MPMenu::NumOptions - 1)
-                            _selOpt++;
-                        break;
-                    case InputMgr::BUT_A:
-                        option = static_cast<Option>(_selOpt);
-                        break;
-                    case InputMgr::QUIT:
-                        option = Quit;
-                        break;
-                    default:
-                        break;
-                }
-            }
-            else if (event.type == SDL_QUIT)
-            {
-                option = Quit;
-            }
-        }
-    }
-
-    return option;
 }
 
 int main(int argc, char *argv[])
