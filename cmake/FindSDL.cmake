@@ -29,7 +29,7 @@ find_path (SDL_INCLUDE_DIR SDL.h
   ${INC_SEARCH_PATHS}
   ${COMMON_SEARCH_PATHS})
 mark_as_advanced (SDL_INCLUDE_DIR)
-MESSAGE ("SDL_INCLUDE_DIR is ${SDL_INCLUDE_DIR}")
+#MESSAGE ("SDL_INCLUDE_DIR is ${SDL_INCLUDE_DIR}")
 
 # SDL-1.1 is the name used by FreeBSD ports...
 # don't confuse it for the version number.
@@ -41,7 +41,7 @@ find_library (SDL_LIB
   PATHS ${SDL_PKGCONF_LIBRARY_DIRS}
   ${COMMON_SEARCH_PATHS})
 mark_as_advanced (SDL_LIB)
-MESSAGE ("SDL_LIB is ${SDL_LIB}")
+#MESSAGE ("SDL_LIB is ${SDL_LIB}")
 
 if (NOT SDL_BUILDING_LIBRARY)
   if (NOT ${SDL_INCLUDE_DIR} MATCHES ".framework")
@@ -76,7 +76,7 @@ endif ()
 
 macro (FIND_LIBS _LIBS)
   foreach (LIB ${${_LIBS}})
-    MESSAGE ("Searching for SDL_${LIB}")
+    #MESSAGE ("Searching for SDL_${LIB}")
     libfind_pkg_check_modules (SDL_${LIB}_PKGCONF SDL_${LIB})
     find_library (SDL_${LIB}
       NAMES SDL_${LIB}
@@ -85,7 +85,7 @@ macro (FIND_LIBS _LIBS)
         lib/wii # Wii
       PATHS ${SDL_${LIB}_PKGCONF_LIBRARY_DIRS}
       ${COMMON_SEARCH_PATHS})
-    MESSAGE ("SDL_LIBRARY is ${SDL_${LIB}}")
+    #MESSAGE ("SDL_LIBRARY is ${SDL_${LIB}}")
     mark_as_advanced (SDL_${LIB})
   endforeach ()
 endmacro ()

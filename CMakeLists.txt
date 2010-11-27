@@ -6,10 +6,6 @@ set (Ziip_VERSION_MINOR 1)
 set (CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 find_package (SDL REQUIRED ttf gfx image net)
 
-if (NOT SDL_FOUND)
-    message (FATAL_ERROR "SDL libraries not found")
-endif ()
-
 include_directories ("${SDL_INCLUDE_DIRS}"
     "${PROJECT_SOURCE_DIR}/src")
 
@@ -26,10 +22,11 @@ include_directories ("${PROJECT_BINARY_DIR}/src")
 
 set (ADDITIONAL_DEPS "")
 if (CMAKE_CROSSCOMPILING)
+    option (BUILD_WII "Cross compile for the Wii" ON)
     if (BUILD_WII)
-        message ("Cross compiling for the Wii!")
-        set (CMAKE_C_FLAGS "-g -O2 -Wall ${WII_MACHDEP}")
-        set (CMAKE_CXX_FLAGS ${CMAKE_C_FLAGS})
+        #TODO: the flags are not marked in the cache
+        set (CMAKE_C_FLAGS ${WII_MACHDEP})
+        set (CMAKE_CXX_FLAGS ${WII_MACHDEP})
         set (ADDITIONAL_DEPS ${ADDITIONAL_DEPS} ${WII_DEPS})
     endif ()
 endif ()
