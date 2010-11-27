@@ -102,7 +102,8 @@ Main::fillMenuOpts()
     _mpmOpts.resize(MPMNOpts);
     _mpmOpts[GameHiScore] = std::string("Highscore");
     _mpmOpts[GameDeathMatch] = std::string("Deathmatch");
-    _mpmOpts[GameNet] = std::string("Netplay");
+    _mpmOpts[GameNetHS] = std::string("Netplay Highscore");
+    _mpmOpts[GameNetDM] = std::string("Netplay Deathmatch");
     _mpmOpts[Back] = std::string("Back");
 }
 
@@ -112,7 +113,11 @@ Main::play()
     SDL_Event event;
     std::vector<bool> gOver(_numPlayers, false);
     Player::playerDirection lastMov = Player::NoDir;
+    bool sendState = false; // for net play
     int id = -1;
+    // for net deathmatch
+    std::vector<int> rcvdPieces(_numPlayers, 0);
+    int pendPieces = 0; // for net deatchmatch
     bool repaint = false;
 
     // initial paint
@@ -128,6 +133,7 @@ Main::play()
         if (SDL_WaitEvent(&event))
         {
             lastMov = Player::NoDir;
+            sendState = false;
             id = -1;
             repaint = false;
 
@@ -155,6 +161,7 @@ Main::play()
                         break;
                     case InputMgr::BUT_A:
                         _boards[id]->playerShooted();
+                        sendState = true;
                         break;
                     case InputMgr::QUIT:
                         cause = Quitted;
@@ -168,7 +175,7 @@ Main::play()
             {
                 repaint = true;
                 id = event.user.code;
-                if (_gameMode == GMNet && id != 0)
+                if (isNetGame(_gameMode) && id != 0)
                     continue;
                 assert (id < _numPlayers);
                 gOver[id] = _boards[id]->addPiece();
@@ -180,10 +187,7 @@ Main::play()
                     _hiScore->addScore(_boards[id]->getScore());
                     cause = GameOver;
                 }
-                if (_gameMode == GMNet)
-                {
-                    _client.sendState(_boards[0]->getState());
-                }
+                sendState = true;
             }
             else if (event.type == EVT_PIECE && _gameMode == GMDeathMatch)
             {
@@ -221,6 +225,16 @@ Main::play()
                 {
                     id = 1;
                     _boards[id]->setState(state);
+                    if (_gameMode == GMNetDeathMatch)
+                    {
+                        pendPieces += state.sentPieces - rcvdPieces[id];
+                        rcvdPieces[id] = state.sentPieces;
+                        for (int j = 0; j < pendPieces; ++j)
+                        {
+                            gOver[0] = _boards[0]->addPiece();
+                        }
+                        pendPieces = 0;
+                    }
                     if (state.gameOver)
                     {
                         gOver[id] = true;
@@ -248,12 +262,21 @@ Main::play()
 
         // update state
         if (lastMov != Player::NoDir)
+        {
             _boards[id]->movePlayer(lastMov);
+            sendState = true;
+        }
+
+        // update remote players
+        if (isNetGame(_gameMode))
+        {
+            _client.sendState(_boards[0]->getState());
+        }
 
         // draw scene
         if (repaint)
         {
-            if (_gameMode == GMDeathMatch) //paint all, because of incoming pieces
+            if (isDMGame(_gameMode)) //paint all, because of incoming pieces
                 for (int i = 0; i < _numPlayers; ++i)
                     _boards[i]->draw();
             else
@@ -262,29 +285,33 @@ Main::play()
 
         if (cause == GameOver)
         {
-            std::string goStr;
             std::ostringstream sstr;
             switch (_gameMode)
             {
                 case GMSinglePlayer:
-                    goStr = std::string("Game Over");
+                    sstr << "Game Over";
                     break;
                 case GMHiScore:
-                case GMNet:
+                case GMNetHiScore:
                     {
                         const int w = winner(gOver);
                         if (w)
                             sstr << "Player " << w << " wins!";
                         else
                             sstr << "Draw";
-                        goStr = sstr.str();
                     }
                     break;
                 case GMDeathMatch:
                     sstr << "Player " << winner(gOver) << " wins!";
-                    goStr = sstr.str();
+                    break;
+                case GMNetDeathMatch:
+                    if (winner(gOver) == 1)
+                        sstr << "You win!";
+                    else
+                        sstr << "You lose!";
                     break;
             }
+            const std::string goStr(sstr.str());
             const SDL_Color goCol = {255, 255, 255};
             SDL_Surface *go = _rsc->renderText(goStr, goCol);
             int scrW, scrH;
@@ -319,7 +346,7 @@ Main::play()
                 }
             }
             // don't show hiscore in deathmatch or if user has quit
-            if (_gameMode != GMDeathMatch &&
+            if (!isDMGame(_gameMode) &&
                     cause != Quitted)
             {
                 SDL_Surface *hsSfc = _hiScore->renderHiScore();
@@ -356,13 +383,14 @@ Main::gameOver(const std::vector<bool> &gOver)
             return gOver[0];
             break;
         case GMHiScore:
-        case GMNet: //for the moment, it's the same as hiscore
+        case GMNetHiScore:
             for (unsigned int i = 0; i < gOver.size(); ++i)
                 if (!gOver[i])
                     return false;
             return true;
             break;
         case GMDeathMatch:
+        case GMNetDeathMatch:
             {
                 int pAlive = 0;
                 for (unsigned int i = 0; i < gOver.size(); ++i)
@@ -390,7 +418,7 @@ Main::winner(const std::vector<bool> &gOver)
             assert (0); //we shouldn't be calling this
             break;
         case GMHiScore:
-        case GMNet:
+        case GMNetHiScore:
             {
                 winPlayer = 0; //draw by default
                 int hiScore = 0;
@@ -409,6 +437,7 @@ Main::winner(const std::vector<bool> &gOver)
             }
             break;
         case GMDeathMatch:
+        case GMNetDeathMatch:
             for (int i = 0; i < _numPlayers; ++i)
             {
                 if (gOver[i] == false)
@@ -449,6 +478,24 @@ Main::waitForGame()
         }
     }
     return go;
+}
+
+bool
+Main::isNetGame(GameMode gm)
+{
+    if (gm == GMNetHiScore ||
+            gm == GMNetDeathMatch)
+        return true;
+    return false;
+}
+
+bool
+Main::isDMGame(GameMode gm)
+{
+    if (gm == GMDeathMatch ||
+            gm == GMNetDeathMatch)
+        return true;
+    return false;
 }
 
 int
@@ -503,10 +550,21 @@ Main::run()
                         _numPlayers = 2;
                         state = StatPlay;
                     }
-                    else if (mpmOption == GameNet)
+                    else if (mpmOption == GameNetHS)
                     {
                         _client.newGame();
-                        _gameMode = GMNet;
+                        _gameMode = GMNetHiScore;
+                        _numPlayers = 2;
+                        if (_client.connect())
+                        {
+                            state = StatAwaiting;
+                            std::cout << "Awaiting..." << std::endl;
+                        }
+                    }
+                    else if (mpmOption == GameNetDM)
+                    {
+                        _client.newGame();
+                        _gameMode = GMNetDeathMatch;
                         _numPlayers = 2;
                         if (_client.connect())
                         {

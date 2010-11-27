@@ -195,6 +195,7 @@ Board::Board(int id, Resources *rsc):
     _player(rsc),
     _rowLastPiece(16),
     _score(id, rsc),
+    _sentPieces(0),
     _gameOver(false),
     _pendZiiped(0)
 {
@@ -263,6 +264,9 @@ Board::playerShooted()
     event.user.data1 = &_pendZiiped;
     SDL_PushEvent(&event);
 
+    // to send pieces in net game
+    _sentPieces += ziiped;
+
     bool newLevel = _score.addPoints(countPoints(ziiped));
     if (newLevel)
         _timer.increaseSpeed(SpeedPercentInc);
@@ -305,6 +309,7 @@ Board::getState() const
     state.playerDir = _player.getDirection();
     state.playerColor = _player.getColor();
     state.score = getScore();
+    state.sentPieces = _sentPieces;
     state.gameOver = _gameOver;
 
     return state;
@@ -328,6 +333,7 @@ Board::setState(const State &state)
     _player.setDirection(state.playerDir);
     _player.setColor(state.playerColor);
     _score.setScore(state.score);
+    _sentPieces = state.sentPieces;
     _gameOver = state.gameOver;
 }
 

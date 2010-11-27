@@ -49,7 +49,8 @@ class Main
         {
             GameHiScore = 0,
             GameDeathMatch,
-            GameNet,
+            GameNetHS,
+            GameNetDM,
             Back,
             MPMNOpts
         };
@@ -67,7 +68,8 @@ class Main
             GMSinglePlayer,
             GMHiScore,
             GMDeathMatch,
-            GMNet
+            GMNetHiScore,
+            GMNetDeathMatch
         };
 
         enum PlayExitCause
@@ -82,6 +84,8 @@ class Main
         bool gameOver(const std::vector<bool> &gOver);
         int winner(const std::vector<bool> &gOver);
         bool waitForGame();
+        bool isNetGame(GameMode gm);
+        bool isDMGame(GameMode gm);
 
         std::auto_ptr<Resources> _rsc;
         std::auto_ptr<Board> _boards[4];

@@ -49,6 +49,7 @@ class Board
             Player::playerDirection playerDir;
             Color playerColor;
             int score;
+            int sentPieces;
             bool gameOver;
         };
 
@@ -92,6 +93,7 @@ class Board
         int _rowLastPiece;
         Score _score;
         SDL_Rect _rect;
+        int _sentPieces; //for net games
         bool _gameOver;
         int _pendZiiped;
 };
