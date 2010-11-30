@@ -46,7 +46,8 @@ namespace
 Main::Main():
     _numPlayers(0)
 {
-    if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_EVENTTHREAD |
+    //SDL_INIT_EVENTTHREAD is not supported under win, commenting it out
+    if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | //SDL_INIT_EVENTTHREAD |
                 SDL_INIT_JOYSTICK) == -1)
     {
         std::ostringstream msg;

@@ -48,7 +48,7 @@ set (SOURCES
     src/SharedData.cpp
     src/Timer.cpp)
 
-add_executable (ziip ${SOURCES})
+add_executable (ziip WIN32 ${SOURCES})
 target_link_libraries (ziip ${SDL_LIBRARIES} ${ADDITIONAL_DEPS})
 
 install (TARGETS ziip DESTINATION bin)
