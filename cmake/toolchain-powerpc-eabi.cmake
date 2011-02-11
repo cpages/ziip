@@ -18,8 +18,12 @@ set (CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
 # additional stuff Wii specific
 set (WII_MACHDEP "-DGEKKO -mrvl -mcpu=750 -meabi -mhard-float")
+#set (WII_MACHDEP "-g -DGEKKO -mrvl -mcpu=750 -meabi -mhard-float")
 
-set (WII_DEPS /opt/devkitpro/portlibs/ppc/lib/libfreetype.a
+include_directories ("${DEVKITPRO}/libogc/include")
+
+set (WII_DEPS /opt/devkitpro/libogc/lib/wii/libdb.a
+    /opt/devkitpro/portlibs/ppc/lib/libfreetype.a
     /opt/devkitpro/portlibs/ppc/lib/libjpeg.a
     /opt/devkitpro/portlibs/ppc/lib/libpng.a
     /opt/devkitpro/portlibs/ppc/lib/libz.a

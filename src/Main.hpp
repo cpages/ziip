@@ -40,7 +40,7 @@ class Main
         {
             Game1P = 0,
             Game2P,
-            Options,
+            //Options,
             Quit,
             MMNOpts
         };

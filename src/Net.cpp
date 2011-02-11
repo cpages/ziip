@@ -22,6 +22,9 @@
 #include <sstream>
 #include <cstring>
 #include <cassert>
+#ifdef GEKKO
+#include <debug.h>
+#endif
 #include "Net.hpp"
 
 namespace
@@ -58,7 +61,7 @@ namespace
         std::ifstream fs(serversFile.c_str());
         if (fs.fail()) //if it doesn't exist
         {
-            server = std::string("cubata.homelinux.net");
+            server = std::string("your.server.here");
             port = serverPort;
         }
         else

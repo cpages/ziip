@@ -5,7 +5,6 @@ High:
   - game modes ~
     - network play ~
     - cooperative
-- get some decent graphics ~
 
 Medium:
 - add support for multiple backgrounds
@@ -13,4 +12,3 @@ Medium:
 
 Low:
 - change fonts for bitmaps?
-- make run under Windows

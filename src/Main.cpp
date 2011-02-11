@@ -22,6 +22,9 @@
 #include <cassert>
 #include <cstdlib>
 #include <ctime>
+#ifdef GEKKO
+#include <debug.h>
+#endif
 #include "Resources.hpp"
 #include "Player.hpp"
 #include "InputMgr.hpp"
@@ -97,7 +100,7 @@ Main::fillMenuOpts()
     _mmOpts.resize(MMNOpts);
     _mmOpts[Game1P] = std::string("Play");
     _mmOpts[Game2P] = std::string("Multiplayer");
-    _mmOpts[Options] = std::string("Options");
+    //_mmOpts[Options] = std::string("Options");
     _mmOpts[Quit] = std::string("Quit");
 
     _mpmOpts.resize(MPMNOpts);
@@ -527,10 +530,12 @@ Main::run()
                     {
                         state = StatMPMenu;
                     }
+                    /*
                     else if (mmOption == Options)
                     {
                         //do nothing
                     }
+                    */
                 }
                 break;
             case StatMPMenu:
@@ -607,6 +612,10 @@ Main::run()
 int main(int argc, char *argv[])
 {
     int ret = -1;
+
+#ifdef GEKKO
+    //DEBUG_Init(GDBSTUB_DEVICE_USB, 1);
+#endif
 
     if (argc > 2)
     {
