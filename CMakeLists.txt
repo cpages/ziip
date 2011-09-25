@@ -5,6 +5,7 @@ set (Ziip_VERSION_MINOR 1)
 
 set (CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 find_package (SDL REQUIRED ttf gfx image net)
+find_package (Lua51)
 
 include_directories ("${SDL_INCLUDE_DIRS}"
     "${PROJECT_SOURCE_DIR}/src")
@@ -31,6 +32,12 @@ if (CMAKE_CROSSCOMPILING)
     endif ()
 endif ()
 
+if (LUA51_FOUND)
+    add_definitions (-DUSE_LUA)
+    include_directories (${LUA_INCLUDE_DIRS})
+    set (ADDITIONAL_DEPS ${ADDITIONAL_DEPS} ${LUA_LIBRARIES})
+endif ()
+
 # with this option we define where ziip will look for the data and fonts
 option (USE_LOCAL "Whether you plan to run Ziip without installing" OFF)
 
@@ -46,7 +53,9 @@ set (SOURCES
     src/Resources.cpp
     src/Row.cpp
     src/SharedData.cpp
-    src/Timer.cpp)
+    src/Timer.cpp
+    src/LuaIface.cpp
+    )
 
 add_executable (ziip WIN32 ${SOURCES})
 target_link_libraries (ziip ${SDL_LIBRARIES} ${ADDITIONAL_DEPS})

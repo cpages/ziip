@@ -30,6 +30,7 @@
 #include "InputMgr.hpp"
 #include "HiScore.hpp"
 #include "Menu.hpp"
+#include "LuaIface.hpp"
 #include "Main.hpp"
 
 namespace
@@ -123,6 +124,15 @@ Main::play()
     std::vector<int> rcvdPieces(_numPlayers, 0);
     int pendPieces = 0; // for net deatchmatch
     bool repaint = false;
+
+    bool lua = false;
+    LuaIface test;
+    if (_boards[1].get())
+    {
+        test.createBot(1, _boards[1].get(), "test.lua");
+        //test.setBoard(_boards[1].get());
+        lua = true;
+    }
 
     // initial paint
     for (int i = 0; i < _numPlayers; ++i)
@@ -268,6 +278,8 @@ Main::play()
         if (lastMov != Player::NoDir)
         {
             _boards[id]->movePlayer(lastMov);
+            if (lua)
+                test.move(1);
             sendState = true;
         }
 
