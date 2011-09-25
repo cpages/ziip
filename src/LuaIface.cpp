@@ -28,6 +28,20 @@
 namespace
 {
     std::auto_ptr<LuaIface::LuaBot> gBots[4];
+
+    int
+    readSlotFromLua(lua_State *s)
+    {
+        const int slot = lua_tonumber(s, -1);
+        lua_pop(s, 1);
+        if (gBots[slot].get() == 0)
+        {
+            //TODO: deal with this
+            assert (0 && "Lua accessing wrong slot");
+        }
+
+        return slot;
+    }
 }
 
 LuaIface::LuaBot::LuaBot(int slot, Board *board, const std::string &script):
@@ -44,11 +58,20 @@ LuaIface::LuaBot::LuaBot(int slot, Board *board, const std::string &script):
 	lua_register(_lState, "moveLeft", moveLeft);
 	lua_register(_lState, "moveRight", moveRight);
 	lua_register(_lState, "shoot", shoot);
+	lua_register(_lState, "getColStat", getColStat);
+	lua_register(_lState, "getPlayerPos", getPlayerPos);
+	lua_register(_lState, "getPlayerDir", getPlayerDir);
+	lua_register(_lState, "getPlayerColor", getPlayerColor);
 
     if (luaL_loadfile (_lState, script.c_str()))
         throw std::runtime_error(lua_tostring(_lState, -1));
 
     if (lua_pcall(_lState, 0, 0, 0))
+        throw std::runtime_error(lua_tostring(_lState, -1));
+
+    lua_getglobal(_lState, "OnInit");
+    lua_pushinteger(_lState, slot);
+    if (lua_pcall(_lState, 1, 0, 0))
         throw std::runtime_error(lua_tostring(_lState, -1));
 }
 
@@ -98,14 +121,8 @@ LuaIface::move(int slot)
 
 int moveUp(lua_State *s)
 {
-    const int slot = lua_tonumber(s, -1);
-    lua_pop(s, 1);
+    const int slot = readSlotFromLua(s);
     Player::playerDirection mov = Player::Up;
-    if (gBots[slot].get() == 0)
-    {
-        //TODO: deal with this
-        assert (0 && "Lua accessing wrong slot");
-    }
     gBots[slot]->getBoard()->movePlayer(mov);
     lua_pushnumber(s, 0 );
     return 1;
@@ -113,14 +130,8 @@ int moveUp(lua_State *s)
 
 int moveDown(lua_State *s)
 {
-    const int slot = lua_tonumber(s, -1);
-    lua_pop(s, 1);
+    const int slot = readSlotFromLua(s);
     Player::playerDirection mov = Player::Down;
-    if (gBots[slot].get() == 0)
-    {
-        //TODO: deal with this
-        assert (0 && "Lua accessing wrong slot");
-    }
     gBots[slot]->getBoard()->movePlayer(mov);
     lua_pushnumber(s, 0 );
     return 1;
@@ -128,14 +139,8 @@ int moveDown(lua_State *s)
 
 int moveLeft(lua_State *s)
 {
-    const int slot = lua_tonumber(s, -1);
-    lua_pop(s, 1);
+    const int slot = readSlotFromLua(s);
     Player::playerDirection mov = Player::Left;
-    if (gBots[slot].get() == 0)
-    {
-        //TODO: deal with this
-        assert (0 && "Lua accessing wrong slot");
-    }
     gBots[slot]->getBoard()->movePlayer(mov);
     lua_pushnumber(s, 0 );
     return 1;
@@ -144,14 +149,8 @@ int moveLeft(lua_State *s)
 int
 moveRight(lua_State *s)
 {
-    const int slot = lua_tonumber(s, -1);
-    lua_pop(s, 1);
+    const int slot = readSlotFromLua(s);
     Player::playerDirection mov = Player::Right;
-    if (gBots[slot].get() == 0)
-    {
-        //TODO: deal with this
-        assert (0 && "Lua accessing wrong slot");
-    }
     gBots[slot]->getBoard()->movePlayer(mov);
     lua_pushnumber(s, 0 );
     return 1;
@@ -159,15 +158,53 @@ moveRight(lua_State *s)
 
 int shoot(lua_State *s)
 {
-    const int slot = lua_tonumber(s, -1);
-    lua_pop(s, 1);
-    Player::playerDirection mov = Player::Right;
-    if (gBots[slot].get() == 0)
-    {
-        //TODO: deal with this
-        assert (0 && "Lua accessing wrong slot");
-    }
+    const int slot = readSlotFromLua(s);
     gBots[slot]->getBoard()->playerShooted();
     lua_pushnumber(s, 0 );
+    return 1;
+}
+
+int getColStat(lua_State *s)
+{
+    const int slot = readSlotFromLua(s);
+    const Board::State bState = gBots[slot]->getBoard()->getState();
+
+    lua_newtable(s);
+    for (int i = 0; i < PIECES_IN_BOARD; ++i)
+    {
+        lua_pushnumber(s, i+1);
+        lua_pushnumber(s, bState.colsStat[i]);
+        lua_rawset(s, -3);
+    }
+    return 1;
+}
+
+int getPlayerPos(lua_State *s)
+{
+    const int slot = readSlotFromLua(s);
+    const Board::State bState = gBots[slot]->getBoard()->getState();
+    lua_newtable(s);
+    lua_pushnumber(s, 1);
+    lua_pushnumber(s, bState.playerPos.x);
+    lua_rawset(s, -3);
+    lua_pushnumber(s, 2);
+    lua_pushnumber(s, bState.playerPos.y);
+    lua_rawset(s, -3);
+    return 1;
+}
+
+int getPlayerDir(lua_State *s)
+{
+    const int slot = readSlotFromLua(s);
+    const Board::State bState = gBots[slot]->getBoard()->getState();
+    lua_pushnumber(s, bState.playerDir);
+    return 1;
+}
+
+int getPlayerColor(lua_State *s)
+{
+    const int slot = readSlotFromLua(s);
+    const Board::State bState = gBots[slot]->getBoard()->getState();
+    lua_pushnumber(s, bState.playerColor);
     return 1;
 }

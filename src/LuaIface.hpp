@@ -54,4 +54,9 @@ int moveLeft(lua_State *s);
 int moveRight(lua_State *s);
 int shoot(lua_State *s);
 
+int getColStat(lua_State *s);
+int getPlayerPos(lua_State *s);
+int getPlayerDir(lua_State *s);
+int getPlayerColor(lua_State *s);
+
 #endif //LUA_IFACE_HPP
