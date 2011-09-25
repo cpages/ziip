@@ -129,7 +129,7 @@ Main::play()
     LuaIface test;
     if (_boards[1].get())
     {
-        test.createBot(1, _boards[1].get(), "test.lua");
+        test.createBot(1, _boards[1].get(), "randBot.lua");
         //test.setBoard(_boards[1].get());
         lua = true;
     }

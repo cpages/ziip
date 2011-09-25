@@ -48,6 +48,10 @@ class LuaIface
     private:
 };
 
+int moveUp(lua_State *s);
+int moveDown(lua_State *s);
+int moveLeft(lua_State *s);
 int moveRight(lua_State *s);
+int shoot(lua_State *s);
 
 #endif //LUA_IFACE_HPP

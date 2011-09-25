@@ -39,7 +39,11 @@ LuaIface::LuaBot::LuaBot(int slot, Board *board, const std::string &script):
 
     luaL_openlibs(_lState);
 
+	lua_register(_lState, "moveUp", moveUp);
+	lua_register(_lState, "moveDown", moveDown);
+	lua_register(_lState, "moveLeft", moveLeft);
 	lua_register(_lState, "moveRight", moveRight);
+	lua_register(_lState, "shoot", shoot);
 
     if (luaL_loadfile (_lState, script.c_str()))
         throw std::runtime_error(lua_tostring(_lState, -1));
@@ -92,6 +96,51 @@ LuaIface::move(int slot)
     gBots[slot]->move();
 }
 
+int moveUp(lua_State *s)
+{
+    const int slot = lua_tonumber(s, -1);
+    lua_pop(s, 1);
+    Player::playerDirection mov = Player::Up;
+    if (gBots[slot].get() == 0)
+    {
+        //TODO: deal with this
+        assert (0 && "Lua accessing wrong slot");
+    }
+    gBots[slot]->getBoard()->movePlayer(mov);
+    lua_pushnumber(s, 0 );
+    return 1;
+}
+
+int moveDown(lua_State *s)
+{
+    const int slot = lua_tonumber(s, -1);
+    lua_pop(s, 1);
+    Player::playerDirection mov = Player::Down;
+    if (gBots[slot].get() == 0)
+    {
+        //TODO: deal with this
+        assert (0 && "Lua accessing wrong slot");
+    }
+    gBots[slot]->getBoard()->movePlayer(mov);
+    lua_pushnumber(s, 0 );
+    return 1;
+}
+
+int moveLeft(lua_State *s)
+{
+    const int slot = lua_tonumber(s, -1);
+    lua_pop(s, 1);
+    Player::playerDirection mov = Player::Left;
+    if (gBots[slot].get() == 0)
+    {
+        //TODO: deal with this
+        assert (0 && "Lua accessing wrong slot");
+    }
+    gBots[slot]->getBoard()->movePlayer(mov);
+    lua_pushnumber(s, 0 );
+    return 1;
+}
+
 int
 moveRight(lua_State *s)
 {
@@ -104,6 +153,21 @@ moveRight(lua_State *s)
         assert (0 && "Lua accessing wrong slot");
     }
     gBots[slot]->getBoard()->movePlayer(mov);
+    lua_pushnumber(s, 0 );
+    return 1;
+}
+
+int shoot(lua_State *s)
+{
+    const int slot = lua_tonumber(s, -1);
+    lua_pop(s, 1);
+    Player::playerDirection mov = Player::Right;
+    if (gBots[slot].get() == 0)
+    {
+        //TODO: deal with this
+        assert (0 && "Lua accessing wrong slot");
+    }
+    gBots[slot]->getBoard()->playerShooted();
     lua_pushnumber(s, 0 );
     return 1;
 }
