@@ -296,7 +296,10 @@ Main::play()
                 for (int i = 0; i < _numPlayers; ++i)
                     _boards[i]->draw();
             else
+            {
                 _boards[id]->draw();
+                _boards[1]->draw();
+            }
         }
 
         if (cause == GameOver)
