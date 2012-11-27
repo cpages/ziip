@@ -1,10 +1,9 @@
 --constants and definitions
 local rowLen = 7
 local colLen = 5
-local opts = {moveUp, moveDown, moveLeft, moveRight, shoot}
---local colors = {"Red", "Green", "Blue", "Purple", "NoColor"}
-local colors = {"R", "G", "B", "P", "N"}
 local dirs = {"U", "D", "L", "R", "N"}
+local actions = {U=moveUp, D=moveDown, L=moveLeft, R=moveRight, S=shoot, N=noAction}
+local colors = {"R", "G", "B", "P", "N"}
 local rowAid = {}
 
 --local data
@@ -22,7 +21,7 @@ math.random(); math.random(); math.random()
 
 --general aux functions
 function getRandOpt()
-    return math.random(5)
+    return math.random(4)
 end
 
 function printTable(table)
@@ -129,48 +128,58 @@ function findCostAndNextMove(pos, dir, row)
         cost = math.abs(pos.y - row.y)
         if (cost ~= 0) then
             if (row.y < pos.y) then
-                nextMove = moveUp
+                nextMove = "U"
             else
-                nextMove = moveDown
+                nextMove = "D"
             end
         end
         if (dir ~= row.side) then
             cost = cost+1
             if (nextMove == "N") then
-                if (row.side == "L") then
-                    nextMove = moveLeft
-                else
-                    nextMove = moveRight
-                end
+                nextMove = row.side
             end
         end
         if (cost == 0) then
-            nextMove = shoot
+            nextMove = "S"
         end
     else
         cost = math.abs(pos.x - row.x)
         if (cost ~= 0) then
             if (row.x < pos.x) then
-                nextMove = moveLeft
+                nextMove = "L"
             else
-                nextMove = moveRight
+                nextMove = "R"
             end
         end
         if (dir ~= row.side) then
             cost = cost+1
             if (nextMove == "N") then
-                if (row.side == "U") then
-                    nextMove = moveUp
-                else
-                    nextMove = moveDown
-                end
+                nextMove = row.side
             end
         end
         if (cost == 0) then
-            nextMove = shoot
+            nextMove = "S"
         end
     end
     return cost, nextMove
+end
+
+--find repeated colors
+function findRepeatedColor()
+    local headCount = {}
+    for i,row in ipairs(board) do
+        local headColor, numPieces = getHeadColor(row)
+        if (algDebug and deepDebug) then
+            print (i .. ":" .. headColor .. ", " .. numPieces)
+        end
+        if (headColor == color) then
+            table.insert (possibleTargets, i)
+        end
+    end
+    if (algDebug) then
+        printTable(possibleTargets)
+    end
+    return possibleTargets
 end
 
 function OnInit(nslot)
@@ -199,15 +208,14 @@ function OnMove()
         print ("col: " .. pColor)
     end
 
+    --find and shoot pieces of the current player color
     local possibleTargets = findColor(pColor)
-
     local cost = 10
     local nextMove = "N"
     for i,v in ipairs(possibleTargets) do
         local tCost, tMove = findCostAndNextMove(pPos, pDir, rowAid[v])
         if (algDebug) then
-            print (v .. ":" .. tCost)
-            print (tMove)
+            print (v .. ":" .. tCost .. ", " .. tMove)
         end
         if (tCost < cost) then
             cost = tCost
@@ -216,8 +224,15 @@ function OnMove()
     end
 
     if (nextMove == "N") then
-        opts[getRandOpt()](slot)
+        local headCounts = findRepeatedColor()
+    end
+
+    --TODO: deal with critical situations
+
+    if (nextMove == "N") then
+        --random movement (no shots)
+        actions[dirs[getRandOpt()]](slot)
     else
-        nextMove(slot)
+        actions[nextMove](slot)
     end
 end
